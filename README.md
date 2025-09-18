@@ -16,7 +16,7 @@ Además la aplicación incorpora la funcionalidad de añadir gastos compartidos 
 ## DOCUMENTACIÓN
 
 1. [Objetivos](Readmes/1.Objetivos.md)
-2. [Metodología](Readmes/2.Metodologia)
+2. [Metodología](Readmes/2.Metodologia.md)
 3. [Funcionalidades](Readmes/3.Funcionalidades.md)
 4. [Análisis](Readmes/4.Analisis.md)
 5. [Bocetos](Readmes/5.Bocetos.md)
