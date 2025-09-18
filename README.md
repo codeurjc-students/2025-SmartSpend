@@ -1,7 +1,7 @@
 # SMART SPEND 
 
 ## LOGOTIPO
-![Captura de pantalla](images\Screenshot-2025-09-01-103347.svg)
+![Logotipo](images/Screenshot-2025-09-01-103347.svg)
 ---
 
 ## ¿QUÉ ES SMART SPEND?
