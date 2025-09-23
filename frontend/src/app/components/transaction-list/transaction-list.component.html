@@ -1,0 +1,7 @@
+<h2>📋 Transactions</h2>
+<ul>
+  <li *ngFor="let t of transactions">
+    <strong>{{ t.title }}</strong> - {{ t.amount }} |{{ t.recurrence }}
+    ({{ t.date }}) [{{ t.category }} / {{ t.recurrence }}]
+  </li>
+</ul>
