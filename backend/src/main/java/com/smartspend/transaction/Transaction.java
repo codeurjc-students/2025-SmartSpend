@@ -43,5 +43,12 @@ public class Transaction {
     public enum Type {EXPENSE, INCOME}
     public enum Recurrence {NONE, DAILY, WEEKLY, MONTHLY, YEARLY}
     public enum Category { FOOD, TRANSPORT, ENTERTAINMENT, UTILITIES, OTHER }
-
+    public Transaction(String title, String description, BigDecimal amount, java.time.LocalDate date, Type category, Recurrence recurrence) {
+        this.title = title;
+        this.description = description;
+        this.amount = amount;
+        this.date = date;
+        this.category = category;
+        this.recurrence = recurrence;
+    }
 }
