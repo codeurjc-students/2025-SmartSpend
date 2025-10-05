@@ -17,9 +17,15 @@ public class HomePageTest {
 
     @BeforeAll 
     static void setup(){
-        driver = new ChromeDriver();
+        org.openqa.selenium.chrome.ChromeOptions options = new org.openqa.selenium.chrome.ChromeOptions();
+        options.addArguments("--headless"); // without ui
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--remote-debugging-port=9222");
+        options.addArguments("--user-data-dir=/tmp/chrome-profile"); 
+        driver = new ChromeDriver(options);
     }
-
+        
     @Test 
     void showTransactionsInMainPage(){
 

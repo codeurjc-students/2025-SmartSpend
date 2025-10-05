@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
+import org.springframework.boot.test.context.SpringBootTest;
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class TransactionApiTest {
     @BeforeAll 
 	static void setup() {
