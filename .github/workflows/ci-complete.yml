@@ -1,0 +1,51 @@
+name: CI - Complete Quality Check
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  SPRING_PROFILES_ACTIVE: dev
+
+jobs:
+  full-quality-check:
+    runs-on: ubuntu-latest
+
+    env:
+      SPRING_PROFILES_ACTIVE: dev
+      MAVEN_OPTS: -Xmx1024m
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # BACKEND
+      - name: Build backend and run all tests (unit + RestAssured)
+        working-directory: backend
+        run: mvn clean verify -B
+
+      # FRONTEND
+      - name: Install and build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      # SELENIUM TESTS 
+      - name: Run Selenium tests (headless)
+        working-directory: backend
+        run: |
+          mvn -Dtest=HomePageTest \
+              -Dselenium.browser=chrome \
+              -Dchrome.options="--headless --no-sandbox --disable-dev-shm-usage" test
