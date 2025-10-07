@@ -28,7 +28,7 @@ jobs:
 
       - name: Run backend unit tests
         working-directory: backend
-        run: mvn test -Dtest="*unit*" -B
+        run: mvn test -Dtest="*Unit*,*ServiceTest*" -Dsurefire.failIfNoSpecifiedTests=false -B
 
   frontend-basic:
     runs-on: ubuntu-latest

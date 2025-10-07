@@ -16,5 +16,5 @@ import { TransactionListComponent } from './components/transaction-list/transact
 
 
 export class AppComponent {
-  
+  title = 'smartspend-frontend';
 }
