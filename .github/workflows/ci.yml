@@ -42,3 +42,10 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: npm run build
+
+      - name: Start frontend server 
+        working-directory: frontend 
+        run: nohup npm run start &
+
+      - name: Wait for frontend
+        run: sleep 10

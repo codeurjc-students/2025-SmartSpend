@@ -41,6 +41,13 @@ jobs:
         run: |
           npm ci
           npm run build
+      
+      - name: Start frontend server
+        working-directory: frontend
+        run: nohup npm run start &
+
+      - name: Wait for frontend
+        run: sleep 10
 
       # SELENIUM TESTS 
       - name: Run Selenium tests (headless)

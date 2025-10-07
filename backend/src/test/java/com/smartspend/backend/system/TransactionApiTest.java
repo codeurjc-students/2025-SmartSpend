@@ -1,19 +1,24 @@
 package com.smartspend.backend.system;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class TransactionApiTest {
-    @BeforeAll 
-	static void setup() {
+
+	@LocalServerPort
+	private int port;
+
+	@BeforeEach
+	void setup() {
 		RestAssured.baseURI = "http://localhost";
-		RestAssured.port = 8080;	
+		RestAssured.port = port;	
 	}
 
 	@Test 
