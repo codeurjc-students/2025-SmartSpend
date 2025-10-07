@@ -28,6 +28,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install Chrome for Selenium
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
       - name: Build backend
         working-directory: backend
         run: mvn clean install -DskipTests -B
@@ -42,9 +47,19 @@ jobs:
         working-directory: backend
         run: |
           nohup mvn spring-boot:run -Dspring-boot.run.profiles=dev > backend.log 2>&1 &
+          echo "Waiting for backend to start..."
+          sleep 30
 
-      - name: Run all tests
+      - name: Start frontend server
         run: |
-          npx http-server ./frontend/dist/* -p 4200 & 
+          npx http-server ./frontend/dist/frontend/browser -p 4200 &
+          echo "Waiting for frontend to start..."
           sleep 10
-          mvn -B test -f backend/pom.xml
+
+      - name: Run unit and integration tests
+        working-directory: backend
+        run: mvn -B test -Dtest="!*ui*"
+
+      - name: Run UI tests
+        working-directory: backend
+        run: mvn -B test -Dtest="*ui*"
