@@ -47,7 +47,7 @@ jobs:
         run: nohup npm run start &
 
       - name: Wait for frontend
-        run: sleep 10
+        run: sleep 20
 
       # SELENIUM TESTS 
       - name: Run Selenium tests (headless)
