@@ -33,7 +33,7 @@ jobs:
       # BACKEND
       - name: Build backend and run all tests (unit + RestAssured)
         working-directory: backend
-        run: mvn clean verify -B
+        run: mvn clean install -DskipTests -B
 
       # FRONTEND
       - name: Install and build frontend
@@ -56,3 +56,7 @@ jobs:
           mvn -Dtest=HomePageTest \
               -Dselenium.browser=chrome \
               -Dchrome.options="--headless --no-sandbox --disable-dev-shm-usage" test
+
+      - name: Run backend tests (includes Selenium)
+        working-directory: backend
+        run: mvn test -B

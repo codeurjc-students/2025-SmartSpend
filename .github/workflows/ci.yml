@@ -31,9 +31,9 @@ jobs:
         with:
           node-version: 20
 
-      - name: Build backend and run tests (dev profile)
+      - name: Build backend 
         working-directory: backend
-        run: mvn clean verify -B
+        run: mvn clean install -DskipTests -B
 
       - name: Install frontend dependencies
         working-directory: frontend
@@ -49,3 +49,7 @@ jobs:
 
       - name: Wait for frontend
         run: sleep 20
+
+      - name: Run backend tests (includes Selenium)
+        working-directory: backend
+        run: mvn test -B
