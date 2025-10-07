@@ -30,33 +30,20 @@ jobs:
         with:
           node-version: 20
 
-      # BACKEND
-      - name: Build backend and run all tests (unit + RestAssured)
+      - name: Build backend (skip tests)
         working-directory: backend
         run: mvn clean install -DskipTests -B
 
-      # FRONTEND
-      - name: Install and build frontend
+      - name: Build frontend
         working-directory: frontend
         run: |
           npm ci
           npm run build
-      
-      - name: Start frontend server
-        working-directory: frontend/dist/smartspend-frontend
-        run: nohup http-server -p 4200 -a 0.0.0.0 &
 
-      - name: Wait for frontend
-        run: sleep 20
-
-      # SELENIUM TESTS 
-      - name: Run Selenium tests (headless)
-        working-directory: backend
+      - name: Run full test suite (RestAssured + Unit + Selenium)
         run: |
-          mvn -Dtest=HomePageTest \
-              -Dselenium.browser=chrome \
-              -Dchrome.options="--headless --no-sandbox --disable-dev-shm-usage" test
-
-      - name: Run backend tests (includes Selenium)
-        working-directory: backend
-        run: mvn test -B
+          echo "Starting frontend server..."
+          npx http-server ./frontend/dist/* -p 4200 &
+          sleep 10
+          echo "Frontend is running, starting tests..."
+          mvn -B test -f backend/pom.xml
