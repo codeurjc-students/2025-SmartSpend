@@ -43,7 +43,7 @@ jobs:
           npm run build
       
       - name: Start frontend server
-        working-directory: frontend/dist/smartspend
+        working-directory: frontend/dist/smartspend-frontend
         run: nohup http-server -p 4200 -a 0.0.0.0 &
 
       - name: Wait for frontend
