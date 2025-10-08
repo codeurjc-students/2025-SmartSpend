@@ -32,13 +32,6 @@ jobs:
         working-directory: backend
         run: mvn test -Dtest="*System*,*ApiTest*" -Dsurefire.failIfNoSpecifiedTests=false -B
 
-      - name: Start backend for system tests
-        working-directory: backend
-        run: |
-          nohup mvn spring-boot:run -Dspring-boot.run.profiles=dev > backend.log 2>&1 &
-          echo "Waiting for backend to start..."
-          sleep 30
-
 
   selenium-tests: 
     runs-on: ubuntu-latest
@@ -87,7 +80,7 @@ jobs:
   quality-gate:
     runs-on: ubuntu-latest
     name: Quality Gate
-    needs: [backend-complete, frontend-complete, e2e-tests]
+    needs: [backend-complete, selenium-tests]
     
     steps:
       - name: Quality Gate Passed
