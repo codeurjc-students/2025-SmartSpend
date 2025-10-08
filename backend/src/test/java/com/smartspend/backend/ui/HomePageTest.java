@@ -4,6 +4,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,13 +20,22 @@ public class HomePageTest {
 
     @BeforeAll 
     static void setup(){
-        driver = new ChromeDriver();
+        org.openqa.selenium.chrome.ChromeOptions options = new org.openqa.selenium.chrome.ChromeOptions();
+        options.addArguments("--headless"); // without ui
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--remote-debugging-port=9222");
+        options.addArguments("--user-data-dir=/tmp/chrome-profile"); 
+        driver = new ChromeDriver(options);
     }
-
+        
     @Test 
     void showTransactionsInMainPage(){
-
         driver.get("http://localhost:4200");
+        
+        // Esperar a que aparezcan las transacciones (máximo 20 segundos)
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.className("transaction-title")));
 
         List<WebElement> items = driver.findElements(By.className("transaction-title"));
         assertTrue(items.size() > 0, "No se encontraron transacciones");
