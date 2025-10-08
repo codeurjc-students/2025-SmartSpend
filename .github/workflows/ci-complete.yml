@@ -60,17 +60,19 @@ jobs:
           nohup mvn spring-boot:run -Dspring-boot.run.profiles=dev > backend.log 2>&1 &
           echo "Waiting for backend to start..."
           sleep 30
-          curl -f http://localhost:8080/api/v1/transaction/all || echo "Backend not ready yet"
+          curl -f http://localhost:8080/api/v1/transactions/ || echo "Backend not ready yet"
 
       - name: Build and Start Frontend
         working-directory: frontend
         run: |
           npm ci
-          npx ng build
-          nohup npx http-server ./dist/frontend/browser -p 4200 > frontend.log 2>&1 &
+          # Usar ng serve en lugar de http-server para que Angular funcione completamente
+          nohup npx ng serve --host 0.0.0.0 --port 4200 --disable-host-check > frontend.log 2>&1 &
           echo "Waiting for frontend to start..."
-          sleep 15
+          sleep 30
+          # Verificar que tanto el frontend como el backend responden
           curl -f http://localhost:4200 || echo "Frontend not ready yet"
+          curl -f http://localhost:8080/api/v1/transactions|| echo "Backend API not ready yet"
 
       - name: Run Selenium Tests
         working-directory: backend
