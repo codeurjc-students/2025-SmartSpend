@@ -20,7 +20,8 @@ Además la aplicación incorpora la funcionalidad de añadir gastos compartidos 
 3. [Funcionalidades](Readmes/3.Funcionalidades.md)
 4. [Análisis](Readmes/4.Analisis.md)
 5. [Bocetos](Readmes/5.Bocetos.md)
-6. [Guía de desarrollo](Readmes/6.GuiaDeDesarrollo.md)
+6. [Autores](Readmes/6.Autores.md)
+7. [Guía de desarrollo](Readmes/7.GuiaDeDesarrollo.md)
 
 
 
