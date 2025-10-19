@@ -37,7 +37,7 @@ jobs:
   selenium-tests: 
     runs-on: ubuntu-latest
     name: Selenium E2E Tests 
-    needs: [backend-complete] # Asegura que los tests básicos pasen antes de correr los E2E
+    needs: [backend-complete]
 
     steps:
       - uses: actions/checkout@v4
@@ -56,16 +56,25 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
+      # --- PASO AÑADIDO ---
+      # Este paso lee el secreto del certificado, lo decodifica y crea el archivo.
+      - name: Create Keystore from Secret
+        env:
+          KEYSTORE_P12_BASE64: ${{ secrets.KEYSTORE_P12_BASE64 }}
+        run: |
+          echo "Creating keystore file from secret..."
+          echo "${KEYSTORE_P12_BASE64}" | base64 --decode > backend/src/main/resources/keystore.p12
+          echo "Keystore file created successfully."
+
+      # --- SECCIÓN MODIFICADA ---
+      # Ahora se pasa la contraseña del keystore como una variable de entorno.
       - name: Start Backend and Wait for Health
         working-directory: backend
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
-          # Inicia el backend en segundo plano con el perfil SSL
           nohup mvn spring-boot:run -Dspring-boot.run.profiles=ssl > backend.log 2>&1 &
           echo "Waiting for backend to become healthy..."
-          # BUCLE ROBUSTO: Espera hasta 90 segundos a que el backend responda correctamente.
-          # --insecure (-k): Acepta el certificado SSL autofirmado de localhost.
-          # --fail: Hace que curl falle si el código de estado no es 2xx.
-          # Esto detendrá el workflow si el backend no arranca, mostrando un error claro.
           timeout 90 bash -c 'until curl --fail --insecure https://localhost:443/api/v1/transactions; do sleep 5; done'
           echo "Backend is up and running on HTTPS."
 
@@ -75,7 +84,6 @@ jobs:
           npm ci
           nohup npx ng serve --host 0.0.0.0 --port 4200 --disable-host-check > frontend.log 2>&1 &
           echo "Waiting for frontend to start..."
-          # BUCLE ROBUSTO: Espera hasta 60 segundos a que el frontend responda.
           timeout 60 bash -c 'until curl --fail http://localhost:4200; do sleep 5; done'
           echo "Frontend is up and running."
 
@@ -84,7 +92,6 @@ jobs:
         run: mvn test -Dtest="HomePageTest" -B
 
       - name: Show logs on failure
-        # PASO CRÍTICO DE DEBUG: Si el paso anterior falla, este se ejecuta.
         if: failure()
         run: |
           echo "--- Backend logs (last 100 lines) ---"
@@ -94,9 +101,8 @@ jobs:
 
 
   quality-gate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  
     name: Quality Gate
-    # Se ejecuta solo si todos los jobs anteriores han tenido éxito.
     needs: [backend-complete, selenium-tests]
     
     steps:
