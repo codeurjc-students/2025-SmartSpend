@@ -12,7 +12,10 @@ jobs:
   backend-complete:
     runs-on: ubuntu-latest
     name: Backend Complete Quality Check
-
+    # --- CORRECCIÓN 1: Añadir la contraseña para los tests de integración ---
+    env:
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+    # --------------------------------------------------------------------
     steps:
       - uses: actions/checkout@v4
 
@@ -56,8 +59,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
-      # --- PASO AÑADIDO ---
-      # Este paso lee el secreto del certificado, lo decodifica y crea el archivo.
       - name: Create Keystore from Secret
         env:
           KEYSTORE_P12_BASE64: ${{ secrets.KEYSTORE_P12_BASE64 }}
@@ -66,8 +67,6 @@ jobs:
           echo "${KEYSTORE_P12_BASE64}" | base64 --decode > backend/src/main/resources/keystore.p12
           echo "Keystore file created successfully."
 
-      # --- SECCIÓN MODIFICADA ---
-      # Ahora se pasa la contraseña del keystore como una variable de entorno.
       - name: Start Backend and Wait for Health
         working-directory: backend
         env:
@@ -75,7 +74,8 @@ jobs:
         run: |
           nohup mvn spring-boot:run -Dspring-boot.run.profiles=ssl > backend.log 2>&1 &
           echo "Waiting for backend to become healthy..."
-          timeout 90 bash -c 'until curl --fail --insecure https://localhost:443/api/v1/transactions; do sleep 5; done'
+          # --- CORRECCIÓN 2: Usar el puerto 8443 para evitar error de permisos ---
+          timeout 90 bash -c 'until curl --fail --insecure https://localhost:8443/api/v1/transactions; do sleep 5; done'
           echo "Backend is up and running on HTTPS."
 
       - name: Build and Start Frontend and Wait for Health
