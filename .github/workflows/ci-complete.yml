@@ -12,12 +12,21 @@ jobs:
   backend-complete:
     runs-on: ubuntu-latest
     name: Backend Complete Quality Check
-    # --- CORRECCIÓN 1: Añadir la contraseña para los tests de integración ---
     env:
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-    # --------------------------------------------------------------------
     steps:
       - uses: actions/checkout@v4
+
+      # --- PASO AÑADIDO ---
+      # Crea el archivo keystore a partir del secreto para que los tests de integración lo usen.
+      - name: Create Keystore from Secret for Integration Tests
+        env:
+          KEYSTORE_P12_BASE64: ${{ secrets.KEYSTORE_P12_BASE64 }}
+        run: |
+          echo "Creating keystore file from secret for integration tests..."
+          echo "${KEYSTORE_P12_BASE64}" | base64 --decode > backend/src/main/resources/keystore.p12
+          echo "Keystore file created successfully."
+      # --------------------
 
       - uses: actions/setup-java@v4
         with:
@@ -74,7 +83,6 @@ jobs:
         run: |
           nohup mvn spring-boot:run -Dspring-boot.run.profiles=ssl > backend.log 2>&1 &
           echo "Waiting for backend to become healthy..."
-          # --- CORRECCIÓN 2: Usar el puerto 8443 para evitar error de permisos ---
           timeout 90 bash -c 'until curl --fail --insecure https://localhost:8443/api/v1/transactions; do sleep 5; done'
           echo "Backend is up and running on HTTPS."
 
