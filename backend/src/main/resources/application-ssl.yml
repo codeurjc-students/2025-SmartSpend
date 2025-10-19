@@ -4,7 +4,7 @@ server:
     enabled: true
     key-store: classpath:keystore.p12
     key-store-password: ${KEYSTORE_PASSWORD:smartspend}
-    key-alias: smartspend
+    key-alias: smartspend-ssl
     key-store-type: PKCS12
 
 spring:
