@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 env:
-  SPRING_PROFILES_ACTIVE: dev
+  SPRING_PROFILES_ACTIVE: ssl
 
 jobs:
   backend-complete:

@@ -8,8 +8,10 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("ssl")
 public class TransactionApiTest {
 
 	@LocalServerPort
@@ -17,8 +19,9 @@ public class TransactionApiTest {
 
 	@BeforeEach
 	void setup() {
-		RestAssured.baseURI = "http://localhost";
+		RestAssured.baseURI = "https://localhost";
 		RestAssured.port = port;	
+		RestAssured.useRelaxedHTTPSValidation();
 	}
 
 	@Test 
