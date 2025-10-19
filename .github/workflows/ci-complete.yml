@@ -57,10 +57,10 @@ jobs:
       - name: Start Backend
         working-directory: backend
         run: |
-          nohup mvn spring-boot:run -Dspring-boot.run.profiles=dev > backend.log 2>&1 &
+          nohup mvn spring-boot:run -Dspring-boot.run.profiles=ssl > backend.log 2>&1 &
           echo "Waiting for backend to start..."
           sleep 30
-          curl -f http://localhost:8080/api/v1/transactions/ || echo "Backend not ready yet"
+          curl -f htts://localhost:443/api/v1/transactions/ || echo "Backend not ready yet"
 
       - name: Build and Start Frontend
         working-directory: frontend
@@ -72,7 +72,7 @@ jobs:
           sleep 30
           # Verificar que tanto el frontend como el backend responden
           curl -f http://localhost:4200 || echo "Frontend not ready yet"
-          curl -f http://localhost:8080/api/v1/transactions|| echo "Backend API not ready yet"
+          curl -f https://localhost:443/api/v1/transactions|| echo "Backend API not ready yet"
 
       - name: Run Selenium Tests
         working-directory: backend
