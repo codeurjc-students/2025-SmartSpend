@@ -26,6 +26,7 @@ public class HomePageTest {
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--remote-debugging-port=9222");
         options.addArguments("--user-data-dir=/tmp/chrome-profile"); 
+        options.setAcceptInsecureCerts(true);
         driver = new ChromeDriver(options);
     }
         

@@ -1,0 +1,29 @@
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: ${KEYSTORE_PASSWORD:smartspend}
+    key-alias: smartspend-ssl
+    key-store-type: PKCS12
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:smartspend;DB_CLOSE_DELAY=-1;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate.ddl-auto: update
+    show-sql: true
+    properties.hibernate.format_sql: true
+  sql:
+    init:
+      mode: always
+  h2:
+    console:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.boot.web.embedded.tomcat: INFO
