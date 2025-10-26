@@ -1,9 +1,10 @@
 package com.smartspend.transaction;
 
-
-
-
 import java.math.BigDecimal;
+
+import com.smartspend.bankAccount.BankAccount;
+import com.smartspend.category.Category;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -32,27 +33,38 @@ public class Transaction {
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Type category;
+    private TransactionType type; // INCOME o EXPENSE
 
-
+    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Recurrence recurrence = Recurrence.NONE; // recurrencia
+    private Recurrence recurrence = Recurrence.NONE;
     
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "account_id")
+    @JsonManagedReference
+    private BankAccount account;
     
-    public enum Type {EXPENSE, INCOME}
-    public enum Recurrence {NONE, DAILY, WEEKLY, MONTHLY, YEARLY}
-    public enum Category { FOOD, TRANSPORT, ENTERTAINMENT, UTILITIES, OTHER }
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "category_id")
+    @JsonManagedReference
+    private Category category;
 
 
-    public Transaction () {}
+
+    // Constructors
+    public Transaction() {}
      
-    public Transaction(String title, String description, BigDecimal amount, java.time.LocalDate date, Type category, Recurrence recurrence) {
+    public Transaction(String title, String description, BigDecimal amount, 
+                      java.time.LocalDate date, TransactionType type, 
+                      Category category, Recurrence recurrence, BankAccount account) {
         this.title = title;
         this.description = description;
         this.amount = amount;
         this.date = date;
+        this.type = type;
         this.category = category;
         this.recurrence = recurrence;
+        this.account = account;
     }
 }
