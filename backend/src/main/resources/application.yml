@@ -1,5 +1,8 @@
 spring:
-  application.name: backend
-
+  application:
+    name: backend
+  profiles:
+      active: prod
   
-server.port: 8080
+server:
+  port: 8080
