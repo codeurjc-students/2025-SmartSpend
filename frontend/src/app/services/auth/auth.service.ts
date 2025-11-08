@@ -14,12 +14,24 @@ export class AuthService {
   constructor(private http: HttpClient){}
   
   login(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, { email, password })
+    return this.http.post<AuthResponse>(`/api/v1/auth/login`, { email, password })
       .pipe(
         tap(response => {
           this.storeToken(response.token);
         })
       );
+  }
+
+  register(username: string, email: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`/api/v1/auth/register`, { 
+      username, 
+      email, 
+      password 
+    }).pipe(
+      tap(response => {
+        this.storeToken(response.token);
+      })
+    );
   }
 
   private storeToken(token: string): void {

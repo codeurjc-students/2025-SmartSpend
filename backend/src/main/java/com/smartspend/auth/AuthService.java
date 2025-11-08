@@ -63,6 +63,8 @@ public class AuthService {
     
   public AuthResponseDto login(LoginRequestDto req) {
 
+    System.out.println("Attempting login for email: " + req.email());
+
     try {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(req.email(), req.password())
@@ -71,6 +73,9 @@ public class AuthService {
 
     
         Optional<User> userOptional = userRepository.findByUserEmail(req.email());
+
+        System.out.println("User found: " + userOptional.isPresent());
+
         if (userOptional.isEmpty()) {
             throw new IllegalArgumentException("User not found after successful authentication.");
         }
@@ -80,6 +85,8 @@ public class AuthService {
         
 
         String token = jwtService.generateToken(u.getUserId(), u.getUserEmail());
+
+         System.out.println("🔑 Token generated: " + token);
 
         AuthResponseDto res = new AuthResponseDto(
             u.getUserId(),

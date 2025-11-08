@@ -36,21 +36,45 @@ public class SmartSpendSecConfig {
 
     @Bean 
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
+    http
+        .csrf(csrf -> csrf.disable())
+        .cors(cors -> cors.configurationSource(request -> {
+            var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+            corsConfig.setAllowedOrigins(java.util.List.of(
+                    "http://localhost:4200",
+                    "https://localhost:4200",
+                    "http://127.0.0.1:4200",
+                    "https://127.0.0.1:4200"
+            ));
+            corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            corsConfig.setAllowedHeaders(java.util.List.of("*"));
+            corsConfig.setAllowCredentials(true);
+            return corsConfig;
+        }))
+        .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register").permitAll()
                 .anyRequest().authenticated()
-            )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore((jakarta.servlet.Filter) jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        )
+        .authenticationProvider(authenticationProvider())
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        
 
-        // Permitir consola H2 en iframe (solo desarrollo)
-        http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+        // DEBUG: Log preflight CORS requests
+        http.addFilterBefore((request, response, chain) -> {
+            if (request instanceof jakarta.servlet.http.HttpServletRequest) {
+                jakarta.servlet.http.HttpServletRequest httpReq = (jakarta.servlet.http.HttpServletRequest) request;
+                if ("OPTIONS".equalsIgnoreCase(httpReq.getMethod())) {
+                    System.out.println("🛰️ CORS preflight received: " + httpReq.getRequestURI());
+                }
+            }
+            chain.doFilter(request, response);
+        }, UsernamePasswordAuthenticationFilter.class);
+
 
         return http.build();
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
