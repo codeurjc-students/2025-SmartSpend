@@ -14,7 +14,7 @@ export class AuthService {
   constructor(private http: HttpClient){}
   
   login(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { email, password })
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, { email, password })
       .pipe(
         tap(response => {
           this.storeToken(response.token);
