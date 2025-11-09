@@ -25,6 +25,9 @@ spring:
     console:
       enabled: true
 
+jwt:
+  secret: ${JWT_SECRET}
+
 logging:
   level:
     org.springframework.boot.web.embedded.tomcat: INFO

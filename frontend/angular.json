@@ -57,12 +57,16 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "smartspend-frontend:build:production"
             },
             "development": {
-              "buildTarget": "smartspend-frontend:build:development"
+              "buildTarget": "smartspend-frontend:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

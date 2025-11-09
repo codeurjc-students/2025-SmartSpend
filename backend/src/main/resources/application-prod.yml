@@ -5,6 +5,9 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   pattern:
     console: "🔥 PERFIL PROD ACTIVO 🔥 - %d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+jwt:
+  secret: ${JWT_SECRET}
 server:
   port: 8443
   ssl:

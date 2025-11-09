@@ -1,1 +1,249 @@
-/* You can add global styles to this file, and also import other style files */
+/* -------------------------------------------------------------------------- */
+/*                                  1. Reset CSS                              */
+/* -------------------------------------------------------------------------- */
+/* Un reset básico para asegurar consistencia entre navegadores */
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* Incluye padding y borde en el tamaño total del elemento */
+  margin: 0; /* Elimina márgenes por defecto */
+  padding: 0; /* Elimina paddings por defecto */
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               2. Variables CSS                             */
+/* -------------------------------------------------------------------------- */
+/* Define variables CSS para colores, fuentes, etc. para fácil mantenimiento */
+:root {
+  --primary-color: #007bff; /* Azul principal */
+  --secondary-color: #6c757d; /* Gris secundario */
+  --success-color: #28a745; /* Verde para éxito */
+  --danger-color: #dc3545; /* Rojo para errores */
+  --warning-color: #ffc107; /* Amarillo para advertencias */
+  --info-color: #17a2b8; /* Azul claro para información */
+  --light-color: #f8f9fa; /* Gris muy claro */
+  --dark-color: #343a40; /* Gris oscuro */
+  --background-light: #f0f2f5; /* Fondo general claro */
+  --text-color-dark: #333; /* Texto oscuro */
+  --text-color-light: #fff; /* Texto claro */
+  --border-color: #ccc; /* Color de borde general */
+  --font-family-base: 'Roboto', sans-serif; /* Fuente base */
+  --border-radius-base: 0.25rem; /* Radio de borde base */
+  --box-shadow-base: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra base */
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                3. Base HTML                                */
+/* -------------------------------------------------------------------------- */
+
+/* Configuración de la fuente base para el documento */
+html {
+  font-size: 16px; /* Tamaño de fuente base para el elemento raíz. 1rem = 16px */
+  scroll-behavior: smooth; /* Desplazamiento suave al navegar a anclas */
+}
+
+body {
+  font-family: var(--font-family-base); /* Aplica la fuente definida en las variables */
+  line-height: 1.6; /* Altura de línea para mejor legibilidad */
+  color: var(--text-color-dark); /* Color de texto por defecto */
+  background-color: var(--background-light); /* Color de fondo general */
+  -webkit-font-smoothing: antialiased; /* Suavizado de fuentes para WebKit */
+  -moz-osx-font-smoothing: grayscale; /* Suavizado de fuentes para Firefox */
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                4. Tipografía                               */
+/* -------------------------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 0.5rem; /* Espacio debajo de los encabezados */
+  font-weight: 700; /* Negrita para los encabezados */
+  color: var(--text-color-dark); /* Color de texto oscuro */
+}
+
+h1 { font-size: 2.5rem; } /* 40px */
+h2 { font-size: 2rem; }   /* 32px */
+h3 { font-size: 1.75rem; }/* 28px */
+h4 { font-size: 1.5rem; } /* 24px */
+h5 { font-size: 1.25rem; }/* 20px */
+h6 { font-size: 1rem; }   /* 16px */
+
+p {
+  margin-bottom: 1rem; /* Espacio debajo de los párrafos */
+}
+
+a {
+  color: var(--primary-color); /* Color de enlace principal */
+  text-decoration: none; /* Sin subrayado por defecto */
+  transition: color 0.3s ease; /* Transición suave al pasar el ratón */
+}
+
+a:hover {
+  color: var(--primary-color); /* Mismo color al pasar el ratón (o un tono más oscuro) */
+  text-decoration: underline; /* Subrayado al pasar el ratón */
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                  5. Botones                                */
+/* -------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-block; /* Permite aplicar padding y margen */
+  padding: 0.75rem 1.25rem; /* Espaciado interno */
+  font-size: 1rem; /* Tamaño de fuente */
+  font-weight: 600; /* Negrita */
+  text-align: center; /* Centra el texto */
+  white-space: nowrap; /* Evita saltos de línea en el texto del botón */
+  vertical-align: middle; /* Alineación vertical */
+  user-select: none; /* Evita seleccionar el texto del botón */
+  border: 1px solid transparent; /* Borde transparente por defecto */
+  border-radius: var(--border-radius-base); /* Bordes redondeados */
+  transition: all 0.2s ease-in-out; /* Transición suave para todos los estados */
+  cursor: pointer; /* Cursor de mano */
+}
+
+.btn-primary {
+  color: var(--text-color-light); /* Texto blanco */
+  background-color: var(--primary-color); /* Fondo azul */
+  border-color: var(--primary-color); /* Borde azul */
+}
+
+.btn-primary:hover {
+  background-color: #0056b3; /* Azul más oscuro al pasar el ratón */
+  border-color: #0056b3; /* Borde azul más oscuro */
+}
+
+.btn-primary:disabled {
+  background-color: #a0c8f5; /* Azul más claro y opaco */
+  border-color: #a0c8f5;
+  cursor: not-allowed; /* Cursor de "no permitido" */
+  opacity: 0.7; /* Reduce la opacidad */
+}
+
+/* Otros tipos de botones (ej. secundario, éxito, etc.) */
+.btn-secondary {
+  color: var(--text-color-light);
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+.btn-secondary:hover {
+  background-color: #545b62;
+  border-color: #545b62;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                  6. Formularios                            */
+/* -------------------------------------------------------------------------- */
+
+.form-control {
+  display: block; /* Ocupa todo el ancho disponible */
+  width: 100%; /* Ancho completo */
+  padding: 0.75rem 1rem; /* Espaciado interno */
+  font-size: 1rem; /* Tamaño de fuente */
+  line-height: 1.5; /* Altura de línea */
+  color: var(--text-color-dark); /* Color de texto */
+  background-color: var(--text-color-light); /* Fondo blanco */
+  background-clip: padding-box; /* El fondo no se extiende al borde */
+  border: 1px solid var(--border-color); /* Borde gris */
+  border-radius: var(--border-radius-base); /* Bordes redondeados */
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; /* Transiciones suaves */
+}
+
+.form-control:focus {
+  color: var(--text-color-dark);
+  background-color: var(--text-color-light);
+  border-color: #80bdff; /* Borde azul claro al enfocar */
+  outline: 0; /* Elimina el contorno por defecto */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Sombra suave al enfocar */
+}
+
+.form-group {
+  margin-bottom: 1rem; /* Espacio entre grupos de formulario */
+}
+
+.form-group label {
+  display: block; /* Ocupa su propia línea */
+  margin-bottom: 0.5rem; /* Espacio entre label y input */
+  font-weight: 600; /* Negrita */
+  color: var(--text-color-dark);
+}
+
+.error-message {
+  color: var(--danger-color); /* Rojo para mensajes de error */
+  font-size: 0.875rem; /* Tamaño de fuente más pequeño */
+  margin-top: 0.25rem; /* Espacio superior */
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                7. Utilidades                               */
+/* -------------------------------------------------------------------------- */
+
+.container {
+  width: 100%; /* Ancho completo por defecto */
+  padding-right: 1rem; /* Padding a la derecha */
+  padding-left: 1rem; /* Padding a la izquierda */
+  margin-right: auto; /* Centra el contenedor */
+  margin-left: auto; /* Centra el contenedor */
+}
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+.mt-5 { margin-top: 3rem; }
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mb-5 { margin-bottom: 3rem; }
+
+/* -------------------------------------------------------------------------- */
+/*                                8. Media Queries                            */
+/* -------------------------------------------------------------------------- */
+
+/* Pequeños dispositivos (landscape phones, 576px y más) */
+@media (min-width: 576px) {
+  .container {
+    max-width: 540px; /* Ancho máximo para este breakpoint */
+  }
+  h1 { font-size: 2.75rem; }
+  h2 { font-size: 2.25rem; }
+}
+
+/* Dispositivos medianos (tablets, 768px y más) */
+@media (min-width: 768px) {
+  .container {
+    max-width: 720px;
+  }
+  h1 { font-size: 3rem; }
+  h2 { font-size: 2.5rem; }
+}
+
+/* Dispositivos grandes (desktops, 992px y más) */
+@media (min-width: 992px) {
+  .container {
+    max-width: 960px;
+  }
+  h1 { font-size: 3.5rem; }
+  h2 { font-size: 2.75rem; }
+}
+
+/* Dispositivos extra grandes (large desktops, 1200px y más) */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+  h1 { font-size: 4rem; }
+  h2 { font-size: 3rem; }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                9. Fuentes Externas                         */
+/* -------------------------------------------------------------------------- */
+/* Importa fuentes de Google Fonts (ej. Roboto) */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');

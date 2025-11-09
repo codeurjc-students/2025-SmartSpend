@@ -1,0 +1,43 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2>Iniciar Sesión</h2> <!-- Título consistente con el de registro -->
+
+    <form (submit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">Email</label> <!-- Etiqueta para accesibilidad -->
+        <input
+          type="email"
+          id="email"
+          [(ngModel)]="email"
+          name="email"
+          class="form-control"
+          placeholder="correo@ejemplo.com" 
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label> <!-- Etiqueta para accesibilidad -->
+        <input
+          type="password"
+          id="password"
+          [(ngModel)]="password"
+          name="password"
+          class="form-control"
+          placeholder="Ingresa tu contraseña" 
+          required
+        />
+      </div>
+
+      <button class="btn-primary" type="submit">Iniciar Sesión</button> <!-- Clase de botón consistente -->
+
+      <div *ngIf="errorMessage" class="error-message mt-3"> <!-- Clase de error consistente -->
+        {{ errorMessage }}
+      </div>
+    </form>
+
+    <div class="register-link"> <!-- Enlace para ir a registro -->
+      <p>¿No tienes cuenta? <a [routerLink]="['/register']">Regístrate</a></p>
+    </div>
+  </div>
+</div>

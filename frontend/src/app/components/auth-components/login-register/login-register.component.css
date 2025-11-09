@@ -1,0 +1,161 @@
+/* -------------------------------------------------------------------------- */
+/*                            Estilos Base (Mobile-First)                     */
+/* -------------------------------------------------------------------------- */
+
+/* Contenedor principal que centra el formulario en la pantalla */
+.login-container { /* Renombrado de .register-container */
+  display: flex; /* Habilita Flexbox para el centrado */
+  justify-content: center; /* Centra horizontalmente el contenido (la tarjeta) */
+  align-items: center; /* Centra verticalmente el contenido (la tarjeta) */
+  min-height: 100vh; /* Asegura que el contenedor ocupe al menos el 100% de la altura del viewport */
+  padding: 1rem; /* Espaciado interno para que el contenido no toque los bordes en pantallas pequeñas */
+  box-sizing: border-box; /* Incluye padding y borde en el tamaño total del elemento */
+  background-color: var(--background-light); /* Usa la variable global para el color de fondo */
+}
+
+/* Tarjeta del formulario */
+.login-card { /* Renombrado de .register-card */
+  background-color: var(--light-color); /* Usa la variable global para el fondo de la tarjeta */
+  padding: 1.5rem; /* Espaciado interno de la tarjeta */
+  border-radius: var(--border-radius-base); /* Bordes redondeados usando la variable global */
+  box-shadow: var(--box-shadow-base); /* Sombra suave usando la variable global */
+  width: 100%; /* Ocupa todo el ancho disponible en móviles */
+  max-width: 400px; /* Ancho máximo para que no se estire demasiado en pantallas grandes */
+  text-align: center; /* ¡Alinea todo el texto y contenido de bloque al centro dentro de la tarjeta! */
+}
+
+/* Título del formulario */
+.login-card h2 {
+  margin-bottom: 1.5rem; /* Espacio debajo del título */
+  color: var(--text-color-dark); /* Usa la variable global para el color del texto */
+  font-size: 1.8rem; /* Tamaño de fuente relativo */
+}
+
+/* Grupo de formulario (label + input + error) */
+.form-group {
+  margin-bottom: 1rem; /* Espacio entre grupos de formulario */
+  text-align: left; /* Sobrescribe el text-align: center de la tarjeta para alinear labels e inputs a la izquierda */
+}
+
+/* Etiquetas de los campos */
+.form-group label {
+  display: block; /* Hace que la etiqueta ocupe su propia línea */
+  margin-bottom: 0.5rem; /* Espacio entre la etiqueta y el input */
+  color: var(--text-color-dark); /* Usa la variable global para el color del texto */
+  font-weight: 600; /* Texto en negrita */
+  font-size: 0.9rem; /* Tamaño de fuente relativo */
+}
+
+/* Campos de entrada (input) */
+.form-control {
+  /* Estos estilos ya están definidos en styles.css, pero los repetimos para claridad o si necesitas sobrescribir */
+  width: 100%; /* Ocupa todo el ancho del contenedor */
+  padding: 0.8rem 1rem; /* Espaciado interno */
+  border: 1px solid var(--border-color); /* Borde gris usando la variable global */
+  border-radius: var(--border-radius-base); /* Bordes redondeados usando la variable global */
+  font-size: 1rem; /* Tamaño de fuente relativo */
+  box-sizing: border-box; /* Incluye padding y borde en el ancho total */
+  transition: border-color 0.3s ease; /* Transición suave para el borde */
+}
+
+/* Estilo para el input cuando está enfocado */
+.form-control:focus {
+  border-color: var(--primary-color); /* Borde azul al enfocar usando la variable global */
+  outline: none; /* Elimina el contorno por defecto del navegador */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Sombra suave al enfocar */
+}
+
+/* Botón principal */
+.btn-primary {
+  /* Estos estilos ya están definidos en styles.css, pero los repetimos para claridad o si necesitas sobrescribir */
+  width: 100%; /* Ocupa todo el ancho del contenedor */
+  padding: 0.9rem 1.5rem; /* Espaciado interno */
+  background-color: var(--primary-color); /* Color de fondo azul usando la variable global */
+  color: var(--text-color-light); /* Texto blanco usando la variable global */
+  border: none; /* Sin borde */
+  border-radius: var(--border-radius-base); /* Bordes redondeados usando la variable global */
+  font-size: 1rem; /* Tamaño de fuente relativo */
+  font-weight: 600; /* Texto en negrita */
+  cursor: pointer; /* Cambia el cursor a una mano */
+  transition: background-color 0.3s ease, opacity 0.3s ease; /* Transición suave */
+  margin-top: 1rem; /* Espacio superior */
+}
+
+/* Estilo para el botón al pasar el ratón por encima */
+.btn-primary:hover:not(:disabled) {
+  background-color: #0056b3; /* Azul más oscuro al pasar el ratón (manteniendo el tono) */
+}
+
+/* Estilo para el botón deshabilitado */
+.btn-primary:disabled {
+  background-color: #a0c8f5; /* Azul más claro y opaco (manteniendo el tono) */
+  cursor: not-allowed; /* Cambia el cursor a "no permitido" */
+  opacity: 0.7; /* Reduce la opacidad */
+}
+
+/* Mensajes de error */
+.error-message {
+  color: var(--danger-color); /* Rojo para errores usando la variable global */
+  font-size: 0.85rem; /* Tamaño de fuente más pequeño */
+  margin-top: 0.25rem; /* Espacio superior */
+  text-align: center; /* Centra el texto del mensaje de error */
+}
+
+/* Enlace de registro */
+.register-link { /* Renombrado de .login-link */
+  margin-top: 1.5rem; /* Espacio superior */
+  font-size: 0.9rem; /* Tamaño de fuente relativo */
+  color: var(--secondary-color); /* Usa la variable global para el color del texto */
+}
+
+.register-link p {
+  margin-bottom: 0; /* Elimina el margen inferior por defecto del párrafo */
+}
+
+.register-link a {
+  color: var(--primary-color); /* Color azul para el enlace usando la variable global */
+  text-decoration: none; /* Sin subrayado */
+  font-weight: 600; /* Texto en negrita */
+}
+
+.register-link a:hover {
+  text-decoration: underline; /* Subrayado al pasar el ratón */
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               Media Queries                                */
+/* -------------------------------------------------------------------------- */
+
+/* Para pantallas más grandes que 576px (ej. tablets pequeñas, móviles grandes en horizontal) */
+@media (min-width: 576px) {
+  .login-card {
+    padding: 2rem; /* Aumenta el padding en pantallas más grandes */
+  }
+
+  .login-card h2 {
+    font-size: 2rem; /* Aumenta ligeramente el tamaño del título */
+  }
+
+  .btn-primary {
+    font-size: 1.1rem; /* Aumenta el tamaño de fuente del botón */
+  }
+}
+
+/* Para pantallas más grandes que 768px (ej. tablets, laptops pequeñas) */
+@media (min-width: 768px) {
+  .login-card {
+    padding: 2.5rem; /* Más padding */
+    max-width: 450px; /* Un poco más ancho */
+  }
+
+  .login-card h2 {
+    font-size: 2.2rem; /* Título más grande */
+  }
+}
+
+/* Para pantallas más grandes que 992px (ej. laptops, escritorios) */
+@media (min-width: 992px) {
+  .login-card {
+    max-width: 500px; /* Ancho máximo para escritorios */
+  }
+}
