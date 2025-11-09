@@ -3,6 +3,7 @@ import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { AuthResponse } from './auth-response.model';
+import { jwtDecode } from 'jwt-decode'; // Importa jwt-decode
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,7 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.storeToken(response.token);
+          console.log('AuthService: Token almacenado después del login.'); // Mensaje de depuración
         })
       );
   }
@@ -30,6 +32,7 @@ export class AuthService {
     }).pipe(
       tap(response => {
         this.storeToken(response.token);
+        console.log('AuthService: Token almacenado después del registro.'); // Mensaje de depuración
       })
     );
   }
@@ -40,7 +43,45 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     const token = localStorage.getItem('authToken');
-    return !!token;
+    
+    if (!token) {
+      console.log('AuthService: No hay token en localStorage. Usuario NO autenticado.'); // Mensaje de depuración
+      return false; // No hay token, no autenticado
+    }
+
+    try {
+      const decodedToken: any = jwtDecode(token); // Decodifica el token
+      const currentTime = Date.now() / 1000; // Tiempo actual en segundos
+
+      console.log('AuthService: Token decodificado:', decodedToken); // Mensaje de depuración
+      console.log('AuthService: Expiración del token (exp):', decodedToken.exp);
+      console.log('AuthService: Tiempo actual:', currentTime);
+
+      // Verifica si el token ha expirado
+      if (decodedToken.exp < currentTime) {
+        console.log('AuthService: Token expirado. Cerrando sesión.'); // Mensaje de depuración
+        this.logout(); // Si ha expirado, cierra sesión
+        return false;
+      }
+      
+      console.log('AuthService: Token válido y no expirado. Usuario autenticado.'); // Mensaje de depuración
+      return true; // El token existe y no ha expirado
+    } catch (error) {
+      console.error('AuthService: Error al decodificar el token JWT o token inválido:', error); // Mensaje de depuración
+      this.logout(); // Si hay un error al decodificar, cierra sesión
+      return false;
+    }
+  }
+
+  logout(): void {
+    localStorage.removeItem('authToken'); // Elimina el token del almacenamiento local
+    console.log('AuthService: Token eliminado de localStorage. Sesión cerrada.'); // Mensaje de depuración
+    // Opcional: redirigir al login después de cerrar sesión
+    // const router = inject(Router); // Si quieres redirigir aquí, necesitarías inyectar Router
+    // router.navigate(['/login']); 
   }
   
+  getToken(): string | null {
+    return localStorage.getItem('authToken');
+  }
 }
