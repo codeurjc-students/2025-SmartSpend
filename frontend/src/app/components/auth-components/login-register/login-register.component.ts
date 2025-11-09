@@ -1,14 +1,16 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../../../services/auth/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-login-register',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './login-register.component.html',})
+  imports: [CommonModule, FormsModule, RouterLink],
+  templateUrl: './login-register.component.html',
+  styleUrls: ['./login-register.component.css']
+})
 export class LoginRegisterComponent {
   email: string = '';
   password: string='';
@@ -27,7 +29,7 @@ export class LoginRegisterComponent {
       },
       error: (err) => {
         console.error(err);
-        this.errorMessage = 'Invalid email or password';
+        this.errorMessage = 'Email o contraseña incorrectas';
       },
     });
   }

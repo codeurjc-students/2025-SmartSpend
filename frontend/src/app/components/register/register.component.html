@@ -1,6 +1,6 @@
 <div class="register-container">
   <div class="register-card">
-    <h2>Crear Cuenta</h2>
+    <h2>Registrar Cuenta</h2>
     
     <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
       <div class="form-group">
@@ -49,12 +49,12 @@
           class="form-control"
           placeholder="Ingresa tu contraseña"
           required
-          minlength="6"
+          minlength="8"
           #password="ngModel"
         />
         <div *ngIf="password.invalid && (password.dirty || password.touched)" class="error-message">
           <div *ngIf="password.errors?.['required']">La contraseña es obligatoria.</div>
-          <div *ngIf="password.errors?.['minlength']">La contraseña debe tener al menos 6 caracteres.</div>
+          <div *ngIf="password.errors?.['minlength']">La contraseña debe tener al menos 8 caracteres.</div>
         </div>
       </div>
 

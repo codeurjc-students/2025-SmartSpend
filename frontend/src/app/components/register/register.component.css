@@ -3,7 +3,7 @@
 /* -------------------------------------------------------------------------- */
 
 /* Contenedor principal que centra el formulario en la pantalla */
-.login-container { /* Renombrado de .register-container */
+.register-container {
   display: flex; /* Habilita Flexbox para el centrado */
   justify-content: center; /* Centra horizontalmente el contenido (la tarjeta) */
   align-items: center; /* Centra verticalmente el contenido (la tarjeta) */
@@ -14,7 +14,7 @@
 }
 
 /* Tarjeta del formulario */
-.login-card { /* Renombrado de .register-card */
+.register-card {
   background-color: var(--light-color); /* Usa la variable global para el fondo de la tarjeta */
   padding: 1.5rem; /* Espaciado interno de la tarjeta */
   border-radius: var(--border-radius-base); /* Bordes redondeados usando la variable global */
@@ -25,7 +25,7 @@
 }
 
 /* Título del formulario */
-.login-card h2 {
+.register-card h2 {
   margin-bottom: 1.5rem; /* Espacio debajo del título */
   color: var(--text-color-dark); /* Usa la variable global para el color del texto */
   font-size: 1.8rem; /* Tamaño de fuente relativo */
@@ -98,27 +98,31 @@
   color: var(--danger-color); /* Rojo para errores usando la variable global */
   font-size: 0.85rem; /* Tamaño de fuente más pequeño */
   margin-top: 0.25rem; /* Espacio superior */
-  text-align: center; /* Centra el texto del mensaje de error */
+  text-align: left; /* Sobrescribe el text-align: center de la tarjeta para alinear a la izquierda */
 }
 
-/* Enlace de registro */
-.register-link { /* Renombrado de .login-link */
+/* Mensajes de éxito */
+.success-message {
+  color: var(--success-color); /* Verde para éxito usando la variable global */
+  font-size: 0.85rem; /* Tamaño de fuente más pequeño */
+  margin-top: 0.25rem; /* Espacio superior */
+  text-align: center; /* Centra el texto */
+}
+
+/* Enlace de login */
+.login-link {
   margin-top: 1.5rem; /* Espacio superior */
   font-size: 0.9rem; /* Tamaño de fuente relativo */
   color: var(--secondary-color); /* Usa la variable global para el color del texto */
 }
 
-.register-link p {
-  margin-bottom: 0; /* Elimina el margen inferior por defecto del párrafo */
-}
-
-.register-link a {
+.login-link a {
   color: var(--primary-color); /* Color azul para el enlace usando la variable global */
   text-decoration: none; /* Sin subrayado */
   font-weight: 600; /* Texto en negrita */
 }
 
-.register-link a:hover {
+.login-link a:hover {
   text-decoration: underline; /* Subrayado al pasar el ratón */
 }
 
@@ -128,11 +132,11 @@
 
 /* Para pantallas más grandes que 576px (ej. tablets pequeñas, móviles grandes en horizontal) */
 @media (min-width: 576px) {
-  .login-card {
+  .register-card {
     padding: 2rem; /* Aumenta el padding en pantallas más grandes */
   }
 
-  .login-card h2 {
+  .register-card h2 {
     font-size: 2rem; /* Aumenta ligeramente el tamaño del título */
   }
 
@@ -143,19 +147,19 @@
 
 /* Para pantallas más grandes que 768px (ej. tablets, laptops pequeñas) */
 @media (min-width: 768px) {
-  .login-card {
+  .register-card {
     padding: 2.5rem; /* Más padding */
     max-width: 450px; /* Un poco más ancho */
   }
 
-  .login-card h2 {
+  .register-card h2 {
     font-size: 2.2rem; /* Título más grande */
   }
 }
 
 /* Para pantallas más grandes que 992px (ej. laptops, escritorios) */
 @media (min-width: 992px) {
-  .login-card {
+  .register-card {
     max-width: 500px; /* Ancho máximo para escritorios */
   }
 }
