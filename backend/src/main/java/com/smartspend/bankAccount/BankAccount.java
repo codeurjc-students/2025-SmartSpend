@@ -28,7 +28,7 @@ public class BankAccount {
     private String accountName;
 
     @Column(nullable = false)
-    private BigDecimal currentBalance = BigDecimal.ZERO;
+    private BigDecimal currentBalance;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -38,8 +38,10 @@ public class BankAccount {
     private List<Transaction> accountTransactions;
 
     public BankAccount() {}
-    public BankAccount(User user, String name) {
+    
+    public BankAccount(User user, String name, BigDecimal initialBalance) {
         this.user = user;
         this.accountName = name;
+        this.currentBalance = initialBalance;
     }
 }

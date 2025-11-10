@@ -3,6 +3,7 @@ import { LoginRegisterComponent } from './components/auth-components/login-regis
 import { RegisterComponent } from './components/register/register.component';
 import { TransactionListComponent } from './components/transaction-list/transaction-list.component';
 import { authGuard } from './auth.guard';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 export const routes: Routes = [
 
@@ -10,6 +11,7 @@ export const routes: Routes = [
     { path: 'login', component: LoginRegisterComponent },
     { path: 'register', component: RegisterComponent },
     { path: 'transactions', canActivate: [authGuard], component: TransactionListComponent },
+    { path: 'dashboard', canActivate: [authGuard], component: DashboardComponent },
 
 
 ];
