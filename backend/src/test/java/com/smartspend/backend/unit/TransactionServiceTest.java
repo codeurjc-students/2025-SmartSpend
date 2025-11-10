@@ -40,7 +40,7 @@ public class TransactionServiceTest {
         // Crear objetos necesarios para el test
         User testUser = new User("testuser", "test@email.com", "hashedpassword");
         
-        BankAccount testAccount = new BankAccount(testUser, "Test Account");
+        BankAccount testAccount = new BankAccount(testUser, "Test Account", BigDecimal.ZERO);
         
         Category testCategory = new Category("Nómina", "Ingresos por trabajo", "#27ae60", TransactionType.INCOME);
         

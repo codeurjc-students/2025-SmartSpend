@@ -25,7 +25,7 @@ export class LoginRegisterComponent {
   onSubmit() {
     this.authService.login(this.email, this.password).subscribe({
       next: () => {
-        this.router.navigate(['/transactions']); 
+        this.router.navigate(['/dashboard']); 
       },
       error: (err) => {
         console.error(err);
