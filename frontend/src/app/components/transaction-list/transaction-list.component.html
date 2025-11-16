@@ -1,7 +1,85 @@
-<h2 id="transactions-title">📋 Transactions</h2>
-<ul id="transactions-list">
-  <li *ngFor="let t of transactions">
-    <strong class="transaction-title">{{ t.title }}</strong> - {{ t.amount }} |{{ t.recurrence }}
-    ({{ t.date }}) [{{ t.category }} / {{ t.recurrence }}]
-  </li>
-</ul>
+<div class="transaction-list-container">
+  
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="loading-state">
+    <p>Cargando transacciones...</p>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!isLoading && (!transactions || transactions.length === 0)" class="empty-state">
+    <p>No hay transacciones en esta cuenta</p>
+    <button class="btn-primary" (click)="onAddTransaction()">
+      ➕ Añadir primera transacción
+    </button>
+  </div>
+
+  <!-- Transaction list -->
+  <div *ngIf="!isLoading && transactions && transactions.length > 0" class="transactions-list">
+    
+    <div 
+      *ngFor="let transaction of transactions; let i = index"
+      class="transaction-item"
+      [class.income]="transaction.type === 'INCOME'"
+      [class.expense]="transaction.type === 'EXPENSE'">
+      
+      <!-- Transaction icon -->
+      <div class="transaction-icon">
+        <span 
+          class="icon" 
+          [style.background-color]="transaction.category.color">
+          {{ transaction.category.icon }}
+        </span>
+      </div>
+      
+      <!-- Transaction details -->
+      <div class="transaction-details">
+        <span class="transaction-title">{{ transaction.title }}</span>
+        <span class="transaction-category">{{ transaction.category.name }}</span>
+      </div>
+      
+      <!-- Transaction amount -->
+      <div class="transaction-amount">
+        <span 
+          class="amount"
+          [class.positive]="transaction.type === 'INCOME'"
+          [class.negative]="transaction.type === 'EXPENSE'">
+          {{ transaction.type === 'INCOME' ? '+' : '-' }}{{ transaction.amount | currency:'EUR':'symbol':'1.2-2' }}
+        </span>
+      </div>
+      
+      <!-- Transaction time/date -->
+      <div class="transaction-time">
+        <span class="time">{{ transaction.date | date:'HH:mm' }}</span>
+        <span class="date">{{ transaction.date | date:'dd/M/yy' }}</span>
+      </div>
+
+      <!-- Transaction actions -->
+      <div class="transaction-actions">
+        <button class="btn-icon" (click)="onEditTransaction(transaction.id)">
+        ✏️
+        </button>
+        <button class="btn-icon" (click)="onDeleteTransaction(transaction.id)">
+        🗑️
+        </button>
+      </div>
+    </div>
+
+    <!-- Transaction list -->
+  <div *ngIf="!isLoading && transactions && transactions.length > 0" class="transactions-list">
+    
+    <!-- ✅ Botón para añadir más transacciones cuando la lista no está vacía -->
+    <div class="add-more-transactions">
+      <button class="btn-primary" (click)="onAddTransaction()">
+        ➕ Añadir Transacción
+      </button>
+    </div>
+
+    <!-- Show more button -->
+    <div *ngIf="hasMoreTransactions" class="show-more-container">
+      <button class="btn-secondary" (click)="onViewAllTransactions()">
+        Ver todas las transacciones
+      </button>
+    </div>
+    
+  </div>
+</div>

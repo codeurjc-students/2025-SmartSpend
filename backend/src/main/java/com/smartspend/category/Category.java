@@ -1,6 +1,5 @@
 package com.smartspend.category;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import com.smartspend.transaction.Transaction;
@@ -21,12 +20,16 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 20)
     private String name;
 
     @Column(nullable = false)
     private String color = "#6c757d";
 
+    @Column(length = 10, nullable = false)
+    String icon ;
+    
+    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionType type; // INCOME o EXPENSE
@@ -46,20 +49,22 @@ public class Category {
     public Category() {}
 
     // Constructor para categorías por defecto
-    public Category(String name, String description, String color, TransactionType type) {
+    public Category(String name, String description, String color, TransactionType type, String icon) {
         this.name = name;
         this.color = color;
         this.type = type;
         this.isDefault = true;
         this.user = null;
+        this.icon = icon;
     }
 
     // Constructor para categorías personalizadas
-    public Category(String name, String description, String color, TransactionType type, User user) {
+    public Category(String name, String description, String color, TransactionType type, User user, String icon) {
         this.name = name;
         this.color = color;
         this.type = type;
         this.isDefault = false;
         this.user = user;
+        this.icon = icon;
     }
 }

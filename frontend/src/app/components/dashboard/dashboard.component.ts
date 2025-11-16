@@ -1,55 +1,66 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { BankAccount, BankAccountServiceService, CreateBankAccount} from '../../services/bankAccount/bank-account-service.service';
-import { TransactionService } from '../../services/transaction/transaction.service'; // Mantener si se usa para otras operaciones de transacciones
+// import { TransactionService } from '../../services/transaction/transaction.service'; // Este servicio no se usa directamente aquí, puede eliminarse si no se usa para otras cosas en DashboardComponent
+import { TransactionListComponent } from '../transaction-list/transaction-list.component';
+import { CreateTransactionModalComponent } from '../create-transaction-modal/create-transaction-modal.component';
+import { Transaction } from '../../interfaces/transaction.interface';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule,FormsModule, TransactionListComponent, CreateTransactionModalComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
 
-  // Propiedades básicas
+  @ViewChild(TransactionListComponent) transactionListComponent!: TransactionListComponent;
+  
   accounts: BankAccount[] = [];
   currentAccountIndex = 0;
-  
-  // Para crear nueva cuenta (modal)
+  selectedAccountForDisplay: BankAccount | null = null; // ✅ Renombramos 'userCurrentAccount' a 'selectedAccountForDisplay' para mayor claridad.
+
   showCreateAccountForm = false;
   newAccountName = '';
   initialBalance = 0; 
   
-  // Estados de carga
   isLoading = false;
   isCreatingAccount = false;
   
-  // Mensajes
   errorMessage = '';
   successMessage = '';
 
+  showCreateTransactionModal: boolean = false;
+
+
   constructor(
     private bankAccountService: BankAccountServiceService,
-    private transactionService: TransactionService // Mantener si se usa para otras operaciones de transacciones
+    // private transactionService: TransactionService // Se eliminó porque no se usa directamente en este componente.
   ) {}
 
   ngOnInit(): void {
     this.loadUserAccounts();
   }
 
-  // ✅ Getter para obtener la cuenta actualmente seleccionada
+  // ✅ Eliminar el getter 'currentAccount' para evitar ambigüedad y depender solo de 'selectedAccountForDisplay'
+  /*
   get currentAccount(): BankAccount | null {
     return this.accounts.length > 0 ? this.accounts[this.currentAccountIndex] : null;
   }
+  */
 
-  // Método para cargar cuentas
+  // ✅ Getter para el template, ahora usa 'selectedAccountForDisplay'
+  get currentAccount(): BankAccount | null {
+    return this.selectedAccountForDisplay;
+  }
+
   loadUserAccounts(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    this.successMessage = ''; // Limpiar mensajes al recargar
+    this.successMessage = ''; 
     
     this.bankAccountService.getBankAccounts().subscribe({
       next: (accounts) => {
@@ -58,10 +69,13 @@ export class DashboardComponent implements OnInit {
         
         if (this.accounts.length > 0) {
           if (this.currentAccountIndex >= this.accounts.length) {
-            this.currentAccountIndex = 0;
+            this.currentAccountIndex = 0; 
           }
+          this.selectedAccountForDisplay = this.accounts[this.currentAccountIndex];
+          console.log('DashboardComponent: Updated selected account balance:', this.selectedAccountForDisplay.currentBalance); // LOG
         } else {
-          this.currentAccountIndex = 0; // Resetear si no hay cuentas
+          this.currentAccountIndex = 0; 
+          this.selectedAccountForDisplay = null; // ✅ Asignar explícitamente
         }
         this.isLoading = false;
       },
@@ -81,7 +95,6 @@ export class DashboardComponent implements OnInit {
     this.successMessage = '';
   }
 
-  // ✅ Método para cerrar el modal
   closeCreateAccountModal(): void {
     this.showCreateAccountForm = false;
     this.newAccountName = '';
@@ -111,7 +124,7 @@ export class DashboardComponent implements OnInit {
     this.bankAccountService.createBankAccount(create).subscribe({
       next: (newlyCreatedAccount) => {
         this.successMessage = 'Cuenta creada exitosamente.';
-        this.closeCreateAccountModal(); // ✅ Cerrar modal solo al éxito
+        this.closeCreateAccountModal(); 
         this.isCreatingAccount = false;
         
         this.bankAccountService.getBankAccounts().subscribe({
@@ -121,11 +134,12 @@ export class DashboardComponent implements OnInit {
             if (newAccountIndex !== -1) {
               this.currentAccountIndex = newAccountIndex;
             } else if (accounts.length > 0) {
-              this.currentAccountIndex = 0; // Fallback a la primera cuenta
+              this.currentAccountIndex = 0; 
             } else {
-              this.currentAccountIndex = 0; // No hay cuentas
+              this.currentAccountIndex = 0; 
             }
-            this.isLoading = false; // Asegurar que el estado de carga se desactive
+            this.selectedAccountForDisplay = this.accounts.length > 0 ? this.accounts[this.currentAccountIndex] : null; // ✅ Asignar explícitamente
+            this.isLoading = false; 
           },
           error: (err) => {
             console.error('Error recargando cuentas después de crear:', err);
@@ -136,42 +150,69 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error creando cuenta:', err);
-        this.errorMessage = err.error?.message || 'Error al crear la cuenta.'; // ✅ Mejor manejo de errores
+        this.errorMessage = err.error?.message || 'Error al crear la cuenta.'; 
         this.isCreatingAccount = false;
       }
     });
   }
   
-  // ✅ Métodos de navegación
   nextAccount(): void {
     if (this.accounts.length > 1) {
       this.currentAccountIndex = (this.currentAccountIndex + 1) % this.accounts.length;
+      this.selectedAccountForDisplay = this.accounts[this.currentAccountIndex]; // ✅ Asignar explícitamente
     }
   }
 
   previousAccount(): void {
     if (this.accounts.length > 1) {
       this.currentAccountIndex = (this.currentAccountIndex - 1 + this.accounts.length) % this.accounts.length;
+      this.selectedAccountForDisplay = this.accounts[this.currentAccountIndex]; // ✅ Asignar explícitamente
     }
   }
 
   goToAccount(index: number): void {
     if (index >= 0 && index < this.accounts.length) {
       this.currentAccountIndex = index;
+      this.selectedAccountForDisplay = this.accounts[this.currentAccountIndex]; // ✅ ¡IMPORTANTE! Asignar explícitamente aquí
     }
   }
 
-  // ✅ Métodos para los botones de acción (añadidos/restaurados)
   addTransaction(): void {
-    console.log('Añadir transacción a:', this.currentAccount?.accountName);
-    // Aquí iría la lógica para abrir un modal de añadir transacción
+    console.log('Añadir transacción a:', this.selectedAccountForDisplay?.accountName);
+    this.onAddTransactionFromList(); 
   }
-
-
 
   createNewAccount(): void {
     console.log('Crear nueva cuenta (desde botón)');
-    this.createFirstAccount(); // Reutilizar el método para mostrar el modal
+    this.createFirstAccount(); 
+  }
+
+  // Métodos del modal de transacciones
+  onAddTransactionFromList(): void {
+    console.log('Evento: Añadir transacción desde la lista');
+    this.showCreateTransactionModal = true;
+  }
+
+  onCloseCreateTransactionModal(): void {
+    this.showCreateTransactionModal = false;
+  }
+
+  onTransactionCreated(transaction: Transaction): void { 
+    console.log('Transacción creada:', transaction);
+    this.successMessage = `Transacción "${transaction.title}" creada exitosamente.`;
+    
+    if (this.transactionListComponent) {
+      this.transactionListComponent.refreshTransactions(); // ✅ El TransactionListComponent recargará sus propias transacciones
+    }
+    
+    this.loadUserAccounts(); // ✅ Recargar las cuentas para actualizar el balance y selectedAccountForDisplay
+    
+    setTimeout(() => this.successMessage = '', 3000); 
+  }
+
+  onTransactionDeletedSuccess(): void {
+    console.log('Dashboard: Transacción eliminada exitosamente. Recargando cuentas para actualizar el saldo.');
+    this.loadUserAccounts(); 
   }
 
 }
