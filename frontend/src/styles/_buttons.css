@@ -1,0 +1,110 @@
+.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: var(--border-radius-base);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    line-height: 1;
+}
+
+/* Botón Primario */
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+}
+
+/* Botón Secundario */
+.btn-secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+    border-color: var(--color-secondary);
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-accent-teal);
+    border-color: var(--color-accent-teal);
+}
+
+/* Botón de Éxito */
+.btn-success {
+    background-color: var(--color-success);
+    color: white;
+    border-color: var(--color-success);
+}
+
+.btn-success:hover {
+    background-color: var(--color-success-dark);
+    border-color: var(--color-success-dark);
+}
+
+/* Botón de Peligro / Cancelar */
+.btn-danger {
+    background-color: var(--color-danger);
+    color: white;
+    border-color: var(--color-danger);
+}
+
+.btn-danger:hover {
+    background-color: var(--color-danger-dark);
+    border-color: var(--color-danger-dark);
+}
+
+/* Botones con borde (Outline) */
+.btn-outline-primary {
+    background-color: transparent;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-outline-secondary {
+    background-color: transparent;
+    color: var(--color-text);
+    border-color: var(--color-secondary);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+}
+
+/* Tamaños de Botón */
+.btn-xs {
+    padding: 4px 8px;
+    font-size: 12px;
+    min-width: 30px;
+    height: 28px;
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 18px;
+}
+
+/* Estado Deshabilitado */
+.btn:disabled,
+.btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}

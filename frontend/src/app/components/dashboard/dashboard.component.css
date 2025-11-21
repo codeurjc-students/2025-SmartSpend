@@ -1,343 +1,252 @@
-/* dashboard.component.css */
+/* ========================================
+   DASHBOARD WRAPPER
+   ======================================== */
 
-/* Container principal siguiendo la estructura de register */
-.dashboard-container {
+.dashboard-wrapper {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   min-height: 100vh;
-  background: var(--background-light);
-  padding: 1rem;
-}
-
-.dashboard-card {
-  background: white;
-  border-radius: var(--border-radius-base);
-  box-shadow: var(--box-shadow-base);
-  padding: 2rem;
   width: 100%;
-  max-width: 450px;
-  text-align: center;
-}
-
-/* Estados de loading y error */
-.loading-section {
-  padding: 2rem;
-  color: var(--secondary-color);
-}
-
-.error-section {
-  padding: 2rem;
-}
-
-.empty-section {
-  padding: 2rem;
-}
-
-.empty-section h3 {
-  color: var(--primary-color);
-  margin-bottom: 1rem;
-}
-
-.empty-section p {
-  color: var(--secondary-color);
-  margin-bottom: 1.5rem;
-}
-
-/* Contenido principal */
-.main-content {
-  width: 100%;
-}
-
-/* Sección de la cuenta */
-.account-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1.5rem;
   position: relative;
 }
 
-/* Flechas de navegación */
-.nav-arrow {
-  background: rgba(0, 123, 255, 0.1);
-  border: none;
-  border-radius: 50%;
+/* ========================================
+   PAGE INDICATORS
+   ======================================== */
+
+.page-indicators {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+.indicators-container {
+  display: flex;
+  gap: 10px;
+  background: var(--color-bg-card);
+  padding: 8px 16px;
+  border-radius: 25px;
+  box-shadow: var(--box-shadow-elevated);
+  backdrop-filter: blur(10px);
+}
+
+.indicator-btn {
   width: 40px;
   height: 40px;
-  font-size: 1.2rem;
-  color: var(--primary-color);
+  border-radius: 50%;
+  border: 2px solid var(--color-secondary);
+  background: transparent;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.nav-arrow:hover:not(:disabled) {
-  background: rgba(0, 123, 255, 0.2);
+.indicator-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
   transform: scale(1.1);
 }
 
-.nav-arrow:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+.indicator-btn:hover {
+  border-color: var(--color-primary);
+  transform: scale(1.05);
 }
 
-.nav-left {
-  margin-right: 15px;
-}
-
-.nav-right {
-  margin-left: 15px;
-}
-
-/* Tarjeta de cuenta principal */
-.account-card {
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  border-radius: 20px;
-  padding: 2rem 1.5rem;
-  color: white;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  min-width: 280px;
-  max-width: 320px;
-  transition: transform 0.3s ease;
-}
-
-.account-card:hover {
-  transform: translateY(-5px);
-}
-
-/* Tipo de cuenta */
-.account-type {
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  opacity: 0.9;
-  letter-spacing: 1px;
-}
-
-/* Balance principal */
-.balance-display {
-  margin-bottom: 1.5rem;
-}
-
-.balance-amount {
-  font-size: 2.5rem;
-  font-weight: 700;
-  display: block;
-  line-height: 1;
-}
-
-.balance-amount.negative {
-  color: #ff6b6b;
-}
-
-/* Preview de transacciones */
-.transactions-preview {
-  background: rgba(255,255,255,0.1);
-  border-radius: 15px;
-  padding: 1rem;
-  backdrop-filter: blur(10px);
-  text-align: left;
-}
-
-.transaction-item {
+.main-container {
   display: flex;
-  align-items: center;
-  margin-bottom: 0.75rem;
-  padding: 0.5rem 0;
-}
-
-.transaction-item:last-child {
-  margin-bottom: 0;
-}
-
-.transaction-icon {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.2);
-  display: flex;
-  align-items: center;
+  flex-direction: row;
   justify-content: center;
-  margin-right: 0.75rem;
-  flex-shrink: 0;
+  align-items: center;
+  gap: 30px;
+  padding: 20px;
+  flex: 1;
+  box-sizing: border-box;
 }
 
-.transaction-details {
-  flex: 1;
+.account-container {
   display: flex;
   flex-direction: column;
+  width: 600px;
+  height: 700px;
+  background: var(--color-bg-card);
+  border-radius: 16px;
+  box-shadow: var(--box-shadow-elevated);
+  overflow: hidden;
+  padding: 24px;
+  gap: 20px;
+  box-sizing: border-box;
 }
 
-.transaction-title {
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-}
-
-.transaction-amount {
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.transaction-amount.positive {
-  color: #4ecdc4;
-}
-
-.transaction-amount.negative {
-  color: #ff6b6b;
-}
-
-.transaction-time {
-  text-align: right;
-  font-size: 0.75rem;
-  opacity: 0.8;
-  flex-shrink: 0;
-}
-
-.transaction-time .time {
-  display: block;
-  font-weight: 500;
-}
-
-.transaction-time .date {
-  display: block;
-  margin-top: 0.25rem;
-}
-
-/* Sin transacciones */
-.no-transactions {
-  background: rgba(255,255,255,0.1);
-  border-radius: 15px;
-  padding: 1.5rem;
-  backdrop-filter: blur(10px);
-}
-
-.no-transactions p {
-  margin-bottom: 0.5rem;
-  opacity: 0.9;
-}
-
-.no-transactions p:last-of-type {
-  margin-bottom: 1rem;
-}
-
-/* Indicadores de página */
-.page-indicators {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 1.5rem;
-}
-
-.indicator {
-  width: 10px;
-  height: 10px;
+.navigation-arrow {
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  border: none;
-  background: #ddd;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.indicator.active {
-  background: var(--primary-color);
-  transform: scale(1.2);
-}
-
-/* Botones de acción */
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-}
-
-.action-btn {
-  background: var(--primary-color);
-  border: none;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.2rem;
+  border: 2px solid var(--color-primary);
+  background: var(--color-bg-card);
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
-.action-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+.navigation-arrow:hover {
+  background: var(--color-primary);
+  color: white;
+  transform: scale(1.05);
 }
 
-.add-btn {
-  background: var(--success-color);
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+.account-header {
+  text-align: center;
+  flex-shrink: 0;
 }
 
-.add-btn:hover {
-  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+.account-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
-/* Success message */
-.success-message {
-  color: var(--success-color);
-  background: rgba(40, 167, 69, 0.1);
-  padding: 0.75rem;
-  border-radius: var(--border-radius-base);
-  margin-top: 1rem;
-  border: 1px solid rgba(40, 167, 69, 0.2);
+.account-footer {
+  flex-shrink: 0;
+  text-align: center;
 }
 
-/* Responsive */
-@media (max-width: 576px) {
-  .dashboard-card {
-    padding: 1.5rem;
-    max-width: 100%;
+/* ========================================
+   RESPONSIVE DESIGN - MOBILE FIRST
+   ======================================== */
+
+/* Tablet y pantallas medianas */
+@media (max-width: 768px) {
+  .main-container {
+    padding: 10px;
+    gap: 15px;
   }
   
-  .account-card {
-    min-width: 250px;
-    padding: 1.5rem 1rem;
+  .account-container {
+    width: 500px;
+    height: 600px;
+    padding: 20px;
+    gap: 16px;
   }
   
-  .balance-amount {
-    font-size: 2rem;
+  .navigation-arrow {
+    width: 45px;
+    height: 45px;
+    font-size: 1.1rem;
   }
   
-  .nav-arrow {
+  .page-indicators {
+    bottom: 15px;
+  }
+  
+  .indicator-btn {
     width: 35px;
     height: 35px;
-    font-size: 1rem;
-  }
-  
-  .action-btn {
-    width: 50px;
-    height: 50px;
-    font-size: 1.25rem;
+    font-size: 0.8rem;
   }
 }
 
-@media (max-width: 400px) {
-  .nav-left {
-    margin-right: 10px;
+/* Móviles */
+@media (max-width: 480px) {
+  .dashboard-wrapper {
+    min-height: 100vh;
+    overflow: hidden;
   }
   
-  .nav-right {
-    margin-left: 10px;
+  .main-container {
+    flex-direction: column;
+    padding: 8px 8px 80px 8px; /* Espacio para indicadores fijos */
+    gap: 0;
+    justify-content: center;
+    min-height: calc(100vh - 80px);
   }
   
-  .account-card {
-    min-width: 220px;
+  /* Ocultar flechas de navegación en móvil */
+  .navigation-arrow {
+    display: none;
   }
   
-  .action-buttons {
-    gap: 0.75rem;
+  .account-container {
+    width: calc(100vw - 16px);
+    height: calc(100vh - 100px); /* Espacio para indicadores */
+    max-width: 100%;
+    padding: 16px;
+    gap: 12px;
+    margin: 0;
+    border-radius: 12px;
+  }
+  
+  .account-header {
+    padding-bottom: 8px;
+  }
+  
+  .account-footer {
+    padding-top: 8px;
+  }
+  
+  /* Indicadores más prominentes en móvil */
+  .page-indicators {
+    bottom: 10px;
+  }
+  
+  .indicators-container {
+    padding: 6px 12px;
+    backdrop-filter: blur(15px);
+    background: rgba(var(--color-bg-card-rgb), 0.95);
+  }
+  
+  .indicator-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  
+  .indicator-btn.active {
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.4);
   }
 }
+
+/* Móviles muy pequeños */
+@media (max-width: 360px) {
+  .account-container {
+    width: calc(100vw - 12px);
+    height: calc(100vh - 90px);
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .main-container {
+    padding: 6px 6px 85px 6px;
+  }
+  
+  .indicator-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Pantallas muy altas (para evitar problemas de altura) */
+@media (min-height: 900px) and (max-width: 480px) {
+  .account-container {
+    height: 700px;
+    margin: auto 0;
+  }
+}
+
+
+

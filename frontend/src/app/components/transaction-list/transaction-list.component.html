@@ -1,85 +1,82 @@
 <div class="transaction-list-container">
   
   <!-- Loading state -->
-  <div *ngIf="isLoading" class="loading-state">
-    <p>Cargando transacciones...</p>
+  <div *ngIf="isLoading" class="text-center p-md">
+    <div class="spinner spinner-md"></div>
+    <p class="mt-sm">Cargando transacciones...</p>
   </div>
 
   <!-- Empty state -->
-  <div *ngIf="!isLoading && (!transactions || transactions.length === 0)" class="empty-state">
-    <p>No hay transacciones en esta cuenta</p>
-    <button class="btn-primary" (click)="onAddTransaction()">
+  <div *ngIf="!isLoading && (!transactions || transactions.length === 0)" class="text-center p-md">
+    <p class="text-muted mb-md">No hay transacciones en esta cuenta</p>
+    <button class="btn btn-primary" (click)="onAddTransaction()">
       ➕ Añadir primera transacción
     </button>
   </div>
 
-  <!-- Transaction list -->
-  <div *ngIf="!isLoading && transactions && transactions.length > 0" class="transactions-list">
+  <!-- Transaction list with optimized spacing -->
+  <div *ngIf="!isLoading && transactions && transactions.length > 0" class="transaction-grid">
     
     <div 
       *ngFor="let transaction of transactions; let i = index"
-      class="transaction-item"
-      [class.income]="transaction.type === 'INCOME'"
-      [class.expense]="transaction.type === 'EXPENSE'">
+      class="card transaction-card">
       
-      <!-- Transaction icon -->
-      <div class="transaction-icon">
-        <span 
-          class="icon" 
-          [style.background-color]="transaction.category.color">
-          {{ transaction.category.icon }}
-        </span>
-      </div>
-      
-      <!-- Transaction details -->
-      <div class="transaction-details">
-        <span class="transaction-title">{{ transaction.title }}</span>
-        <span class="transaction-category">{{ transaction.category.name }}</span>
-      </div>
-      
-      <!-- Transaction amount -->
-      <div class="transaction-amount">
-        <span 
-          class="amount"
-          [class.positive]="transaction.type === 'INCOME'"
-          [class.negative]="transaction.type === 'EXPENSE'">
-          {{ transaction.type === 'INCOME' ? '+' : '-' }}{{ transaction.amount | currency:'EUR':'symbol':'1.2-2' }}
-        </span>
-      </div>
-      
-      <!-- Transaction time/date -->
-      <div class="transaction-time">
-        <span class="time">{{ transaction.date | date:'HH:mm' }}</span>
-        <span class="date">{{ transaction.date | date:'dd/M/yy' }}</span>
-      </div>
-
-      <!-- Transaction actions -->
-      <div class="transaction-actions">
-        <button class="btn-icon" (click)="onEditTransaction(transaction.id)">
-        ✏️
-        </button>
-        <button class="btn-icon" (click)="onDeleteTransaction(transaction.id)">
-        🗑️
-        </button>
+      <div class="card-body compact">
+        <div class="transaction-header">
+          
+          <!-- Transaction category with icon and details -->
+          <div class="transaction-category">
+            <div class="transaction-icon" 
+                 [class.income]="transaction.type === 'INCOME'"
+                 [class.expense]="transaction.type === 'EXPENSE'">
+              {{ transaction.category.icon }}
+            </div>
+            
+            <div class="transaction-details">
+              <h4>{{ transaction.title }}</h4>
+              <p>{{ transaction.category.name }}</p>
+            </div>
+          </div>
+          
+          <!-- Transaction amount and date -->
+          <div class="transaction-amount">
+            <p class="amount" 
+               [class.income]="transaction.type === 'INCOME'"
+               [class.expense]="transaction.type === 'EXPENSE'">
+              {{ transaction.type === 'INCOME' ? '+' : '-' }}{{ transaction.amount | number:'1.2-2' }} €
+            </p>
+            <p class="date">{{ transaction.date | date:'dd/M, HH:mm' }}</p>
+          </div>
+          
+        </div>
+        
+        <!-- Transaction actions - compact -->
+        <div class="d-flex justify-end gap-xs mt-sm">
+          <button class="btn btn-xs btn-outline-primary" (click)="onEditTransaction(transaction.id)" title="Editar">
+            ✏️
+          </button>
+          <button class="btn btn-xs btn-danger" (click)="onDeleteTransaction(transaction.id)" title="Eliminar">
+            🗑️
+          </button>
+        </div>
+        
       </div>
     </div>
 
-    <!-- Transaction list -->
-  <div *ngIf="!isLoading && transactions && transactions.length > 0" class="transactions-list">
+  </div>
+  
+  <!-- Add more transactions when list is not empty -->
+  <div *ngIf="!isLoading && transactions && transactions.length > 0" class="mt-md text-center">
+    <button class="btn btn-primary" (click)="onAddTransaction()">
+      ➕ Añadir Transacción
+    </button>
     
-    <!-- ✅ Botón para añadir más transacciones cuando la lista no está vacía -->
-    <div class="add-more-transactions">
-      <button class="btn-primary" (click)="onAddTransaction()">
-        ➕ Añadir Transacción
-      </button>
-    </div>
-
     <!-- Show more button -->
-    <div *ngIf="hasMoreTransactions" class="show-more-container">
-      <button class="btn-secondary" (click)="onViewAllTransactions()">
+    <div *ngIf="hasMoreTransactions" class="mt-sm">
+      <button class="btn btn-secondary btn-sm" (click)="onViewAllTransactions()">
         Ver todas las transacciones
       </button>
     </div>
-    
   </div>
+  
 </div>
