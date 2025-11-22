@@ -1,0 +1,178 @@
+<!-- Modal backdrop -->
+<div *ngIf="isVisible" class="modal-overlay show" (click)="close()">
+  
+  <!-- Modal content -->
+  <div class="modal modal-md modal-transaction" (click)="$event.stopPropagation()">
+    
+    <!-- Modal header -->
+    <div class="modal-header">
+      <h2 class="modal-title">💰 Nueva Transacción</h2>
+      <button type="button" class="modal-close" (click)="close()">×</button>
+    </div>
+
+    <!-- Modal body -->
+    <div class="modal-body">
+      
+      <!-- Error message -->
+      <div *ngIf="errorMessage" class="form-group">
+        <small class="error-text">{{ errorMessage }}</small>
+      </div>
+
+      <!-- Transaction form -->
+      <form (ngSubmit)="onSubmit()" #transactionForm="ngForm" class="form-grid">
+        
+        <!-- Account info (readonly) -->
+        <div class="form-group full-width">
+          <label class="form-label">Cuenta</label>
+          <div style="padding: 12px 16px; background-color: var(--color-bg); border: 1px solid var(--border-color); border-radius: var(--border-radius-base); color: var(--color-text); opacity: 0.8;">
+            {{ currentAccount?.accountName || 'Sin cuenta seleccionada' }}
+          </div>
+        </div>
+
+        <!-- Transaction title -->
+        <div class="form-group">
+          <label for="title">Título <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="title" 
+            [(ngModel)]="newTransaction.title"
+            name="title"
+            placeholder="Ej: Compra supermercado, Nómina..."
+            required
+            maxlength="30">
+        </div>
+
+        <!-- Transaction type -->
+        <div class="form-group">
+          <label>Tipo de transacción <span class="required">*</span></label>
+          <div style="display: flex; gap: 15px; margin-top: 8px;">
+            <label style="display: flex; align-items: center; cursor: pointer;">
+              <input 
+                type="radio" 
+                [(ngModel)]="newTransaction.type" 
+                name="type"
+                value="EXPENSE"
+                (change)="onTransactionTypeChange()"
+                required
+                style="margin-right: 8px;">
+              <span style="color: var(--color-danger); font-weight: 500;">💸 Gasto</span>
+            </label>
+            <label style="display: flex; align-items: center; cursor: pointer;">
+              <input 
+                type="radio" 
+                [(ngModel)]="newTransaction.type" 
+                name="type"
+                value="INCOME"
+                (change)="onTransactionTypeChange()"
+                required
+                style="margin-right: 8px;">
+              <span style="color: var(--color-success); font-weight: 500;">💰 Ingreso</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Category selection -->
+        <div class="form-group">
+          <label for="category">Categoría <span class="required">*</span></label>
+          <div *ngIf="isLoadingCategories" style="text-align: center; padding: 20px;">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: var(--color-text); opacity: 0.7;">Cargando categorías...</p>
+          </div>
+          <select 
+            *ngIf="!isLoadingCategories"
+            id="category" 
+            [(ngModel)]="newTransaction.categoryId"
+            name="categoryId"
+            required>
+            <option value="">Seleccionar categoría</option>
+            <option 
+              *ngFor="let category of availableCategories" 
+              [value]="category.id">
+              {{ category.icon }} {{ category.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Amount -->
+        <div class="form-group">
+          <label for="amount">Cantidad <span class="required">*</span></label>
+          <div style="position: relative;">
+            <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--color-text); opacity: 0.7; font-weight: 600;">€</span>
+            <input 
+              type="number" 
+              id="amount" 
+              [(ngModel)]="newTransaction.amount"
+              name="amount"
+              class="amount-input"
+              placeholder="0.00"
+              step="0.01"
+              min="0.01"
+              required
+              style="padding-left: 40px;">
+          </div>
+        </div>
+
+        <!-- Date -->
+        <div class="form-group">
+          <label for="date">Fecha</label>
+          <input 
+            type="date" 
+            id="date" 
+            [(ngModel)]="newTransaction.date"
+            name="date"
+            class="date-input">
+          <small class="help-text">Si no seleccionas una fecha, se usará la fecha actual</small>
+        </div>
+
+        <!-- Recurrence -->
+        <div class="form-group">
+          <label for="recurrence">Recurrencia</label>
+          <select 
+            id="recurrence" 
+            [(ngModel)]="newTransaction.recurrence"
+            name="recurrence">
+            <option value="NONE">Sin recurrencia</option>
+            <option value="DAILY">Diaria</option>
+            <option value="WEEKLY">Semanal</option>
+            <option value="MONTHLY">Mensual</option>
+            <option value="YEARLY">Anual</option>
+          </select>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group full-width">
+          <label for="description">Descripción</label>
+          <textarea 
+            id="description" 
+            [(ngModel)]="newTransaction.description"
+            name="description"
+            placeholder="Descripción adicional (opcional)"
+            rows="3"
+            maxlength="100"></textarea>
+          <small class="help-text">Máximo 100 caracteres</small>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            (click)="close()"
+            [disabled]="isLoading">
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            [disabled]="!isFormValid() || isLoading">
+            <span *ngIf="isLoading" class="spinner" style="margin-right: 8px;"></span>
+            <span *ngIf="isLoading">Creando...</span>
+            <span *ngIf="!isLoading">Crear Transacción</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    
+  </div>
+</div>

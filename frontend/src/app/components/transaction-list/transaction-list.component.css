@@ -1,0 +1,442 @@
+/* ==========================================================================
+   TRANSACTION LIST COMPONENT - SmartSpend
+   Estilos para el componente de lista de transacciones
+   ========================================================================== */
+
+/* -------------------------------------------------------------------------- */
+/*                          Contenedor Principal                             */
+/* -------------------------------------------------------------------------- */
+
+.transaction-list-container {
+    width: 100%;
+    padding: 0;
+    overflow-y: auto;
+    max-height: 100%;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                       Contenedor de Lista                                 */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * .transactions-list-container
+ * Contenedor principal para todas las tarjetas de transacción.
+ * Layout: Flexbox en columna para apilar las tarjetas verticalmente.
+ */
+.transactions-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                      Contenedor de Tarjeta Individual                     */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * .transaction-card-container
+ * Envoltorio para cada tarjeta individual de transacción.
+ * Proporciona la estructura base y efectos hover.
+ */
+.transaction-card-container {
+    background-color: var(--color-bg-card);
+    border-radius: 12px;
+    box-shadow: var(--box-shadow-base);
+    border-left: 4px solid var(--color-accent-teal);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.transaction-card-container:hover {
+    transform: translateY(-2px);
+    border-left-color: var(--color-primary);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                        Contenido de la Tarjeta                            */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * .transaction-card-content
+ * Layout principal de la tarjeta usando CSS Grid.
+ * Grid Areas: icon | details | amount
+ */
+.transaction-card-content {
+    display: grid;
+    grid-template-areas: "icon details amount actions";
+    grid-template-columns: 48px 1fr auto auto;
+    align-items: center;
+    padding: 16px;
+    gap: 16px;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           Bloque del Icono                                */
+/* -------------------------------------------------------------------------- */
+
+/* Icono de transacción - Grid Area: icon */
+.transaction-icon-block {
+    grid-area: icon;
+    width: 48px;
+    height: 48px;
+}
+
+.transaction-icon {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+/* Estilos para iconos de ingresos */
+.transaction-icon.income {
+    background-color: rgba(56, 216, 144, 0.2);
+    color: var(--color-success);
+    border-color: var(--color-success);
+}
+
+/* Estilos para iconos de gastos */
+.transaction-icon.expense {
+    background-color: rgba(240, 110, 122, 0.2);
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+}
+
+/* Efectos hover para iconos */
+.transaction-card-container:hover .transaction-icon.income {
+    background-color: rgba(56, 216, 144, 0.3);
+    transform: scale(1.05);
+}
+
+.transaction-card-container:hover .transaction-icon.expense {
+    background-color: rgba(240, 110, 122, 0.3);
+    transform: scale(1.05);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          Bloque de Detalles                               */
+/* -------------------------------------------------------------------------- */
+
+/* Detalles de transacción - Grid Area: details */
+.transaction-details-block {
+    grid-area: details;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0; /* Permite truncado de texto */
+}
+
+.transaction-title {
+    margin: 0;
+    color: var(--color-text);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.transaction-category-name {
+    margin: 0;
+    color: var(--color-text);
+    opacity: 0.7;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                       Bloque de Monto y Fecha                             */
+/* -------------------------------------------------------------------------- */
+
+/* Monto y fecha - Grid Area: amount */
+.transaction-amount-block {
+    grid-area: amount;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    text-align: right;
+    min-width: 100px;
+}
+
+.transaction-amount {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.transaction-date {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-text);
+    opacity: 0.6;
+}
+
+/* Colores para montos de ingreso */
+.transaction-amount.income {
+    color: var(--color-success);
+}
+
+/* Colores para montos de gasto */
+.transaction-amount.expense {
+    color: var(--color-danger);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          Bloque de Acciones                               */
+/* -------------------------------------------------------------------------- */
+
+/* Acciones - Grid Area: actions */
+.transaction-actions-block {
+    grid-area: actions;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.transaction-actions-block .btn {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.transaction-actions-block .btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Contenedor de la fecha */
+.transaction-date-content {
+    display: flex;
+    align-items: center;
+}
+
+.transaction-date {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-text);
+    opacity: 0.6;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          Bloque de Acciones                               */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * .transaction-actions-block
+ * Contiene los botones de editar y eliminar.
+ * Se muestra en una fila separada debajo del contenido principal.
+ */
+.transaction-actions-block {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 12px 16px;
+    grid-area: actions;
+}
+
+.transaction-actions-content {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Estilos para botones de acción */
+.transaction-actions-content .btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.transaction-actions-content .btn:hover {
+    transform: translateY(-1px);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              Estados Especiales                           */
+/* -------------------------------------------------------------------------- */
+
+/* Estado de carga */
+.transaction-card-container.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.transaction-card-container.loading .transaction-card-content {
+    opacity: 0.6;
+}
+
+.transaction-card-container.loading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(75, 77, 247, 0.1) 50%,
+        transparent 100%
+    );
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Estado pendiente */
+.transaction-card-container.pending {
+    border-left-color: var(--color-warning);
+    opacity: 0.9;
+}
+
+.transaction-card-container.pending .transaction-amount {
+    opacity: 0.7;
+}
+
+/* Estado fallido */
+.transaction-card-container.failed {
+    border-left-color: var(--color-danger);
+    background-color: rgba(240, 110, 122, 0.05);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                             Responsive Design                             */
+/* -------------------------------------------------------------------------- */
+
+/* Tablets (768px y menores) */
+@media (max-width: 768px) {
+    .transactions-list-container {
+        gap: 10px;
+        padding: 12px 0;
+    }
+    
+    .transaction-card-content {
+        padding: 14px;
+        gap: 14px;
+    }
+    
+    .transaction-icon-block {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .transaction-icon {
+        font-size: 1.2rem;
+    }
+    
+    .transaction-amount-block {
+        min-width: 90px;
+    }
+}
+
+/* Móviles (480px y menores) */
+@media (max-width: 480px) {
+    .transactions-list-container {
+        gap: 8px;
+        padding: 8px 0;
+    }
+    
+    /* Grid layout más compacto para móviles */
+    .transaction-card-content {
+        grid-template-columns: 40px 1fr 80px;
+        padding: 12px;
+        gap: 10px;
+    }
+    
+    .transaction-icon-block {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .transaction-icon {
+        font-size: 1rem;
+        border-width: 1px;
+    }
+    
+    .transaction-title {
+        font-size: 0.9rem;
+    }
+    
+    .transaction-category-name {
+        font-size: 0.8rem;
+    }
+    
+    .transaction-amount {
+        font-size: 1rem;
+    }
+    
+    .transaction-date {
+        font-size: 0.8rem;
+    }
+    
+    .transaction-amount-block {
+        min-width: 70px;
+    }
+    
+    .transaction-actions-block {
+        padding: 8px 12px;
+    }
+    
+    .transaction-actions-content .btn {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Móviles muy pequeños (350px y menores) */
+@media (max-width: 350px) {
+    /* Cambiar a layout vertical en pantallas muy pequeñas */
+    .transaction-card-content {
+        grid-template-areas: 
+            "icon details"
+            "amount amount";
+        grid-template-columns: 36px 1fr;
+        grid-template-rows: auto auto;
+        gap: 8px;
+        align-items: start;
+    }
+    
+    .transaction-icon-block {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .transaction-amount-block {
+        align-items: center;
+        text-align: center;
+        min-width: auto;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    
+    .transaction-title,
+    .transaction-category-name,
+    .transaction-amount,
+    .transaction-date {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: initial;
+    }
+}

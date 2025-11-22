@@ -1,6 +1,7 @@
 <div class="register-container">
   <div class="register-card">
-    <h2>Registrar Cuenta</h2>
+    <img src="assets/images/logoBlanco.svg" alt="Logo" style="width: 70%; aspect-ratio: 85/16;">
+    <h2 class="form-title">Registrar Cuenta</h2>
     
     <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
       <div class="form-group">
@@ -60,7 +61,7 @@
 
       <button
         type="submit"
-        class="btn-primary"
+        class="btn btn-primary"
         [disabled]="registerForm.invalid || isLoading"
       >
         {{ isLoading ? 'Registrando...' : 'Registrarse' }}
@@ -75,7 +76,7 @@
       </div>
     </form>
 
-    <div class="login-link">
+    <div class="register-link">
       <p>¿Ya tienes cuenta? <a routerLink="/login">Inicia Sesión</a></p>
     </div>
   </div>

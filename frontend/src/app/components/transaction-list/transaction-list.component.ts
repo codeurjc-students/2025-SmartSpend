@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, Output, EventEmitter, SimpleChanges } from '@angular/core'; // ✅ Añadir SimpleChanges para ngOnChanges
 import { CommonModule } from '@angular/common';
-import { Transaction, TransactionService } from '../../services/transaction/transaction.service';
+import { TransactionService } from '../../services/transaction/transaction.service';
+import { Transaction } from '../../interfaces/transaction.interface';
 
 
 @Component({
@@ -10,14 +11,120 @@ import { Transaction, TransactionService } from '../../services/transaction/tran
   templateUrl: './transaction-list.component.html',
   styleUrl: './transaction-list.component.css'
 })
-export class TransactionListComponent {
+export class TransactionListComponent implements OnInit, OnChanges { // ✅ Implementar OnChanges
+  @Input() accountId: number | null = null;
+  @Input() limit: number = 2; // ✅ Añadir un Input para el límite de transacciones a mostrar
+
+  // ✅ Estas propiedades ahora son internas del componente, no @Input
   transactions: Transaction[] = [];
+  isLoading: boolean = false;
+  hasMoreTransactions: boolean = false;
+
+  @Output() addTransactionClick = new EventEmitter<void>();
+  @Output() viewAllTransactionsClick = new EventEmitter<void>(); 
+  @Output() editTransactionClick = new EventEmitter<number>();   
+  @Output() deleteTransactionClick = new EventEmitter<number>(); 
+  @Output() transactionDeletedSuccess = new EventEmitter<void>();
 
   constructor(private transactionService: TransactionService){}
 
-    ngOnInit(): void{
-      this.transactionService.getTransactions().subscribe(data => {
-        this.transactions = data;
-      })
+  ngOnInit(): void {
+    // Cargar transacciones al inicializar si hay un accountId
+    if (this.accountId) {
+      this.loadTransactions();
     }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // ✅ Reaccionar a cambios en el accountId para recargar las transacciones
+    if (changes['accountId'] && changes['accountId'].currentValue !== changes['accountId'].previousValue) {
+      if (this.accountId) {
+        this.loadTransactions();
+      } else {
+        this.transactions = []; // Limpiar si no hay accountId
+        this.hasMoreTransactions = false;
+      }
+    }
+  }
+
+  // ✅ Método para cargar las transacciones desde el servicio
+  loadTransactions(): void {
+    if (!this.accountId) {
+      this.transactions = [];
+      this.isLoading = false;
+      this.hasMoreTransactions = false;
+      return;
+    }
+
+    this.isLoading = true;
+    // Se pide 'limit + 1' para saber si hay más transacciones de las que se mostrarán
+    this.transactionService.getRecentTransactionsByAccount(this.accountId, this.limit + 1).subscribe({
+      next: (data) => {
+        if (data.length > this.limit) {
+          this.transactions = data.slice(0, this.limit); // Mostrar solo el límite
+          this.hasMoreTransactions = true;
+        } else {
+          this.transactions = data;
+          this.hasMoreTransactions = false;
+        }
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading transactions:', err);
+        this.transactions = [];
+        this.isLoading = false;
+        this.hasMoreTransactions = false;
+      }
+    });
+  }
+
+  onAddTransaction(): void { 
+    this.addTransactionClick.emit();
+  }
+
+  onEditTransaction(transactionId: number): void {
+    console.log('Edit transaction clicked:', transactionId);
+    this.editTransactionClick.emit(transactionId); // Emitir evento para que el padre lo maneje
+  }
+
+  onDeleteTransaction(transactionId: number): void {
+    console.log(`TransactionListComponent: Attempting to delete transaction ${transactionId}.`); // LOG
+    this.transactionService.deleteTransaction(transactionId).subscribe({
+      next: () => {
+        console.log(`TransactionListComponent: Transaction ${transactionId} deleted successfully.`); // LOG
+        this.loadTransactions(); // Recargar la lista de transacciones del componente
+        console.log('TransactionListComponent: Emitting transactionDeletedSuccess event.'); // LOG
+        this.transactionDeletedSuccess.emit(); // Emitir el evento para que el padre actualice el saldo
+      },
+      error: (err) => {
+        console.error('TransactionListComponent: Error deleting transaction:', err); // LOG
+        // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+      }
+    });
+  }
+  onViewAllTransactions(): void {
+    console.log('View all transactions clicked');
+    this.viewAllTransactionsClick.emit(); // Emitir evento para que el padre lo maneje
+  }
+
+  getTransactionIcon(transaction: Transaction): string {
+    return transaction.category?.icon || '💳'; // Usar optional chaining por seguridad
+  }
+
+  getAmountClass(transaction: Transaction): string {
+    return transaction.type === 'INCOME' ? 'amount-positive' : 'amount-negative';
+  }
+
+  getAmountPrefix(transaction: Transaction): string {
+    return transaction.type === 'INCOME' ? '+' : '-';
+  }
+
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString();
+  }
+
+  // ✅ Método para recargar las transacciones
+  refreshTransactions(): void {
+    this.loadTransactions();
+  }
 }
