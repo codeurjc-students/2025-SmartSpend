@@ -14,44 +14,44 @@
     </button>
   </div>
 
-  <!-- Transaction list with optimized spacing -->
-  <div *ngIf="!isLoading && transactions && transactions.length > 0" class="transaction-grid">
+  <!-- Transaction list with improved architecture -->
+  <div *ngIf="!isLoading && transactions && transactions.length > 0" class="transactions-list-container">
     
+    <!-- Individual transaction card -->
     <div 
       *ngFor="let transaction of transactions; let i = index"
-      class="card transaction-card">
+      class="transaction-card-container">
       
-      <div class="card-body compact">
-        <div class="transaction-header">
-          
-          <!-- Transaction category with icon and details -->
-          <div class="transaction-category">
-            <div class="transaction-icon" 
-                 [class.income]="transaction.type === 'INCOME'"
-                 [class.expense]="transaction.type === 'EXPENSE'">
-              {{ transaction.category.icon }}
-            </div>
-            
-            <div class="transaction-details">
-              <h4>{{ transaction.title }}</h4>
-              <p>{{ transaction.category.name }}</p>
-            </div>
-          </div>
-          
-          <!-- Transaction amount and date -->
-          <div class="transaction-amount">
-            <p class="amount" 
+      <!-- Transaction card content -->
+      <div class="transaction-card-content">
+        
+        <!-- Icon block -->
+        <div class="transaction-icon-block">
+          <div class="transaction-icon" 
                [class.income]="transaction.type === 'INCOME'"
                [class.expense]="transaction.type === 'EXPENSE'">
-              {{ transaction.type === 'INCOME' ? '+' : '-' }}{{ transaction.amount | number:'1.2-2' }} €
-            </p>
-            <p class="date">{{ transaction.date | date:'dd/M, HH:mm' }}</p>
+            {{ transaction.category.icon }}
           </div>
-          
         </div>
         
-        <!-- Transaction actions - compact -->
-        <div class="d-flex justify-end gap-xs mt-sm">
+        <!-- Details block -->
+        <div class="transaction-details-block">
+          <h4 class="transaction-title">{{ transaction.title }}</h4>
+          <p class="transaction-category-name">{{ transaction.category.name }}</p>
+        </div>
+        
+        <!-- Amount and date block -->
+        <div class="transaction-amount-block">
+          <p class="transaction-amount" 
+             [class.income]="transaction.type === 'INCOME'"
+             [class.expense]="transaction.type === 'EXPENSE'">
+            {{ transaction.type === 'INCOME' ? '+' : '-' }}{{ transaction.amount | number:'1.2-2' }} €
+          </p>
+          <p class="transaction-date">{{ transaction.date | date:'dd/M, HH:mm' }}</p>
+        </div>
+        
+        <!-- Actions block - DENTRO del grid -->
+        <div class="transaction-actions-block">
           <button class="btn btn-xs btn-outline-primary" (click)="onEditTransaction(transaction.id)" title="Editar">
             ✏️
           </button>
@@ -61,6 +61,7 @@
         </div>
         
       </div>
+      
     </div>
 
   </div>

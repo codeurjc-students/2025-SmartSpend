@@ -13,7 +13,7 @@ import { Transaction } from '../../interfaces/transaction.interface';
 })
 export class TransactionListComponent implements OnInit, OnChanges { // ✅ Implementar OnChanges
   @Input() accountId: number | null = null;
-  @Input() limit: number = 5; // ✅ Añadir un Input para el límite de transacciones a mostrar
+  @Input() limit: number = 2; // ✅ Añadir un Input para el límite de transacciones a mostrar
 
   // ✅ Estas propiedades ahora son internas del componente, no @Input
   transactions: Transaction[] = [];
