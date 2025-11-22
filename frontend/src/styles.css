@@ -57,7 +57,7 @@
 /* Configuración de la fuente base para el documento */
 html {
   font-size: 16px; /* Tamaño de fuente base para el elemento raíz. 1rem = 16px */
-  scroll-behavior: smooth; /* Desplazamiento suave al navegar a anclas */
+ 
 }
 
 body {
@@ -67,6 +67,8 @@ body {
   background-color: var(--color-bg); /* Color de fondo general */
   -webkit-font-smoothing: antialiased; /* Suavizado de fuentes para WebKit */
   -moz-osx-font-smoothing: grayscale; /* Suavizado de fuentes para Firefox */
+  overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 

@@ -3,7 +3,7 @@
 /* -------------------------------------------------------------------------- */
 
 /* Contenedor principal que centra el formulario en la pantalla */
-.login-container { /* Renombrado de .register-container */
+.login-container {
   display: flex; /* Habilita Flexbox para el centrado */
   justify-content: center; /* Centra horizontalmente el contenido (la tarjeta) */
   align-items: center; /* Centra verticalmente el contenido (la tarjeta) */
@@ -11,11 +11,13 @@
   padding: 1rem; /* Espaciado interno para que el contenido no toque los bordes en pantallas pequeñas */
   box-sizing: border-box; /* Incluye padding y borde en el tamaño total del elemento */
   background-color: var(--background-light); /* Usa la variable global para el color de fondo */
+  overflow: hidden; /* Elimina scroll en la página de login */
+  width: 100vw;
+  height: 100vh;
 }
 
-
 /* Tarjeta del formulario */
-.login-card { /* Renombrado de .register-card */
+.register-card {
   background-color: var(--light-color); /* Usa la variable global para el fondo de la tarjeta */
   padding: 1.5rem; /* Espaciado interno de la tarjeta */
   border-radius: var(--border-radius-base); /* Bordes redondeados usando la variable global */
@@ -25,19 +27,6 @@
   text-align: center; /* ¡Alinea todo el texto y contenido de bloque al centro dentro de la tarjeta! */
 }
 
-/* Título del formulario */
-.login-card h2 {
-  margin-bottom: 1.5rem; /* Espacio debajo del título */
-  color: var(--text-color-dark); /* Usa la variable global para el color del texto */
-  font-size: 1.8rem; /* Tamaño de fuente relativo */
-}
-
-
-
-
-
-
-
 /* Mensajes de error */
 .error-message {
   color: var(--danger-color); /* Rojo para errores usando la variable global */
@@ -46,18 +35,17 @@
   text-align: center; /* Centra el texto del mensaje de error */
 }
 
-
 /* -------------------------------------------------------------------------- */
 /*                               Media Queries                                */
 /* -------------------------------------------------------------------------- */
 
 /* Para pantallas más grandes que 576px (ej. tablets pequeñas, móviles grandes en horizontal) */
 @media (min-width: 576px) {
-  .login-card {
+  .register-card {
     padding: 2rem; /* Aumenta el padding en pantallas más grandes */
   }
 
-  .login-card h2 {
+  .register-card h2 {
     font-size: 2rem; /* Aumenta ligeramente el tamaño del título */
   }
 
@@ -68,19 +56,19 @@
 
 /* Para pantallas más grandes que 768px (ej. tablets, laptops pequeñas) */
 @media (min-width: 768px) {
-  .login-card {
+  .register-card {
     padding: 2.5rem; /* Más padding */
     max-width: 450px; /* Un poco más ancho */
   }
 
-  .login-card h2 {
+  .register-card h2 {
     font-size: 2.2rem; /* Título más grande */
   }
 }
 
 /* Para pantallas más grandes que 992px (ej. laptops, escritorios) */
 @media (min-width: 992px) {
-  .login-card {
+  .register-card {
     max-width: 500px; /* Ancho máximo para escritorios */
   }
 }
