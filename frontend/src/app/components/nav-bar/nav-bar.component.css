@@ -1,0 +1,70 @@
+/* NAVBAR GENERAL */
+.nav-bar {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #1c2238;
+  padding: 0.8rem 1.5rem;
+  z-index: 999;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  overflow-x: hidden; /* evita desbordamientos */
+  height: 60px; /* altura fija para reservar espacio */
+  box-sizing: border-box; /* incluye padding en altura */
+  overflow-y: hidden;
+}
+
+/* CONTENEDOR INTERNO */
+.navbar-container {
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+
+  /* LAS 3 REGLAS MÁS IMPORTANTES */
+  justify-content: space-between;
+  align-items: center;
+  width: 100%; /* 👈 evita movimiento */
+}
+
+/* LOGO */
+.navbar-logo img {
+  height: 40px;
+  width: auto;
+  display: block;  /* 👈 evita espacios fantasmas */
+}
+
+/* LINKS */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  color: #e8e8f7;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: 0.2s ease;
+  white-space: nowrap; /* 👈 evita que se rompan al siguiente renglón */
+}
+
+.nav-links a:hover {
+  color: #2BDACF;
+  text-shadow: 0 0 8px rgba(43, 218, 207, 0.4);
+}
+
+/* RESPONSIVE MOVIL */
+@media (max-width: 650px) {
+  .navbar-container {
+    gap: 1rem;
+  }
+
+  .nav-links {
+    gap: 1rem;
+  }
+
+  .navbar-logo img {
+    height: 32px;
+  }
+}

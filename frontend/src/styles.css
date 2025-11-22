@@ -70,6 +70,7 @@ body {
   -moz-osx-font-smoothing: grayscale; /* Suavizado de fuentes para Firefox */
   overflow-y: hidden;
   overflow-x: hidden;
+  padding-top: 40px; /* Ajuste para navbar fijo */
 }
 
 
