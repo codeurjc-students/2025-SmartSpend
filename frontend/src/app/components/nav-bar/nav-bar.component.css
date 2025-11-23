@@ -9,9 +9,10 @@
   z-index: 999;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   overflow-x: hidden; /* evita desbordamientos */
-  height: 60px; /* altura fija para reservar espacio */
+  height: 80px; /* altura fija para reservar espacio */
   box-sizing: border-box; /* incluye padding en altura */
-  overflow-y: hidden;
+  overflow-y: hidden; 
+  display: flex;
 }
 
 /* CONTENEDOR INTERNO */
