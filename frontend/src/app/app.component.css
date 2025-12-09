@@ -1,0 +1,96 @@
+/* Layout principal de la aplicación */
+.app-layout {
+  min-height: 100vh; /* Cambiar a min-height para permitir crecimiento */
+  display: flex;
+  flex-direction: column;
+  /* Permitir scroll cuando sea necesario */
+}
+
+/* Layout específico para páginas de autenticación */
+.app-layout.auth-layout {
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-card) 100%);
+  height: 100vh; /* Altura fija para auth */
+  overflow: hidden; /* Sin scroll */
+}
+
+/* Contenido principal que ocupa el espacio restante */
+.main-content {
+  flex: 1;
+  min-height: 0; /* Importante para que funcione el scroll */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  /* Permitir scroll cuando el contenido sea mayor que la pantalla */
+}
+
+/* Contenido específico para páginas de autenticación */
+.main-content.auth-content {
+  flex: none;
+  height: 100vh; /* Altura fija */
+  width: 100vw; /* Ancho fijo */
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Sin scroll */
+}
+
+/* Reset de estilos globales para evitar problemas de layout */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  /* Permitir scroll en la página principal */
+}
+
+/* Responsive para dispositivos móviles */
+@media (max-width: 768px) {
+  .content-container {
+    padding: 0.5rem;
+  }
+}
+
+/* Utilidades para centrado y distribución de contenido */
+.content-container {
+  width: 100%;
+  max-width: 1200px; /* Ancho máximo para contenido */
+  margin: 0 auto; /* Centra el contenedor */
+  padding: 1rem;
+  height: 100%; /* Usa toda la altura disponible */
+  display: flex;
+  flex-direction: column;
+}
+
+.content-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+}
+
+.content-full-height {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+}
+
+.content-spaced {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+ 
+}
+
+/* Para contenido que necesita scroll INTERNO */
+.scrollable-content {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0; /* Importante para que funcione el scroll interno */
+}

@@ -20,6 +20,7 @@
     <!-- Individual transaction card -->
     <div 
       *ngFor="let transaction of transactions; let i = index"
+      (click)="onViewDetails(transaction.id)"
       class="transaction-card-container">
       
       <!-- Transaction card content -->

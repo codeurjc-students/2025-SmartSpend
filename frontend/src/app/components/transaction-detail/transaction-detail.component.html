@@ -1,0 +1,35 @@
+<div class="transaction-detail">
+
+    <div *ngIf="transaction" class="transaction-container">
+
+        <!-- HEADER -->
+
+        <div class="category-icon">
+            <span class="category-icon">{{ transaction.category.icon }}</span>
+        </div>
+
+        <div class="category-info">
+            <h2 class="transaction-title">{{ transaction.title }}</h2>
+            <span class="category-name">{{ transaction.category.name }}</span>
+        </div>
+
+
+        <div class="transaction-amount" [class.income]="transaction.type === 'INCOME'"
+            [class.expense]="transaction.type === 'EXPENSE'">
+            {{ transaction.type === 'INCOME' ? '+' : '-' }}
+            {{ transaction.amount | number:'1.2-2' }} €
+        </div>
+
+        <div class="transaction-date">
+            {{ transaction.date | date:'dd/MM/yyyy HH:mm' }}
+        </div>
+
+        <!-- DESCRIPCIÓN -->
+        <div class="transaction-description" *ngIf="transaction.description">
+            <h3>Descripción</h3>
+            <p>{{ transaction.description }}</p>
+        </div>
+
+    </div>
+
+</div>

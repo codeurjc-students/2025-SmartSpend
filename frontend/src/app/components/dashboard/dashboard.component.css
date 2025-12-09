@@ -1,13 +1,227 @@
 /* ========================================
+   DASHBOARD GRID CONTAINER
+   ======================================== */
+
+.dashboard-grid-container {
+  width: 100%;
+  min-height: 100%; /* Cambiar a min-height para permitir crecimiento */
+  position: relative;
+}
+
+/* Loading, Error y Empty States */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  z-index: 10;
+}
+
+.loading-card, .error-card, .empty-state-card {
+  background-color: var(--color-bg-card);
+  text-align: center;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: var(--box-shadow-base);
+  max-width: 400px;
+  width: 90%;
+}
+
+.error-card {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+/* ========================================
+   DASHBOARD GRID LAYOUT
+   ======================================== */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1rem;
+  min-height: 100%; /* Permitir crecimiento del grid */
+  padding: 1rem;
+  grid-template-areas:
+    "fixed-expenses account-central balance"
+    "subscriptions account-central balance";
+}
+
+/* ========================================
+   GRID SECTIONS
+   ======================================== */
+
+.grid-section {
+  background: var(--color-bg-card);
+  border-radius: 16px;
+  box-shadow: var(--box-shadow-base);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.grid-section:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-elevated);
+}
+
+/* Asignación de áreas del grid */
+.fixed-expenses { grid-area: fixed-expenses; }
+.subscriptions { grid-area: subscriptions; }
+.account-central { grid-area: account-central; }
+.balance { grid-area: balance; }
+
+/* Scroll interno para secciones */
+.scrollable-content {
+  overflow-y: auto;
+  max-height: 200px;
+}
+
+.section-content.scrollable-content {
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+  padding: 0.5rem;
+}
+
+/* ========================================
+   SECTION HEADERS
+   ======================================== */
+
+.section-header {
+  flex-shrink: 0;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 0.5rem;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* ========================================
+   SECTION CONTENT
+   ======================================== */
+
+.section-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.section-content p {
+  margin: 0;
+  opacity: 0.8;
+}
+
+.section-content .text-muted {
+  color: var(--color-text);
+  opacity: 0.6;
+  font-size: 0.9rem;
+}
+
+/* Iconos para las secciones */
+.balance-icon, .pdf-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+/* ========================================
+   CUENTA CENTRAL - CONTENIDO PRINCIPAL
+   ======================================== */
+
+.account-central {
+  padding: 0; /* Sin padding para que el dashboard-wrapper maneje su propio spacing */
+}
+
+.account-central .dashboard-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.cuenta-central .dashboard-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 2fr 1fr 1fr;
+    grid-template-areas:
+      "account-central account-central"
+      "fixed-expenses balance"
+      "subscriptions balance";
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    grid-template-areas:
+      "account-central"
+      "fixed-expenses"
+      "subscriptions"
+      "balance";
+  }
+
+  .grid-section {
+    padding: 1rem;
+    min-height: 150px;
+  }
+
+  .cuenta-central {
+    min-height: 400px;
+  }
+
+  .section-header h3 {
+    font-size: 1rem;
+  }
+
+  .balance-icon, .pdf-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* ========================================
    DASHBOARD WRAPPER
    ======================================== */
 
 .dashboard-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100%; /* Usa toda la altura disponible sin exceder */
   width: 100%;
   position: relative;
+  overflow: hidden; /* Sin scroll externo */
 }
 
 /* ========================================
