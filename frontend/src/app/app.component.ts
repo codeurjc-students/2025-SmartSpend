@@ -23,9 +23,13 @@ import { filter } from 'rxjs/operators';
 
 export class AppComponent implements OnInit {
   title = 'smartspend-frontend';
-  showNavbar = true;
+  showNavbar = false; // Iniciar en false para evitar flash del navbar
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    // Verificar ruta inicial inmediatamente en el constructor
+    const authRoutes = ['/login', '/register'];
+    this.showNavbar = !authRoutes.some(route => this.router.url.includes(route));
+  }
 
   ngOnInit() {
     // Detectar cambios de ruta para mostrar/ocultar navbar
@@ -34,11 +38,10 @@ export class AppComponent implements OnInit {
       .subscribe((event: NavigationEnd) => {
         // Rutas donde NO queremos mostrar el navbar
         const authRoutes = ['/login', '/register'];
-        this.showNavbar = !authRoutes.includes(event.url);
+        this.showNavbar = !authRoutes.some(route => event.url.includes(route));
+        
+        // Debug en consola
+        console.log('Current URL:', event.url, 'Show Navbar:', this.showNavbar);
       });
-    
-    // Verificar ruta inicial
-    const authRoutes = ['/login', '/register'];
-    this.showNavbar = !authRoutes.includes(this.router.url);
   }
 }

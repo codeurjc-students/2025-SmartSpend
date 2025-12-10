@@ -7,10 +7,12 @@
   display: flex; /* Habilita Flexbox para el centrado */
   justify-content: center; /* Centra horizontalmente el contenido (la tarjeta) */
   align-items: center; /* Centra verticalmente el contenido (la tarjeta) */
-  min-height: 100vh; /* Altura completa del viewport */
+  min-height: 100vh; /* Altura mínima completa del viewport */
+  height: 100vh; /* Altura fija para evitar espacios */
   padding: 1rem; /* Espaciado interno */
   box-sizing: border-box; /* Incluye padding y borde en el tamaño total del elemento */
   width: 100%;
+  overflow: hidden; /* Evita scroll innecesario */
 }
 
 /* Tarjeta del formulario */
@@ -20,9 +22,11 @@
   border-radius: var(--border-radius-base); /* Bordes redondeados */
   box-shadow: var(--box-shadow-base); /* Sombra suave */
   width: clamp(280px, 90%, 350px); /* Ancho escalable */
+  max-height: 90vh; /* Altura máxima */
   text-align: center;
   transform: scale(clamp(0.75, calc(100vh / 650), 1)); /* Escala para login (menos contenido) */
   transform-origin: center;
+  overflow-y: auto; /* Scroll interno si es necesario */
 }
 
 /* Mensajes de error */
@@ -54,17 +58,6 @@
   }
 }
 
-/* Para pantallas más grandes que 768px (ej. tablets, laptops pequeñas) */
-@media (min-width: 768px) {
-  .register-card {
-    padding: 1.5rem;
-    max-width: 400px;
-  }
-
-  .register-card h2 {
-    font-size: 1.9rem;
-  }
-}
 
 /* Para pantallas muy pequeñas en altura */
 @media (max-height: 600px) {
@@ -86,7 +79,6 @@
 /* Para pantallas más grandes que 768px (ej. tablets, laptops pequeñas) */
 @media (min-width: 768px) {
   .register-card {
-    padding: 2.5rem; /* Más padding */
     max-width: 450px; /* Un poco más ancho */
   }
 
