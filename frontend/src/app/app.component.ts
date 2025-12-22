@@ -32,16 +32,26 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Detectar cambios de ruta para mostrar/ocultar navbar
+    // 👈 Detectar la ruta inicial inmediatamente
+    this.checkCurrentRoute();
+    
+    // Escucha los cambios de ruta posteriores
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: NavigationEnd) => {
-        // Rutas donde NO queremos mostrar el navbar
-        const authRoutes = ['/login', '/register'];
-        this.showNavbar = !authRoutes.some(route => event.url.includes(route));
-        
-        // Debug en consola
-        console.log('Current URL:', event.url, 'Show Navbar:', this.showNavbar);
+      .subscribe((event: any) => {
+        this.updateNavbarVisibility(event.url);
       });
   }
+
+  private checkCurrentRoute() {
+    const currentUrl = this.router.url;
+    this.updateNavbarVisibility(currentUrl);
+  }
+
+  private updateNavbarVisibility(url: string) {
+    // Oculta el navbar en las rutas de login y register
+    this.showNavbar = !['/login', '/register', '/'].includes(url);
+    console.log('Current URL:', url, 'Show navbar:', this.showNavbar);
+  }
+
 }

@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Transaction } from '../../interfaces/transaction.interface';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TransactionService } from '../../services/transaction/transaction.service';
 import { CommonModule } from '@angular/common';
 
@@ -11,13 +11,18 @@ import { CommonModule } from '@angular/common';
   templateUrl: './transaction-detail.component.html',
   styleUrl: './transaction-detail.component.css'
 })
-export class TransactionDetailComponent {
+export class TransactionDetailComponent implements OnInit {
 
   transactionId: number | null = null;
   transaction: Transaction | null = null;
   error: string | null = null;
+  
+  // Variables para modales
+  showConfirmModal: boolean = false;
+  showSuccessModal: boolean = false;
+  isDeleting: boolean = false;
 
-  constructor(private route: ActivatedRoute, private transactionService: TransactionService) {}
+  constructor(private route: ActivatedRoute, private transactionService: TransactionService, private router: Router) {}
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -41,4 +46,54 @@ export class TransactionDetailComponent {
 
     });
   }
+
+  getRecurrenceText(recurrence: string): string {
+    const recurrenceMap: { [key: string]: string } = {
+      'NONE': 'Sin recurrencia',
+      'DAILY': 'Diaria',
+      'WEEKLY': 'Semanal',
+      'MONTHLY': 'Mensual',
+      'YEARLY': 'Anual'
+    };
+    return recurrenceMap[recurrence] || recurrence;
+  }
+
+  onDeleteTransaction(): void {
+    this.showConfirmModal = true;
+  }
+
+  confirmDelete(): void {
+    if (!this.transactionId) return;
+    
+    this.isDeleting = true;
+    this.transactionService.deleteTransaction(this.transactionId).subscribe({
+      next: () => {
+        this.showConfirmModal = false;
+        this.isDeleting = false;
+        this.showSuccessModal = true;
+        
+        // Redirigir al dashboard después de 2 segundos
+        setTimeout(() => {
+          this.router.navigate(['/dashboard']);
+        }, 2000);
+      },
+      error: (err) => {
+        console.error('Error deleting transaction:', err);
+        this.isDeleting = false;
+        this.showConfirmModal = false;
+        this.error = 'Error al eliminar la transacción: ' + err.message;
+      }
+    });
+  }
+
+  cancelDelete(): void {
+    this.showConfirmModal = false;
+  }
+
+  closeSuccessModal(): void {
+    this.showSuccessModal = false;
+    this.router.navigate(['/dashboard']);
+  }
+
+  
 }

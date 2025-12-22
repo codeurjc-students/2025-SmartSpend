@@ -8,6 +8,10 @@
 @import './styles/_cards.css';
 @import './styles/_transaction-cards.css';
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 
 /* -------------------------------------------------------------------------- */
 /*                               2. Variables CSS                             */

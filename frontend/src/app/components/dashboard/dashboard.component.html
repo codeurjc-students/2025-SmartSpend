@@ -18,11 +18,11 @@
 
   <!-- Empty State - No hay cuentas -->
   <div *ngIf="accounts.length === 0 && !isLoading && !showCreateAccountForm" class="loading-overlay">
-    <div class="empty-state-card">
-      <h3 style="color: var(--color-primary); margin-bottom: 20px;">¡Bienvenido a Smart Spend!</h3>
-      <p style="color: var(--color-text); opacity: 0.6; margin-bottom: 30px;">Comienza creando tu primera cuenta bancaria para gestionar tus finanzas.</p>
-      <button class="btn btn-primary btn-lg" (click)="createFirstAccount()">
-        ➕ Crear Primera Cuenta
+    <div class="welcome-state-card">
+      <h2>Bienvenido a Smart Spend</h2>
+      <p>Comienza a gestionar tus finanzas de forma inteligente</p>
+      <button class="btn-welcome" (click)="createFirstAccount()">
+        Crear Primera Cuenta
       </button>
     </div>
   </div>
@@ -77,7 +77,7 @@
     <!-- Fixed Expenses -->
     <div class="grid-section fixed-expenses">
       <div class="section-header">
-        <h3>💸 Fixed Expenses</h3>
+        <h3>💸 Deudas pendientes</h3>
       </div>
       <div class="section-content scrollable-content">
         <p>Coming soon...</p>
@@ -88,71 +88,58 @@
     <!-- Subscriptions -->
     <div class="grid-section subscriptions">
       <div class="section-header">
-        <h3>📱 Subscriptions</h3>
+        <h3>💳 Gastos fijos</h3>
       </div>
       <div class="section-content scrollable-content">
         <p>Coming soon...</p>
-        <small class="text-muted">Monthly subscriptions tracker</small>
+        <small class="text-muted">Gastos fijos mensuales</small>
       </div>
     </div>
 
     <!-- Account Central (current dashboard content) -->
     <div class="grid-section account-central">
-      <div class="dashboard-wrapper">
+      
+      <!-- Navigation Arrows - Smaller -->
+      <button *ngIf="accounts.length > 1" class="nav-arrow nav-arrow-left" (click)="previousAccount()">
+        ←
+      </button>
+      <button *ngIf="accounts.length > 1" class="nav-arrow nav-arrow-right" (click)="nextAccount()">
+        →
+      </button>
+
+      <!-- Account Content Direct -->
+      <div *ngIf="currentAccount" class="account-content-direct">
         
-        <div class="main-container">
-          <!-- Navigation Arrow Left -->
-          <button *ngIf="accounts.length > 1" class="navigation-arrow" (click)="previousAccount()">
-            ←
-          </button>
-
-          <!-- Account Card Section -->
-          <div *ngIf="currentAccount" class="account-container">
-            
-            <!-- Account Header -->
-            <div class="account-header">
-              <h2 class="form-title">{{ currentAccount.accountName }}</h2>
-              <div class="account-balance">
-                {{ (currentAccount.currentBalance | number:'1.2-2') + ' €' }}
-              </div>
-            </div>
-
-            <!-- Account Content (scrollable area) -->
-            <div class="account-content">
-              <!-- Transaction List Component -->
-              <app-transaction-list [accountId]="currentAccount.id" 
-                                   (addTransactionClick)="onAddTransactionFromList()"
-                                   (transactionDeletedSuccess)="onTransactionDeletedSuccess()">
-              </app-transaction-list>
-            </div>
-
-            <!-- Account Footer -->
-            <div class="account-footer">
-              <!-- Account Management -->
-              <button class="btn btn-primary" (click)="createNewAccount()" [disabled]="accounts.length >= 3">
-                ➕ New Account
-                <span *ngIf="accounts.length >= 3">(Max 3)</span>
-              </button>
-              
-              <!-- Success Message -->
-              <div *ngIf="successMessage && !showCreateAccountForm" class="mt-md" >
-                <small class="text-success">{{ successMessage }}</small>
-              </div>
-            </div>
-            
-          </div>
-          
-          <!-- Navigation Arrow Right -->
-          <button *ngIf="accounts.length > 1" class="navigation-arrow" (click)="nextAccount()">
-            →
-          </button>
+        <!-- Title at the very top -->
+        <div class="account-title">
+          <h2>{{ currentAccount.accountName }}</h2>
         </div>
         
-        <!-- Page Indicators (dots) - Fixed at bottom for mobile -->
-        <div *ngIf="accounts.length > 1" class="page-indicators">
-          <div class="indicators-container">
+        <!-- Balance -->
+        <div class="account-balance">
+          {{ (currentAccount.currentBalance | number:'1.2-2') + ' €' }}
+        </div>
+
+        <!-- Transactions Content (scrollable) -->
+        <div class="account-transactions">
+          <app-transaction-list [accountId]="currentAccount.id" 
+                               (addTransactionClick)="onAddTransactionFromList()"
+                               (transactionDeletedSuccess)="onTransactionDeletedSuccess()">
+          </app-transaction-list>
+        </div>
+
+        <!-- Fixed Add Button at Bottom -->
+        <div class="account-add-button">
+          <button class="btn-add-transaction" (click)="onAddTransactionFromList()">
+            ➕ Añadir Transacción
+          </button>
+        </div>
+
+        <!-- Page Indicators below button -->
+        <div *ngIf="accounts.length > 1" class="account-indicators">
+          <div class="indicators-small">
             <button *ngFor="let account of accounts; let i = index" 
-                    class="indicator-btn" 
+                    class="indicator-small" 
                     [class.active]="i === currentAccountIndex"
                     (click)="goToAccount(i)" 
                     [title]="account.accountName">
@@ -160,13 +147,14 @@
             </button>
           </div>
         </div>
+        
       </div>
     </div>
 
     <!-- Balance Overview -->
     <div class="grid-section balance">
       <div class="section-header">
-        <h3>💰 Balance Overview</h3>
+        <h3>💰 Balance de gastos/ingresos</h3>
       </div>
       <div class="section-content scrollable-content">
         <div class="balance-icon">📊</div>

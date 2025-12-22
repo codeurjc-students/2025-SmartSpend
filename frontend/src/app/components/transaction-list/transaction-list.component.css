@@ -1,7 +1,17 @@
 /* ==========================================================================
    TRANSACTION LIST COMPONENT - SmartSpend
    Estilos para el componente de lista de transacciones
-   ========================================================================== */
+/* Estado vacío que mantiene altura mínima */
+.text-center.p-md {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 200px;
+}
+
+/* ========================================================================== */
 
 /* -------------------------------------------------------------------------- */
 /*                          Contenedor Principal                             */
@@ -12,6 +22,10 @@
     padding: 0;
     overflow-y: auto;
     max-height: 100%;
+    /* Altura mínima fija para consistencia */
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -26,8 +40,11 @@
 .transactions-list-container {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 16px 0;
+    gap: 20px;
+    padding: 8px 0;
+    /* Se adapta al contenido sin espacios extra */
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
 /* -------------------------------------------------------------------------- */
