@@ -1,0 +1,111 @@
+/* CONTENEDOR GENERAL */
+.transaction-detail {
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+/* TARJETA PRINCIPAL */
+.transaction-container {
+    background-color: var(--color-bg-card);
+    padding: 2rem;
+    border-radius: 14px;
+    box-shadow: var(--box-shadow-base);
+    width: 100%;
+    max-width: 900px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
+    grid-template-areas: 
+        ". header ."
+        ". info ."
+        ". amount ."
+        ". date ."
+        "description description description";
+}
+
+
+
+
+.transaction-amount {
+    grid-area: amount;
+    font-size: 1.8rem;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+}
+
+.transaction-date {
+    grid-area: date;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    display: flex;
+    justify-content: center;
+}
+
+.transaction-description {
+    background-color: var(--color-bg-secondary);
+    padding: 1rem 1.4rem;
+    border-radius: 10px;
+    grid-area: description;
+}
+
+
+.category-icon {
+    font-size: 2rem;
+    padding: 0.8rem;
+    background-color: var(--color-bg-secondary);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    grid-area: header;
+}
+
+.category-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    grid-area: info;
+}
+
+.transaction-title {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #fff;
+}
+
+.category-name {
+    font-size: 0.95rem;
+    opacity: 0.7;
+}
+
+/* DERECHA: IMPORTE + FECHA */
+.header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.3rem;
+}
+
+
+
+.transaction-amount.income {
+    color: #2BDACF;
+}
+
+.transaction-amount.expense {
+    color: #FF6B6B;
+}
+
+
+
+/* DESCRIPCIÓN */
+
+.transaction-description h3 {
+    margin-bottom: 0.5rem;
+}
+
+.transaction-description p {
+    opacity: 0.85;
+}

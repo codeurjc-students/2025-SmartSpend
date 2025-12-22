@@ -7,24 +7,26 @@
   display: flex; /* Habilita Flexbox para el centrado */
   justify-content: center; /* Centra horizontalmente el contenido (la tarjeta) */
   align-items: center; /* Centra verticalmente el contenido (la tarjeta) */
-  min-height: 100vh; /* Asegura que el contenedor ocupe al menos el 100% de la altura del viewport */
-  padding: 1rem; /* Espaciado interno para que el contenido no toque los bordes en pantallas pequeñas */
+  min-height: 100vh; /* Altura mínima completa del viewport */
+  height: 100vh; /* Altura fija para evitar espacios */
+  padding: 1rem; /* Espaciado interno */
   box-sizing: border-box; /* Incluye padding y borde en el tamaño total del elemento */
-  background-color: var(--background-light); /* Usa la variable global para el color de fondo */
-  overflow: hidden; /* Elimina scroll en la página de registro */
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  overflow: hidden; /* Evita scroll innecesario */
 }
 
 /* Tarjeta del formulario */
 .register-card {
-  background-color: var(--light-color); /* Usa la variable global para el fondo de la tarjeta */
-  padding: 1.5rem; /* Espaciado interno de la tarjeta */
-  border-radius: var(--border-radius-base); /* Bordes redondeados usando la variable global */
-  box-shadow: var(--box-shadow-base); /* Sombra suave usando la variable global */
-  width: 100%; /* Ocupa todo el ancho disponible en móviles */
-  max-width: 400px; /* Ancho máximo para que no se estire demasiado en pantallas grandes */
-  text-align: center; /* ¡Alinea todo el texto y contenido de bloque al centro dentro de la tarjeta! */
+  background-color: var(--color-bg-card); /* Variable actualizada del tema actual */
+  padding: clamp(0.75rem, 2.5vw, 1rem); /* Padding escalable */
+  border-radius: var(--border-radius-base); /* Bordes redondeados */
+  box-shadow: var(--box-shadow-base); /* Sombra suave */
+  width: clamp(280px, 90%, 350px); /* Ancho escalable */
+  max-height: 90vh; /* Altura máxima */
+  text-align: center;
+  transform: scale(clamp(0.8, calc(100vh / 700), 1)); /* Escala según altura de pantalla */
+  transform-origin: center;
+  overflow-y: auto; /* Scroll interno si es necesario */
 }
 
 
@@ -35,22 +37,39 @@
 /* Para pantallas más grandes que 576px (ej. tablets pequeñas, móviles grandes en horizontal) */
 @media (min-width: 576px) {
   .register-card {
-    padding: 2rem; /* Aumenta el padding en pantallas más grandes */
+    padding: 1.25rem; /* Padding ligeramente mayor */
+    max-width: 380px; /* Ancho máximo ajustado */
+    transform: none; /* Sin escalado en pantallas normales */
   }
 
   .register-card h2 {
-    font-size: 2rem; /* Aumenta ligeramente el tamaño del título */
+    font-size: 1.75rem; /* Tamaño de título reducido */
   }
 
   .btn-primary {
-    font-size: 1.1rem; /* Aumenta el tamaño de fuente del botón */
+    font-size: 1rem; /* Tamaño de botón normal */
   }
 }
 
-/* Para pantallas más grandes que 768px (ej. tablets, laptops pequeñas) */
+
+/* Para pantallas muy pequeñas en altura */
+@media (max-height: 600px) {
+  .register-card h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .register-card img {
+    width: 60% !important;
+  }
+  
+  .form-group {
+    margin-bottom: 0.5rem;
+  }
+}
 @media (min-width: 768px) {
   .register-card {
-    padding: 2.5rem; /* Más padding */
+    
     max-width: 450px; /* Un poco más ancho */
   }
 

@@ -2,6 +2,7 @@ import { Component, OnInit, Input, OnChanges, Output, EventEmitter, SimpleChange
 import { CommonModule } from '@angular/common';
 import { TransactionService } from '../../services/transaction/transaction.service';
 import { Transaction } from '../../interfaces/transaction.interface';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -26,7 +27,7 @@ export class TransactionListComponent implements OnInit, OnChanges { // ✅ Impl
   @Output() deleteTransactionClick = new EventEmitter<number>(); 
   @Output() transactionDeletedSuccess = new EventEmitter<void>();
 
-  constructor(private transactionService: TransactionService){}
+  constructor(private transactionService: TransactionService, private router: Router){}
 
   ngOnInit(): void {
     // Cargar transacciones al inicializar si hay un accountId
@@ -127,4 +128,12 @@ export class TransactionListComponent implements OnInit, OnChanges { // ✅ Impl
   refreshTransactions(): void {
     this.loadTransactions();
   }
+
+  onViewDetails(transactionId:number): void {
+    
+    console.log('Navigating to transaction details for ID:', transactionId);
+    this.router.navigate(['/transaction', transactionId]);
+
+  }
+
 }

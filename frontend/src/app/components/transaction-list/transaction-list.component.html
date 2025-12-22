@@ -9,9 +9,6 @@
   <!-- Empty state -->
   <div *ngIf="!isLoading && (!transactions || transactions.length === 0)" class="text-center p-md">
     <p class="text-muted mb-md">No hay transacciones en esta cuenta</p>
-    <button class="btn btn-primary" (click)="onAddTransaction()">
-      ➕ Añadir primera transacción
-    </button>
   </div>
 
   <!-- Transaction list with improved architecture -->
@@ -20,6 +17,7 @@
     <!-- Individual transaction card -->
     <div 
       *ngFor="let transaction of transactions; let i = index"
+      (click)="onViewDetails(transaction.id)"
       class="transaction-card-container">
       
       <!-- Transaction card content -->
@@ -50,15 +48,7 @@
           <p class="transaction-date">{{ transaction.date | date:'dd/M, HH:mm' }}</p>
         </div>
         
-        <!-- Actions block - DENTRO del grid -->
-        <div class="transaction-actions-block">
-          <button class="btn btn-xs btn-outline-primary" (click)="onEditTransaction(transaction.id)" title="Editar">
-            ✏️
-          </button>
-          <button class="btn btn-xs btn-danger" (click)="onDeleteTransaction(transaction.id)" title="Eliminar">
-            🗑️
-          </button>
-        </div>
+        
         
       </div>
       
@@ -66,18 +56,11 @@
 
   </div>
   
-  <!-- Add more transactions when list is not empty -->
-  <div *ngIf="!isLoading && transactions && transactions.length > 0" class="mt-md text-center">
-    <button class="btn btn-primary" (click)="onAddTransaction()">
-      ➕ Añadir Transacción
+  <!-- Show more button solo cuando hay transacciones -->
+  <div *ngIf="!isLoading && transactions && transactions.length > 0 && hasMoreTransactions" class="mt-sm text-center">
+    <button class="btn btn-secondary btn-sm" (click)="onViewAllTransactions()">
+      Ver todas las transacciones
     </button>
-    
-    <!-- Show more button -->
-    <div *ngIf="hasMoreTransactions" class="mt-sm">
-      <button class="btn btn-secondary btn-sm" (click)="onViewAllTransactions()">
-        Ver todas las transacciones
-      </button>
-    </div>
   </div>
   
 </div>

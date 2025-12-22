@@ -3,6 +3,7 @@ package com.smartspend.transaction;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,11 @@ public class TransactionService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+
+    public Optional<Transaction> getTransactionById(Long transactionId) {
+        return transactionRepository.findById(transactionId);
+    }
 
     public List<Transaction> findAll(String email) {
 

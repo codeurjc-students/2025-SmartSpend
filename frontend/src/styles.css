@@ -8,6 +8,10 @@
 @import './styles/_cards.css';
 @import './styles/_transaction-cards.css';
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 
 /* -------------------------------------------------------------------------- */
 /*                               2. Variables CSS                             */
@@ -58,6 +62,8 @@
 /* Configuración de la fuente base para el documento */
 html {
   font-size: 16px; /* Tamaño de fuente base para el elemento raíz. 1rem = 16px */
+  margin: 0;
+  padding: 0;
  
 }
 
@@ -68,9 +74,10 @@ body {
   background-color: var(--color-bg); /* Color de fondo general */
   -webkit-font-smoothing: antialiased; /* Suavizado de fuentes para WebKit */
   -moz-osx-font-smoothing: grayscale; /* Suavizado de fuentes para Firefox */
-  overflow-y: hidden;
-  overflow-x: hidden;
-  padding-top: 50px; /* Ajuste para navbar fijo */
+  margin: 0;
+  padding: 0;
+  min-height: 100vh; /* Altura mínima de la ventana, permitir crecimiento */
+  /* Permitir scroll cuando sea necesario */
 }
 
 
@@ -97,13 +104,13 @@ a:hover {
 /* Layout básico */
 .container {
     max-width: 1200px;
-    margin: 0 auto;
+    /* margin: 0 auto; */
     padding: 0 20px;
 }
 
 .main-content {
     min-height: calc(100vh - 100px);
-    padding: 20px 0;
+    /* padding: 20px 0; */
 }
 
 /* Flexbox utilities */

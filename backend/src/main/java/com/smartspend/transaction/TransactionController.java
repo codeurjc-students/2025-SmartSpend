@@ -1,6 +1,7 @@
 package com.smartspend.transaction;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -55,6 +56,17 @@ public class TransactionController {
         String userEmail = authentication.getName();
         Page<Transaction> transactionsPage = transactionService.getTransactionsByAccount(accountId, userEmail, pageable);
         return ResponseEntity.ok(transactionsPage);
+    }
+
+    @GetMapping("/{transactionId}")
+    public ResponseEntity<Transaction> getTransactionById(@PathVariable Long transactionId, Authentication authentication){
+        String userEmail = authentication.getName();
+
+        Optional<Transaction> transaction = transactionService.getTransactionById(transactionId);
+        if (transaction.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(transaction.get());
     }
 
     @DeleteMapping("/{transactionId}")

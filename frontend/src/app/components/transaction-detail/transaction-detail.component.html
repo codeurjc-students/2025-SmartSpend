@@ -1,0 +1,124 @@
+<div class="bg-slate-800 min-h-dvh text-slate-200">
+
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-8">
+
+    <!-- Loading -->
+    <div *ngIf="!transaction && !error"
+         class="flex items-center justify-center h-[60vh]">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+        <p class="text-slate-400">Cargando transacción...</p>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error"
+         class="flex items-center justify-center h-[60vh]">
+      <div class="text-center bg-red-500/10 border border-red-500/20 rounded-xl p-8">
+        <p class="text-red-400 text-lg font-semibold mb-2">Error</p>
+        <p class="text-slate-300">{{ error }}</p>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <ng-container *ngIf="transaction">
+
+      <!-- GRID PRINCIPAL -->
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- ================= TARJETA PRINCIPAL ================= -->
+        <section class="md:col-span-2 bg-slate-700 rounded-3xl shadow-xl p-6 lg:p-8">
+
+          <!-- HEADER -->
+          <div class="flex flex-col items-center text-center">
+
+            <div
+              class="w-16 h-16 rounded-full flex items-center justify-center mb-2"
+              [style.background-color]="transaction.category.color"
+            >
+              <span class="text-white text-2xl">
+                {{ transaction.category.icon }}
+              </span>
+            </div>
+
+            <p class="text-sm text-slate-300 mb-4">
+              {{ transaction.category.name }}
+            </p>
+
+            <h1 class="text-2xl font-semibold text-slate-100">
+              {{ transaction.title }}
+            </h1>
+
+            <p
+              class="text-4xl font-bold mt-2"
+              [ngClass]="{
+                'text-emerald-400': transaction.type === 'INCOME',
+                'text-red-400': transaction.type === 'EXPENSE'
+              }"
+            >
+              {{ transaction.type === 'EXPENSE' ? '-' : '+' }}
+              {{ transaction.amount.toFixed(2) }} €
+            </p>
+
+          </div>
+
+          <!-- INFO COMPACTA -->
+          <div class="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-slate-400">
+            <span>{{ transaction.date | date:'d MMM y' }}</span>
+            <span>•</span>
+            <span>{{ transaction.type === 'EXPENSE' ? 'Gasto' : 'Ingreso' }}</span>
+            <span>•</span>
+            <span>{{ getRecurrenceText(transaction.recurrence) }}</span>
+          </div>
+
+          <!-- DESCRIPCIÓN -->
+          <div class="mt-6 bg-slate-800/50 rounded-2xl px-5 py-4 text-center">
+            <p class="text-sm text-slate-300">
+              {{ transaction.description || 'Sin descripción' }}
+            </p>
+          </div>
+
+          <!-- ACCIONES -->
+          <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+            <button class="px-6 py-2 rounded-xl bg-slate-600 hover:bg-slate-500 transition">
+              ✏️ Editar
+            </button>
+            <button
+              class="px-6 py-2 rounded-xl bg-red-500 hover:bg-red-600 transition"
+              (click)="onDeleteTransaction()"
+            >
+              🗑️ Eliminar
+            </button>
+          </div>
+
+        </section>
+
+        <!-- ================= TARJETA RECURRENTE ================= -->
+        <aside class="bg-slate-700 rounded-2xl p-6 shadow-lg">
+          <h3 class="text-lg font-semibold mb-2">Gasto recurrente</h3>
+          <p class="text-sm text-slate-400 mb-4">
+            Repite este gasto automáticamente.
+          </p>
+          <button class="w-full bg-indigo-500 hover:bg-indigo-600 rounded-xl py-2 font-semibold">
+            Convertir en recurrente
+          </button>
+        </aside>
+
+        <!-- ================= TARJETA COMPARTIDO ================= -->
+        <aside class="bg-slate-700 rounded-2xl p-6 shadow-lg">
+          <h3 class="text-lg font-semibold mb-2">Gasto compartido</h3>
+          <p class="text-sm text-slate-400 mb-4">
+            Divide este gasto con otras personas.
+          </p>
+          <button class="w-full bg-indigo-500 hover:bg-indigo-600 rounded-xl py-2 font-semibold">
+            Compartir gasto
+          </button>
+        </aside>
+
+      </section>
+
+    </ng-container>
+
+  </div>
+
+</div>
