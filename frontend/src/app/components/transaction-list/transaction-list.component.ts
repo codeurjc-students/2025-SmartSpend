@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TransactionService } from '../../services/transaction/transaction.service';
 import { Transaction } from '../../interfaces/transaction.interface';
 import { Router } from '@angular/router';
+import { ActiveAccountService } from '../../services/active-account/active-account.service';
 
 
 @Component({
@@ -27,13 +28,24 @@ export class TransactionListComponent implements OnInit, OnChanges { // ✅ Impl
   @Output() deleteTransactionClick = new EventEmitter<number>(); 
   @Output() transactionDeletedSuccess = new EventEmitter<void>();
 
-  constructor(private transactionService: TransactionService, private router: Router){}
+  constructor(
+    private transactionService: TransactionService, 
+    private router: Router,
+    private activeAccountService: ActiveAccountService
+  ) {}
 
   ngOnInit(): void {
-    // Cargar transacciones al inicializar si hay un accountId
-    if (this.accountId) {
-      this.loadTransactions();
-    }
+    // Suscribirse a cambios en la cuenta activa
+    this.activeAccountService.activeAccount$.subscribe(activeAccount => {
+      if (activeAccount) {
+        this.accountId = activeAccount.id;
+        this.loadTransactions();
+      } else {
+        this.accountId = null;
+        this.transactions = [];
+        this.hasMoreTransactions = false;
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -53,7 +65,7 @@ export class TransactionListComponent implements OnInit, OnChanges { // ✅ Impl
     if (!this.accountId) {
       this.transactions = [];
       this.isLoading = false;
-      this.hasMoreTransactions = false;
+      this.hasMoreTransactions = true;
       return;
     }
 

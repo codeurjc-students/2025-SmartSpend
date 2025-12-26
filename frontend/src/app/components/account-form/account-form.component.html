@@ -1,0 +1,107 @@
+<!-- MODAL OVERLAY -->
+<div
+  *ngIf="showCreateAccountForm"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+  (click)="closeCreateAccountModal()"
+>
+
+  <!-- MODAL -->
+  <div
+    class="w-full max-w-md bg-slate-800 rounded-2xl shadow-xl"
+    (click)="$event.stopPropagation()"
+  >
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+      <h3 class="text-lg font-semibold text-slate-100">
+        Nueva Cuenta Bancaria
+      </h3>
+      <button
+        (click)="closeCreateAccountModal()"
+        class="text-slate-400 hover:text-slate-200 transition"
+      >
+        ✕
+      </button>
+    </div>
+
+    <!-- BODY -->
+    <div class="px-6 py-5">
+      <form (ngSubmit)="createAccount()" class="space-y-5">
+
+        <!-- Nombre cuenta -->
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">
+            Nombre de la cuenta <span class="text-red-400">*</span>
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="newAccountName"
+            name="accountName"
+            required
+            maxlength="50"
+            [disabled]="isCreatingAccount"
+            placeholder="Ej: Cuenta Principal, Ahorros..."
+            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-200
+                   focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+          />
+        </div>
+
+        <!-- Saldo inicial -->
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">
+            Saldo inicial <span class="text-red-400">*</span>
+          </label>
+          <input
+            type="number"
+            [(ngModel)]="initialBalance"
+            name="initialBalance"
+            required
+            step="0.01"
+            [disabled]="isCreatingAccount"
+            placeholder="0.00"
+            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-right
+                   text-lg font-semibold text-slate-200
+                   focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+          />
+        </div>
+
+        <!-- ERROR -->
+        <div *ngIf="errorMessage">
+          <p class="text-sm text-red-400">
+            {{ errorMessage }}
+          </p>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-700">
+          <button
+            type="button"
+            (click)="closeCreateAccountModal()"
+            [disabled]="isCreatingAccount"
+            class="px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 transition
+                   disabled:opacity-60"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            [disabled]="isCreatingAccount || !newAccountName.trim()"
+            class="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white font-medium
+                   transition flex items-center gap-2 disabled:opacity-60"
+          >
+            <!-- Spinner -->
+            <span
+              *ngIf="isCreatingAccount"
+              class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+            ></span>
+
+            {{ isCreatingAccount ? 'Creando...' : 'Crear Cuenta' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>

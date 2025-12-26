@@ -7,6 +7,7 @@ import { BankAccount, BankAccountServiceService, CreateBankAccount} from '../../
 import { TransactionListComponent } from '../transaction-list/transaction-list.component';
 import { CreateTransactionModalComponent } from '../create-transaction-modal/create-transaction-modal.component';
 import { Transaction } from '../../interfaces/transaction.interface';
+import { ActiveAccountService } from '../../services/active-account/active-account.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,8 +21,7 @@ export class DashboardComponent implements OnInit {
   @ViewChild(TransactionListComponent) transactionListComponent!: TransactionListComponent;
   
   accounts: BankAccount[] = [];
-  currentAccountIndex = 0;
-  selectedAccountForDisplay: BankAccount | null = null; // ✅ Renombramos 'userCurrentAccount' a 'selectedAccountForDisplay' para mayor claridad.
+  activeAccount: BankAccount | null = null;
 
   showCreateAccountForm = false;
   newAccountName = '';
@@ -38,23 +38,22 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private bankAccountService: BankAccountServiceService,
+    private activeAccountService: ActiveAccountService
     // private transactionService: TransactionService // Se eliminó porque no se usa directamente en este componente.
   ) {}
 
   ngOnInit(): void {
     this.loadUserAccounts();
+    
+    // Suscribirse a cambios en la cuenta activa
+    this.activeAccountService.activeAccount$.subscribe(account => {
+      this.activeAccount = account;
+    });
   }
 
-  // ✅ Eliminar el getter 'currentAccount' para evitar ambigüedad y depender solo de 'selectedAccountForDisplay'
-  /*
+  // ✅ Getter para el template, ahora usa la cuenta activa del servicio
   get currentAccount(): BankAccount | null {
-    return this.accounts.length > 0 ? this.accounts[this.currentAccountIndex] : null;
-  }
-  */
-
-  // ✅ Getter para el template, ahora usa 'selectedAccountForDisplay'
-  get currentAccount(): BankAccount | null {
-    return this.selectedAccountForDisplay;
+    return this.activeAccount;
   }
 
   loadUserAccounts(): void {
@@ -67,16 +66,16 @@ export class DashboardComponent implements OnInit {
         this.accounts = accounts;
         console.log('Cuentas cargadas:', accounts);
         
-        if (this.accounts.length > 0) {
-          if (this.currentAccountIndex >= this.accounts.length) {
-            this.currentAccountIndex = 0; 
-          }
-          this.selectedAccountForDisplay = this.accounts[this.currentAccountIndex];
-          console.log('DashboardComponent: Updated selected account balance:', this.selectedAccountForDisplay.currentBalance); // LOG
-        } else {
-          this.currentAccountIndex = 0; 
-          this.selectedAccountForDisplay = null; // ✅ Asignar explícitamente
+        // Si no hay cuenta activa, establecer la primera como activa
+        const currentActiveAccount = this.activeAccountService.getActiveAccount();
+        if (!currentActiveAccount && accounts.length > 0) {
+          this.activeAccountService.setActiveAccount(accounts[0]);
         }
+        // Si la cuenta activa ya no existe en las cuentas cargadas, establecer la primera
+        else if (currentActiveAccount && !accounts.find(acc => acc.id === currentActiveAccount.id) && accounts.length > 0) {
+          this.activeAccountService.setActiveAccount(accounts[0]);
+        }
+        
         this.isLoading = false;
       },
       error: (err) => {
@@ -127,26 +126,9 @@ export class DashboardComponent implements OnInit {
         this.closeCreateAccountModal(); 
         this.isCreatingAccount = false;
         
-        this.bankAccountService.getBankAccounts().subscribe({
-          next: (accounts) => {
-            this.accounts = accounts;
-            const newAccountIndex = accounts.findIndex(acc => acc.id === newlyCreatedAccount.id);
-            if (newAccountIndex !== -1) {
-              this.currentAccountIndex = newAccountIndex;
-            } else if (accounts.length > 0) {
-              this.currentAccountIndex = 0; 
-            } else {
-              this.currentAccountIndex = 0; 
-            }
-            this.selectedAccountForDisplay = this.accounts.length > 0 ? this.accounts[this.currentAccountIndex] : null; // ✅ Asignar explícitamente
-            this.isLoading = false; 
-          },
-          error: (err) => {
-            console.error('Error recargando cuentas después de crear:', err);
-            this.errorMessage = 'Error al recargar las cuentas.';
-            this.isLoading = false;
-          }
-        });
+        // Recargar cuentas y establecer la nueva como activa
+        this.loadUserAccounts();
+        this.activeAccountService.setActiveAccount(newlyCreatedAccount);
       },
       error: (err) => {
         console.error('Error creando cuenta:', err);
@@ -158,27 +140,28 @@ export class DashboardComponent implements OnInit {
   
   nextAccount(): void {
     if (this.accounts.length > 1) {
-      this.currentAccountIndex = (this.currentAccountIndex + 1) % this.accounts.length;
-      this.selectedAccountForDisplay = this.accounts[this.currentAccountIndex]; // ✅ Asignar explícitamente
+      const currentIndex = this.accounts.findIndex(acc => acc.id === this.activeAccount?.id);
+      const nextIndex = (currentIndex + 1) % this.accounts.length;
+      this.activeAccountService.setActiveAccount(this.accounts[nextIndex]);
     }
   }
 
   previousAccount(): void {
     if (this.accounts.length > 1) {
-      this.currentAccountIndex = (this.currentAccountIndex - 1 + this.accounts.length) % this.accounts.length;
-      this.selectedAccountForDisplay = this.accounts[this.currentAccountIndex]; // ✅ Asignar explícitamente
+      const currentIndex = this.accounts.findIndex(acc => acc.id === this.activeAccount?.id);
+      const prevIndex = (currentIndex - 1 + this.accounts.length) % this.accounts.length;
+      this.activeAccountService.setActiveAccount(this.accounts[prevIndex]);
     }
   }
 
   goToAccount(index: number): void {
     if (index >= 0 && index < this.accounts.length) {
-      this.currentAccountIndex = index;
-      this.selectedAccountForDisplay = this.accounts[this.currentAccountIndex]; // ✅ ¡IMPORTANTE! Asignar explícitamente aquí
+      this.activeAccountService.setActiveAccount(this.accounts[index]);
     }
   }
 
   addTransaction(): void {
-    console.log('Añadir transacción a:', this.selectedAccountForDisplay?.accountName);
+    console.log('Añadir transacción a:', this.activeAccount?.accountName);
     this.onAddTransactionFromList(); 
   }
 
@@ -205,7 +188,7 @@ export class DashboardComponent implements OnInit {
       this.transactionListComponent.refreshTransactions(); // ✅ El TransactionListComponent recargará sus propias transacciones
     }
     
-    this.loadUserAccounts(); // ✅ Recargar las cuentas para actualizar el balance y selectedAccountForDisplay
+    this.loadUserAccounts(); // ✅ Recargar las cuentas para actualizar el balance
     
     setTimeout(() => this.successMessage = '', 3000); 
   }
