@@ -29,7 +29,7 @@ export class CreateTransactionModalComponent implements OnInit {
   newTransaction: Partial<CreateTransactionDto> = {
     title: '',
     description: '',
-    amount: 0,
+    amount: undefined,
     type: 'EXPENSE',
     recurrence: 'NONE',
     categoryId: undefined,
@@ -91,6 +91,13 @@ export class CreateTransactionModalComponent implements OnInit {
     this.newTransaction.categoryId = undefined; // Reset category selection
     this.loadCategories();
   }
+
+  onAmountFocus(): void {
+    if (this.newTransaction.amount === 0) {
+      this.newTransaction.amount = undefined;
+    }
+  }
+
 
   onSubmit(): void {
     if (!this.currentAccount) {

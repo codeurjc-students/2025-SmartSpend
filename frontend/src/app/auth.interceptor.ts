@@ -23,10 +23,9 @@ export class AuthInterceptor implements HttpInterceptor {
           Authorization: `Bearer ${token}`
         }
       });
-      console.log('AuthInterceptor: Token JWT adjuntado a la petición:', request.url); // Mensaje de depuración
+      
     } else {
-      console.log('AuthInterceptor: No se encontró token JWT para adjuntar a la petición:', request.url); // Mensaje de depuración
-    }
+      console.warn('No se encontró token de autenticación en el almacenamiento local.');}
 
     return next.handle(request);
   }

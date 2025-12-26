@@ -45,22 +45,17 @@ export class AuthService {
     const token = localStorage.getItem('authToken');
     
     if (!token) {
-      console.log('AuthService: No hay token en localStorage. Usuario NO autenticado.'); // Mensaje de depuración
-      return false; // No hay token, no autenticado
+      return false; 
     }
 
     try {
       const decodedToken: any = jwtDecode(token); // Decodifica el token
       const currentTime = Date.now() / 1000; // Tiempo actual en segundos
 
-      console.log('AuthService: Token decodificado:', decodedToken); // Mensaje de depuración
-      console.log('AuthService: Expiración del token (exp):', decodedToken.exp);
-      console.log('AuthService: Tiempo actual:', currentTime);
-
-      // Verifica si el token ha expirado
+      
       if (decodedToken.exp < currentTime) {
-        console.log('AuthService: Token expirado. Cerrando sesión.'); // Mensaje de depuración
-        this.logout(); // Si ha expirado, cierra sesión
+        console.log('AuthService: Token expirado. Cerrando sesión.'); 
+        this.logout(); 
         return false;
       }
       
