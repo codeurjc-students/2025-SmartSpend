@@ -122,7 +122,7 @@
 
         <!-- Transactions Content (scrollable) -->
         <div class="account-transactions">
-          <app-transaction-list [accountId]="currentAccount.id" 
+          <app-transaction-list 
                                (addTransactionClick)="onAddTransactionFromList()"
                                (transactionDeletedSuccess)="onTransactionDeletedSuccess()">
           </app-transaction-list>
@@ -140,7 +140,7 @@
           <div class="indicators-small">
             <button *ngFor="let account of accounts; let i = index" 
                     class="indicator-small" 
-                    [class.active]="i === currentAccountIndex"
+                    [class.active]="account.id === currentAccount?.id"
                     (click)="goToAccount(i)" 
                     [title]="account.accountName">
               {{ i + 1 }}
@@ -166,7 +166,7 @@
   </div>
 
   <!-- Create transaction Modal Component - MOVED OUTSIDE GRID -->
-  <app-create-transaction-modal [isVisible]="showCreateTransactionModal" [currentAccount]="currentAccount"
+  <app-create-transaction-modal [isVisible]="showCreateTransactionModal"
     (closeModal)="onCloseCreateTransactionModal()" (transactionCreated)="onTransactionCreated($event)">
   </app-create-transaction-modal>
 

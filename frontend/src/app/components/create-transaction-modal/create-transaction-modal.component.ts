@@ -7,6 +7,7 @@ import { Category } from '../../interfaces/category.interface';
 import { Transaction } from '../../interfaces/transaction.interface';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActiveAccountService } from '../../services/active-account/active-account.service';
 
 @Component({
   selector: 'app-create-transaction-modal',
@@ -18,9 +19,11 @@ import { FormsModule } from '@angular/forms';
 
 export class CreateTransactionModalComponent implements OnInit {
   @Input() isVisible: boolean = false;
-  @Input() currentAccount: BankAccount | null = null;
   @Output() closeModal = new EventEmitter<void>();
   @Output() transactionCreated = new EventEmitter<Transaction>();
+
+  // La cuenta activa se obtiene del servicio en lugar de ser un Input
+  currentAccount: BankAccount | null = null;
 
   // Form data
   newTransaction: Partial<CreateTransactionDto> = {
@@ -43,11 +46,15 @@ export class CreateTransactionModalComponent implements OnInit {
 
   constructor(
     private transactionService: TransactionService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private activeAccountService: ActiveAccountService
   ) {}
 
-  ngOnInit(): void {
-    if (this.isVisible) {
+  ngOnInit(): void {    // Suscribirse a cambios en la cuenta activa
+    this.activeAccountService.activeAccount$.subscribe(account => {
+      this.currentAccount = account;
+    });
+        if (this.isVisible) {
       this.loadCategories();
     }
   }

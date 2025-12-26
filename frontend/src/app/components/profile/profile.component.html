@@ -1,0 +1,188 @@
+<div class="bg-slate-800 min-h-dvh text-slate-200">
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-8">
+
+    <!-- LOADING STATE -->
+    <div *ngIf="isLoading" class="flex justify-center items-center min-h-[400px]">
+      <div class="text-slate-400">Cargando información del perfil...</div>
+    </div>
+
+    <!-- ERROR STATE -->
+    <div *ngIf="errorMessage" class="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
+      <p class="text-red-400">{{ errorMessage }}</p>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <section *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- ================= PERFIL ================= -->
+      <article class="bg-slate-700 rounded-3xl shadow-xl p-6 lg:p-8 flex flex-col">
+
+        <!-- Header -->
+        <div class="mb-6">
+
+          <!-- Avatar + info + logout button responsive layout -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+            <!-- Avatar + info -->
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-full bg-slate-600 flex items-center justify-center">
+                <span class="text-xl font-semibold text-slate-200">
+                  {{ (userInfo?.sub || 'Usuario').charAt(0).toUpperCase() }}
+                </span>
+              </div>
+
+              <div>
+                <p class="text-lg font-semibold text-slate-100">
+                  Usuario
+                </p>
+                <p class="text-sm text-slate-400">
+                  {{ userInfo?.sub || 'email@ejemplo.com' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Logout -->
+            <button
+              (click)="logout()"
+              class="bg-red-500/90 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors self-start sm:self-auto"
+            >
+              Cerrar sesión
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- Info -->
+        <div class="space-y-4 text-sm">
+          <div *ngIf="memberSince">
+            <p class="uppercase tracking-wide text-xs text-slate-300 mb-1">
+              Miembro desde
+            </p>
+            <p class="text-slate-400">
+              {{ memberSince }}
+            </p>
+          </div>
+
+          <div>
+            <p class="uppercase tracking-wide text-xs text-slate-300 mb-1">
+              Cuenta por defecto
+            </p>
+            <p class="text-slate-400">
+              {{ defaultAccount?.accountName || 'Sin cuenta por defecto' }}
+            </p>
+          </div>
+
+          <div>
+            <p class="uppercase tracking-wide text-xs text-slate-300 mb-1">
+              Balance total
+            </p>
+            <p class="text-slate-400">
+              {{ getTotalBalance().toFixed(2) }} €
+            </p>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="mt-8 flex flex-col gap-3">
+          <button 
+            (click)="editProfile()"
+            class="w-full bg-slate-600 hover:bg-slate-500 rounded-xl py-2 transition-colors">
+            ✏️ Editar perfil
+          </button>
+        </div>
+
+      </article>
+
+      <!-- ================= CUENTAS & CARTERA ================= -->
+      <article class="bg-slate-700 rounded-3xl shadow-xl p-6 lg:p-8 flex flex-col">
+
+        <h2 class="text-xl font-semibold text-slate-100 mb-6">
+          Cuentas bancarias
+        </h2>
+
+        <!-- ESTADO SIN CUENTAS -->
+        <div *ngIf="bankAccounts.length === 0" class="text-center py-8">
+          <p class="text-slate-400 mb-4">No tienes cuentas bancarias registradas</p>
+          <button 
+            (click)="addBankAccount()"
+            class="bg-blue-600 hover:bg-blue-700 rounded-xl px-6 py-2 text-white transition-colors">
+            ➕ Crear primera cuenta
+          </button>
+        </div>
+
+        <!-- LISTA CUENTAS -->
+        <div *ngIf="bankAccounts.length > 0" class="space-y-4">
+
+          <div 
+            *ngFor="let account of bankAccounts"
+            class="flex items-center justify-between bg-slate-800/60 rounded-xl p-4"
+            [class.ring-2]="account === defaultAccount"
+            [class.ring-blue-500]="account === defaultAccount"
+          >
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <p class="font-medium text-slate-200">
+                  {{ account.accountName }}
+                </p>
+                <span 
+                  *ngIf="account === defaultAccount"
+                  class="text-xs bg-blue-500 text-white px-2 py-1 rounded-full">
+                  Por defecto
+                </span>
+              </div>
+              <p class="text-sm text-slate-400">
+                Saldo: {{ account.currentBalance.toFixed(2) }} €
+              </p>
+            </div>
+
+            <div class="flex flex-col items-end gap-2">
+              <button 
+                *ngIf="account !== defaultAccount"
+                (click)="setAsDefaultAccount(account)"
+                class="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                ⭐ Marcar como defecto
+              </button>
+              <button class="text-slate-400 hover:text-slate-200 transition-colors">
+                ⋯
+              </button>
+            </div>
+          </div>
+
+          <!-- Añadir cuenta -->
+          <button 
+            *ngIf="bankAccounts.length <= 1"
+            (click)="addBankAccount()"
+            class="w-full border border-dashed border-slate-500 rounded-xl py-3 text-slate-300 hover:bg-slate-600/40 transition-colors">
+            ➕ Añadir cuenta bancaria
+          </button>
+
+        </div>
+
+        <!-- RESUMEN -->
+        <div *ngIf="bankAccounts.length > 0" class="mt-8 pt-6 border-t border-slate-600/40">
+          <div class="flex justify-between items-center bg-slate-800/60 rounded-xl p-4">
+            <div>
+              <p class="font-medium text-slate-200">Balance total</p>
+              <p class="text-sm text-slate-400">{{ bankAccounts.length }} cuenta(s)</p>
+            </div>
+            <p class="text-xl font-bold text-green-400">
+              {{ getTotalBalance().toFixed(2) }} €
+            </p>
+          </div>
+        </div>
+
+      </article>
+
+    </section>
+
+  </div>
+
+  <!-- Account Form Modal -->
+  <app-account-form
+    [showCreateAccountForm]="showCreateAccountForm"
+    (accountCreated)="onAccountCreated()"
+    (modalClosed)="onModalClosed()">
+  </app-account-form>
+
+</div>
