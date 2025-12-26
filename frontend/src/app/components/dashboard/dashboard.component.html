@@ -140,7 +140,7 @@
           <div class="indicators-small">
             <button *ngFor="let account of accounts; let i = index" 
                     class="indicator-small" 
-                    [class.active]="account.id === currentAccount?.id"
+                    [class.active]="currentAccount && account.id === currentAccount.id"
                     (click)="goToAccount(i)" 
                     [title]="account.accountName">
               {{ i + 1 }}

@@ -66,13 +66,21 @@ export class DashboardComponent implements OnInit {
         this.accounts = accounts;
         console.log('Cuentas cargadas:', accounts);
         
-        // Si no hay cuenta activa, establecer la primera como activa
+        // Obtener la cuenta activa actual para actualizar su balance
         const currentActiveAccount = this.activeAccountService.getActiveAccount();
-        if (!currentActiveAccount && accounts.length > 0) {
-          this.activeAccountService.setActiveAccount(accounts[0]);
-        }
-        // Si la cuenta activa ya no existe en las cuentas cargadas, establecer la primera
-        else if (currentActiveAccount && !accounts.find(acc => acc.id === currentActiveAccount.id) && accounts.length > 0) {
+        
+        if (currentActiveAccount) {
+          // Buscar la cuenta activa en las cuentas cargadas para obtener el balance actualizado
+          const updatedActiveAccount = accounts.find(acc => acc.id === currentActiveAccount.id);
+          if (updatedActiveAccount) {
+            // Actualizar la cuenta activa con el balance actualizado
+            this.activeAccountService.setActiveAccount(updatedActiveAccount);
+          } else if (accounts.length > 0) {
+            // Si la cuenta activa ya no existe, establecer la primera
+            this.activeAccountService.setActiveAccount(accounts[0]);
+          }
+        } else if (accounts.length > 0) {
+          // Si no hay cuenta activa, establecer la primera
           this.activeAccountService.setActiveAccount(accounts[0]);
         }
         
