@@ -4,6 +4,7 @@ import { Transaction } from '../../interfaces/transaction.interface'; // Asegúr
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
+import { CreateTransactionWithImageDto } from '../../interfaces/create-transaction-with-image.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +28,33 @@ export class TransactionService {
 
   createTransaction(transaction: CreateTransactionDto): Observable<Transaction> {
     return this.http.post<Transaction>(`${this.apiUrl}/transactions`, transaction);
+  }
+
+  createTransactionWithImage(transactionData: CreateTransactionWithImageDto): Observable<Transaction> {
+    const formData = new FormData();
+    
+    // Agregar todos los campos de la transacción directamente (no anidados)
+    formData.append('title', transactionData.title);
+    formData.append('amount', transactionData.amount.toString());
+    formData.append('date', transactionData.date);
+    formData.append('type', transactionData.type);
+    formData.append('recurrence', transactionData.recurrence);
+    formData.append('accountId', transactionData.accountId.toString());
+    
+    if (transactionData.categoryId) {
+      formData.append('categoryId', transactionData.categoryId);
+    }
+    
+    if (transactionData.description) {
+      formData.append('description', transactionData.description);
+    }
+    
+    // Agregar la imagen si existe
+    if (transactionData.imageFile) {
+      formData.append('imageFile', transactionData.imageFile); // Nota: 'imageFile' no 'image'
+    }
+
+    return this.http.post<Transaction>(`${this.apiUrl}/transactions/with-image`, formData);
   }
 
 

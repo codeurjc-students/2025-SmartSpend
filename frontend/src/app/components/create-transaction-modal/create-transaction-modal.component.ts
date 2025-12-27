@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TransactionService } from '../../services/transaction/transaction.service';
 import { BankAccount } from '../../services/bankAccount/bank-account-service.service';
 import { CategoryService } from '../../services/category/category.service';
-import { CreateTransactionDto } from '../../interfaces/create-transaction.interface';
+import { CreateTransactionDto, CreateTransactionWithImageDto } from '../../interfaces/create-transaction.interface';
 import { Category } from '../../interfaces/category.interface';
 import { Transaction } from '../../interfaces/transaction.interface';
 import { CommonModule } from '@angular/common';
@@ -25,16 +25,22 @@ export class CreateTransactionModalComponent implements OnInit {
   // La cuenta activa se obtiene del servicio en lugar de ser un Input
   currentAccount: BankAccount | null = null;
 
-  // Form data
-  newTransaction: Partial<CreateTransactionDto> = {
+  // Form data - ahora con imagen
+  newTransaction: Partial<CreateTransactionWithImageDto> = {
     title: '',
     description: '',
     amount: undefined,
     type: 'EXPENSE',
     recurrence: 'NONE',
     categoryId: undefined,
-    date: new Date().toISOString().split('T')[0] // Fecha actual en formato YYYY-MM-DD
+    date: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
+    imageFile: undefined // Nuevo campo para la imagen
   };
+
+  // Nuevas propiedades para manejo de imagen
+  selectedImageFile: File | null = null;
+  imagePreview: string | null = null;
+  imageError: string | null = null;
 
   // Categories for current transaction type
   availableCategories: Category[] = [];
@@ -92,6 +98,68 @@ export class CreateTransactionModalComponent implements OnInit {
     this.loadCategories();
   }
 
+  // Nuevo método para manejar selección de imagen
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    
+    if (!file) {
+      this.clearImage();
+      return;
+    }
+
+    // Validaciones de imagen
+    this.imageError = null;
+    
+    // Validar tipo
+    if (!file.type.startsWith('image/')) {
+      this.imageError = 'Por favor selecciona un archivo de imagen válido';
+      this.clearImage();
+      return;
+    }
+
+    // Validar tamaño (5MB máximo)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      this.imageError = 'La imagen no puede superar los 5MB';
+      this.clearImage();
+      return;
+    }
+
+    // Guardar archivo y crear preview
+    this.selectedImageFile = file;
+    this.newTransaction.imageFile = file;
+    
+    // Crear preview para mostrar al usuario
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.imagePreview = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Método para limpiar imagen
+  clearImage(): void {
+    this.selectedImageFile = null;
+    this.imagePreview = null;
+    this.imageError = null;
+    this.newTransaction.imageFile = undefined;
+    
+    // Limpiar el input file
+    const fileInput = document.getElementById('imageInput') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
+  // Método para abrir el selector de archivo
+  openFileSelector(): void {
+    const fileInput = document.getElementById('imageInput') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
   onAmountFocus(): void {
     if (this.newTransaction.amount === 0) {
       this.newTransaction.amount = undefined;
@@ -113,18 +181,24 @@ export class CreateTransactionModalComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = null;
 
-    const transactionDto: CreateTransactionDto = {
+    const transactionData: CreateTransactionWithImageDto = {
       title: this.newTransaction.title!,
-      description: this.newTransaction.description || undefined,
+      description: this.newTransaction.description || '',
       amount: this.newTransaction.amount!,
-      date: this.newTransaction.date ?? new Date().toISOString().split('T')[0],
       type: this.newTransaction.type!,
       recurrence: this.newTransaction.recurrence!,
+      categoryId: this.newTransaction.categoryId!,
+      date: this.newTransaction.date ?? new Date().toISOString().split('T')[0],
       accountId: this.currentAccount.id,
-      categoryId: this.newTransaction.categoryId!
+      imageFile: this.selectedImageFile || undefined
     };
 
-    this.transactionService.createTransaction(transactionDto).subscribe({
+    // Decidir qué método usar según si hay imagen o no
+    const serviceCall = this.selectedImageFile 
+      ? this.transactionService.createTransactionWithImage(transactionData)
+      : this.transactionService.createTransaction(transactionData as CreateTransactionDto);
+
+    serviceCall.subscribe({
       next: (transaction) => {
         this.transactionCreated.emit(transaction);
         this.close();
@@ -161,8 +235,10 @@ export class CreateTransactionModalComponent implements OnInit {
       type: 'EXPENSE',
       recurrence: 'NONE',
       categoryId: undefined,
-      date: new Date().toISOString().split('T')[0]
+      date: new Date().toISOString().split('T')[0],
+      imageFile: undefined
     };
+    this.clearImage();
     this.errorMessage = null;
     this.isLoading = false;
   }

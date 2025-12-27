@@ -252,6 +252,69 @@
           </p>
         </div>
 
+        <!-- Imagen -->
+        <div class="md:col-span-2">
+          <label class="block text-sm text-slate-400 mb-2">
+            📷 Imagen (Opcional)
+          </label>
+          
+          <!-- Input de archivo -->
+          <div class="mb-3">
+            <input
+              id="imageInput"
+              type="file"
+              accept="image/*"
+              (change)="onImageSelected($event)"
+              class="hidden"
+            />
+            
+            <!-- Botón para seleccionar archivo -->
+            <button
+              type="button"
+              (click)="openFileSelector()"
+              class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 
+                     border border-slate-600 rounded-lg text-slate-200 transition-colors"
+            >
+              📎 Seleccionar imagen
+            </button>
+            
+            <!-- Información del archivo -->
+            <p class="text-xs text-slate-500 mt-1">
+              Formatos: JPG, PNG, WebP. Tamaño máximo: 5MB
+            </p>
+          </div>
+
+          <!-- Error de imagen -->
+          <div *ngIf="imageError" class="mb-3">
+            <p class="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-2">
+              {{ imageError }}
+            </p>
+          </div>
+
+          <!-- Preview de imagen -->
+          <div *ngIf="imagePreview" class="mb-3">
+            <div class="relative inline-block">
+              <img
+                [src]="imagePreview"
+                alt="Vista previa"
+                class="max-w-xs max-h-32 rounded-lg border border-slate-600"
+              />
+              <!-- Botón para quitar imagen -->
+              <button
+                type="button"
+                (click)="clearImage()"
+                class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full
+                       hover:bg-red-600 transition-colors text-xs font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">
+              {{ selectedImageFile?.name }}
+            </p>
+          </div>
+        </div>
+
       </form>
     </div>
   </div>
