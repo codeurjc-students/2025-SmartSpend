@@ -8,3 +8,8 @@ export interface CreateTransactionDto {
     date: string; // Fecha en formato YYYY-MM-DD (YYYY-MM-DD),
     accountId: number;
 }
+
+// Nueva interfaz para transacciones con imagen
+export interface CreateTransactionWithImageDto extends CreateTransactionDto {
+    imageFile?: File;
+}
