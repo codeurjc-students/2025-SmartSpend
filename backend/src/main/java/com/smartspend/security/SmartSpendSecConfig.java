@@ -53,8 +53,18 @@ public class SmartSpendSecConfig {
         }))
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register").permitAll()
-                .anyRequest().authenticated()
+            .requestMatchers(
+                "/",
+                "/index.html",
+                "/favicon.ico",
+                "/assets/**",
+                "/*.js",
+                "/*.css",
+                "/*.map",
+                "/static/**"
+            ).permitAll()
+            .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register").permitAll()
+            .anyRequest().authenticated()
         )
         .authenticationProvider(authenticationProvider())
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -73,6 +83,20 @@ public class SmartSpendSecConfig {
 
 
         return http.build();
+    }
+
+    @Bean
+    public org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers(
+            "/",
+            "/index.html",
+            "/favicon.ico",
+            "/assets/**",
+            "/*.js",
+            "/*.css",
+            "/*.map",
+            "/static/**"
+        );
     }
 
 
