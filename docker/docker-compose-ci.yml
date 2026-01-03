@@ -1,0 +1,86 @@
+name: smartspend-ci
+
+services:
+  db-ci:
+    image: mysql:8.4
+    restart: always
+    environment:
+      MYSQL_DATABASE: smartspend_ci
+      MYSQL_USER: smartspend
+      MYSQL_PASSWORD: smartspend123
+      MYSQL_ROOT_PASSWORD: root123
+    volumes:
+      - db_data_ci:/var/lib/mysql
+    networks:
+      - smartspend-ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "smartspend", "-psmartspend123"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  app-ci:
+    image: ${DOCKER_HUB_USERNAME}/smartspend:dev
+    restart: always
+    depends_on:
+      db-ci:
+        condition: service_healthy
+    ports:
+      - "8443:8443"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: db-ci
+      DB_PORT: 3306
+      DB_NAME: smartspend_ci
+      DB_USERNAME: smartspend
+      DB_PASSWORD: smartspend123
+      JWT_SECRET: ${JWT_SECRET_DEV}
+      KEYSTORE_PASSWORD: ${KEYSTORE_PASSWORD_DEV}
+    networks:
+      - smartspend-ci
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-check-certificate -q --spider https://localhost:8443/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
+
+  newman:
+    image: postman/newman:alpine
+    depends_on:
+      app-ci:
+        condition: service_healthy
+    working_dir: /workspace
+    volumes:
+      - ../postman:/workspace
+    networks:
+      - smartspend-ci
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "
+      echo '=== Debug Info ===' &&
+      echo 'Archivos disponibles en workspace:' &&
+      ls -la /workspace &&
+      echo '=== Verificando connectivity ===' &&
+      nc -zv app-ci 8443 || echo 'Servicio app-ci no accesible en puerto 8443' &&
+      echo '=== Iniciando Newman tests ===' &&
+      newman run SmartSpend-CI-Collection.postman_collection.json
+      -e SmartSpend-Environment-CI.postman_environment.json
+      --insecure
+      --disable-unicode
+      --reporters cli,junit
+      --reporter-junit-export /workspace/newman-report.xml
+      --timeout-request 30000
+      --timeout-script 10000
+      --bail
+      --verbose
+      --color on
+      "
+
+volumes:
+  db_data_ci:
+    driver: local
+
+networks:
+  smartspend-ci:
+    driver: bridge

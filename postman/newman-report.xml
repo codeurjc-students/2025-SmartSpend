@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="SmartSpend CI Collection" tests="4" time="1.149">
+  <testsuite name="Authentication Flow / Register Test User" id="34895303-7be5-42e5-b42a-91c112c50048" timestamp="2026-01-03T08:38:58.476Z" tests="3" failures="0" errors="0" time="0.663">
+    <testcase name="User registration successful" time="0.663" classname="SmartSpendCiCollection"/>
+    <testcase name="Response has required fields" time="0.663" classname="SmartSpendCiCollection"/>
+    <testcase name="Save user data" time="0.663" classname="SmartSpendCiCollection"/>
+  </testsuite>
+  <testsuite name="Authentication Flow / Login Test User" id="3206a6b5-b4ed-4261-a1da-037bc6e4d626" timestamp="2026-01-03T08:38:58.476Z" tests="2" failures="0" errors="0" time="0.304">
+    <testcase name="Login successful" time="0.304" classname="SmartSpendCiCollection"/>
+    <testcase name="Token received" time="0.304" classname="SmartSpendCiCollection"/>
+  </testsuite>
+  <testsuite name="Bank Account Tests / Create Account" id="b1078bb2-21df-464a-b505-86ea92a9dec2" timestamp="2026-01-03T08:38:58.476Z" tests="2" failures="0" errors="0" time="0.116">
+    <testcase name="Account created successfully" time="0.116" classname="SmartSpendCiCollection"/>
+    <testcase name="Response has account data" time="0.116" classname="SmartSpendCiCollection"/>
+  </testsuite>
+  <testsuite name="Bank Account Tests / Get Account" id="64a72d33-8725-4fdd-ab50-2e894da874b0" timestamp="2026-01-03T08:38:58.476Z" tests="2" failures="0" errors="0" time="0.066">
+    <testcase name="Account retrieved successfully" time="0.066" classname="SmartSpendCiCollection"/>
+    <testcase name="Account data is correct" time="0.066" classname="SmartSpendCiCollection"/>
+  </testsuite>
+</testsuites>
