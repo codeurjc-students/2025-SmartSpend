@@ -330,8 +330,6 @@
 									"    pm.response.to.be.json;\r",
 									"    const jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData).to.be.an('array');\r",
-									"});\r",
-									"\r",
 									"});"
 								],
 								"type": "text/javascript",
