@@ -85,7 +85,7 @@ jobs:
       - name: Run Docker Compose Services and Newman Tests
         working-directory: docker
         run: |
-          docker-compose -f docker-compose-ci.yml up --build --abort-on-container-exit --exit-code-from newman
+          docker compose -f docker-compose-ci.yml up --build --abort-on-container-exit --exit-code-from newman
 
       - name: Upload Newman Test Report
         uses: actions/upload-artifact@v4
