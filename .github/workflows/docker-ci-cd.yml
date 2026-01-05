@@ -63,6 +63,12 @@ jobs:
             echo "PUBLISH_LATEST=false" >> $GITHUB_ENV
           fi
 
+      - name: Debug - Show determined tag
+        run: |
+          echo "Determined TAG: ${{ env.TAG }}"
+          echo "Branch name: ${{ github.ref_name }}"
+          echo "Event name: ${{ github.event_name }}"
+
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -70,9 +76,13 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: true
-          tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:${{ env.TAG }}
-            ${{ env.PUBLISH_LATEST == 'true' && format('{0}/smartspend:latest', secrets.DOCKER_HUB_USERNAME) || '' }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:${{ env.TAG }}
+
+      - name: Tag and push latest (for releases)
+        if: env.PUBLISH_LATEST == 'true'
+        run: |
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:${{ env.TAG }} ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:latest
 
       
       - name: Publish docker-compose as OCI artifact
