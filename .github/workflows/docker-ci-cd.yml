@@ -62,3 +62,4 @@ jobs:
           docker compose -f docker/docker-compose.yml convert \
           | docker buildx build --push \
             --tag ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend-compose:${{ env.TAG }} -
+# testin comment
