@@ -64,16 +64,15 @@ services:
       echo '=== Verificando connectivity ===' &&
       nc -zv app-ci 8443 || echo 'Servicio app-ci no accesible en puerto 8443' &&
       echo '=== Iniciando Newman tests ===' &&
-      newman run SmartSpend-CI-Collection.postman_collection.json
+      newman run postman_collection.json
       -e SmartSpend-Environment-CI.postman_environment.json
       --insecure
-      --disable-unicode
       --reporters cli,junit
       --reporter-junit-export /workspace/newman-report.xml
+      --reporter-cli-no-failures
+      --reporter-cli-no-console
       --timeout-request 30000
       --timeout-script 10000
-      --bail
-      --verbose
       --color on
       "
 

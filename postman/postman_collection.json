@@ -5,12 +5,77 @@
 		"description": "Collection básica para la API de SmartSpend - Sistema de gestión de gastos personales",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "49335114",
-		"_collection_link": "https://juan-bustos-moya-8522275.postman.co/workspace/3970243f-d399-4872-80fe-c350a10e5cee/collection/49335114-908729f7-efb0-4312-a142-ceba85bdd4c8?action=share&source=collection_link&creator=49335114"
+		"_collection_link": "https://juan-bustos-moya-8522275.postman.co/workspace/Juan-Manuel-Bustos-Moya's-Works~3970243f-d399-4872-80fe-c350a10e5cee/collection/49335114-908729f7-efb0-4312-a142-ceba85bdd4c8?action=share&source=collection_link&creator=49335114"
 	},
 	"item": [
 		{
 			"name": "Authentication",
 			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has required fields\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('id');\r",
+									"    pm.expect(jsonData).to.have.property('token');\r",
+									"    pm.expect(jsonData).to.have.property('username');\r",
+									"    pm.expect(jsonData).to.have.property('email');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Save token for future requests\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    if (jsonData.token) {\r",
+									"        pm.environment.set(\"token\", jsonData.token);\r",
+									"        pm.environment.set(\"userId\", jsonData.id);\r",
+									"        console.log(\"Token guardado: \" + jsonData.token.substring(0, 20) + \"...\");\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "{{contentType}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"nuevo_usuario\",\n    \"email\": \"user@gmail.com\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registro de nuevo usuario"
+					},
+					"response": []
+				},
 				{
 					"name": "Login",
 					"event": [
@@ -62,7 +127,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"{{testEmail}}\",\n    \"password\": \"{{testPassword}}\"\n}",
+							"raw": "{\n    \"email\": \"user@gmail.com\",\n    \"password\": \"password123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -80,71 +145,6 @@
 							]
 						},
 						"description": "Autenticación de usuario. Actualiza automáticamente el token en el environment."
-					},
-					"response": []
-				},
-				{
-					"name": "Register",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 201\", function () {\r",
-									"    pm.response.to.have.status(201);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response has required fields\", function () {\r",
-									"    const jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData).to.have.property('id');\r",
-									"    pm.expect(jsonData).to.have.property('token');\r",
-									"    pm.expect(jsonData).to.have.property('username');\r",
-									"    pm.expect(jsonData).to.have.property('email');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Save token for future requests\", function () {\r",
-									"    const jsonData = pm.response.json();\r",
-									"    if (jsonData.token) {\r",
-									"        pm.environment.set(\"token\", jsonData.token);\r",
-									"        pm.environment.set(\"userId\", jsonData.id);\r",
-									"        console.log(\"Token guardado: \" + jsonData.token.substring(0, 20) + \"...\");\r",
-									"    }\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "{{contentType}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{testUsername}}\",\n    \"email\": \"{{testEmail}}\",\n    \"password\": \"{{testPassword}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/auth/register",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"auth",
-								"register"
-							]
-						},
-						"description": "Registro de nuevo usuario"
 					},
 					"response": []
 				}
@@ -465,33 +465,6 @@
 					"response": []
 				}
 			]
-		},
-		{
-			"name": "Health Check",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/actuator/health",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"actuator",
-						"health"
-					]
-				},
-				"description": "Verifica que el servidor esté funcionando correctamente"
-			},
-			"response": []
-		},
-		{
-			"name": "New Request",
-			"request": {
-				"method": "GET",
-				"header": []
-			},
-			"response": []
 		}
 	],
 	"auth": {
