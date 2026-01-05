@@ -35,7 +35,7 @@ services:
         condition: service_healthy
 
     ports:
-      - "8443:443"  # Puerto diferente para desarrollo
+      - "8443:8443"  # Puerto HTTPS desarrollo - perfil prod usa 8443 interno
 
     environment:
       SPRING_PROFILES_ACTIVE: prod

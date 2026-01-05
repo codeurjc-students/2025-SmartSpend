@@ -5,8 +5,7 @@ on:
     branches: [ "main" ]
 
 env:
-  # Establece el perfil SSL para los tests que se ejecutan con @SpringBootTest
-  SPRING_PROFILES_ACTIVE: ssl
+  SPRING_PROFILES_ACTIVE: prod
 
 jobs:
   backend-complete:
@@ -18,16 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # --- PASO AÑADIDO ---
-      # Crea el archivo keystore a partir del secreto para que los tests de integración lo usen.
-      - name: Create Keystore from Secret for Integration Tests
+      - name: Create Keystore from Secret for Backend
         env:
           KEYSTORE_P12_BASE64: ${{ secrets.KEYSTORE_P12_BASE64 }}
         run: |
-          echo "Creating keystore file from secret for integration tests..."
+          echo "Creating keystore file from secret for backend..."
           echo "${KEYSTORE_P12_BASE64}" | base64 --decode > backend/src/main/resources/keystore.p12
           echo "Keystore file created successfully."
-      # --------------------
 
       - uses: actions/setup-java@v4
         with:
@@ -44,78 +40,80 @@ jobs:
 
       - name: Integration and E2E Tests Status
         run: |
-          echo "🚧 TESTS TEMPORALMENTE DESHABILITADOS PARA ACELERAR EL DESARROLLO 🚧"
+          echo "🚧 Integration and E2E Tests Status 🚧"
           echo ""
-          echo "Los siguientes tests están deshabilitados mientras se completa la funcionalidad de autenticación:"
-          echo "❌ Tests de integración (requieren JWT authentication)"
-          echo "❌ Tests E2E Selenium (requieren flujo de login completo)"
+          echo "The following tests are temporarily disabled while authentication functionality is completed:"
+          echo "❌ Integration Tests (JVM-based, require JWT authentication)"
+          echo "❌ E2E Selenium Tests (require full login flow)"
           echo ""
-          echo "Una vez completada la funcionalidad de auth, se reactivarán y adaptarán estos tests."
-          echo "✅ Solo tests unitarios están activos por ahora"
+          echo "API Integration Tests (Postman/Newman) are now enabled and will run in a separate job using Docker Compose."
+          echo "✅ Only backend unit tests are active in this job."
 
-  # TODO: Reactivar cuando se complete la funcionalidad de autenticación JWT
-  # selenium-tests: 
-  #   runs-on: ubuntu-latest
-  #   name: Selenium E2E Tests 
-  #   needs: [backend-complete]
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 20
-  #     - uses: actions/setup-java@v4
-  #       with:
-  #         distribution: 'temurin'
-  #         java-version: 21
-  #     - name: Create Keystore from Secret
-  #       env:
-  #         KEYSTORE_P12_BASE64: ${{ secrets.KEYSTORE_P12_BASE64 }}
-  #       run: |
-  #         echo "Creating keystore file from secret..."
-  #         echo "${KEYSTORE_P12_BASE64}" | base64 --decode > backend/src/main/resources/keystore.p12
-  #         echo "Keystore file created successfully."
-  #     - name: Start Backend and Wait for Health
-  #       working-directory: backend
-  #       env:
-  #         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-  #         JWT_SECRET: ${{ secrets.JWT_SECRET }}
-  #       run: |
-  #         nohup mvn spring-boot:run -Dspring-boot.run.profiles=ssl > backend.log 2>&1 &
-  #         echo "Waiting for backend to become healthy..."
-  #         timeout 90 bash -c 'until curl --fail --insecure https://localhost:8443/api/v1/auth/login; do sleep 5; done'
-  #         echo "Backend is up and running on HTTPS."
-  #     - name: Build and Start Frontend and Wait for Health
-  #       working-directory: frontend
-  #       run: |
-  #         npm ci
-  #         nohup npx ng serve --host 0.0.0.0 --port 4200 --disable-host-check > frontend.log 2>&1 &
-  #         echo "Waiting for frontend to start..."
-  #         timeout 60 bash -c 'until curl --fail http://localhost:4200; do sleep 5; done'
-  #         echo "Frontend is up and running."
-  #     - name: Run Selenium Tests
-  #       working-directory: backend
-  #       run: mvn test -Dtest="HomePageTest" -B
-  #     - name: Show logs on failure
-  #       if: failure()
-  #       run: |
-  #         echo "--- Backend logs (last 100 lines) ---"
-  #         tail -n 100 backend/backend.log
-  #         echo "--- Frontend logs (last 100 lines) ---"
-  #         tail -n 100 frontend/frontend.log
+  postman-api-tests:
+    runs-on: ubuntu-latest
+    name: Postman API Tests (Newman with Docker Compose)
+    needs: [backend-complete]
+    env:
+      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+
+      - name: Create Keystore from Secret for Backend Docker Image
+        env:
+          KEYSTORE_P12_BASE64: ${{ secrets.KEYSTORE_P12_BASE64 }}
+        run: |
+          echo "Creating keystore file from secret for backend image build..."
+          echo "${KEYSTORE_P12_BASE64}" | base64 --decode > backend/src/main/resources/keystore.p12
+          echo "Keystore file created successfully."
+
+      - name: Build and Package Backend
+        working-directory: backend
+        run: mvn clean package -DskipTests -B
+
+      - name: Build Backend Docker Image
+        run: |
+          docker build -t ${DOCKER_HUB_USERNAME}/smartspend:dev -f docker/Dockerfile .
+
+      - name: Run Docker Compose Services and Newman Tests
+        working-directory: docker
+        run: |
+          docker compose -f docker-compose-ci.yml up --build --abort-on-container-exit --exit-code-from newman
+
+      - name: Upload Newman Test Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: newman-test-report
+          path: postman/newman-report.xml
+
+      - name: Show Docker Compose Logs on Failure
+        if: failure()
+        run: |
+          echo "--- Docker Compose Logs ---"
+          echo "Refer to the 'Run Docker Compose Services and Newman Tests' step for detailed logs."
 
   quality-gate:
-    runs-on: ubuntu-latest  
+    runs-on: ubuntu-latest
     name: Quality Gate
-    needs: [backend-complete] # Cambié para que solo dependa de backend-complete
+    needs: [backend-complete, postman-api-tests]
     
     steps:
       - name: Quality Gate Passed
         run: |
           echo "✅ Quality Gate PASSED"
           echo ""
-          echo "📋 Tests ejecutados:"
-          echo "  ✅ Unit tests: PASSED"
-          echo "  🚧 Integration tests: SKIPPED (temporal)"
-          echo "  🚧 E2E tests: SKIPPED (temporal)"
+          echo "📋 Executed Tests Summary:"
+          echo "  ✅ Backend Unit Tests: PASSED"
+          echo "  ✅ Postman API Integration Tests: PASSED (via Docker Compose)"
+          echo "  🚧 Backend Integration Tests (JVM-based): SKIPPED (temporary)"
+          echo "  🚧 E2E Tests: SKIPPED (temporary)"
           echo ""
-          echo "🚀 Ready to merge! Continúa con el desarrollo de funcionalidades."
+          echo "🚀 Ready to merge! Continue with feature development."

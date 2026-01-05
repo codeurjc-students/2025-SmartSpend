@@ -7,7 +7,7 @@ on:
       - "fix/**"
 
 env:
-  SPRING_PROFILES_ACTIVE: ssl
+  SPRING_PROFILES_ACTIVE: prod
 
 jobs:
   backend-basic:
