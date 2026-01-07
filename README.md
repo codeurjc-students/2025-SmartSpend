@@ -1,7 +1,7 @@
 # SMART SPEND 
 
 ## Logotipo
-![Logotipo](images/logoBlanco.svg)
+![Logotipo](images/logoNegro.svg)
 ---
 
 ## ¿Qué es Smart Spend? 
