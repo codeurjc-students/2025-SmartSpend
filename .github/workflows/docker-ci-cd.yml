@@ -47,18 +47,19 @@ jobs:
       
       - name: Determine version tag
         run: |
+          # Use github.event_name para comparar el tipo de evento
           if [[ "${{ github.event_name }}" == "release" ]]; then
             echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
             echo "PUBLISH_LATEST=true" >> $GITHUB_ENV
 
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            # Sanitize branch name: replace '/' and other invalid chars with '-'
+            # Para workflow_dispatch, genera un tag dinámico basado en la rama, fecha y SHA
             SANITIZED_BRANCH=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g' | tr '[:upper:]' '[:lower:]')
             TAG="${SANITIZED_BRANCH}-$(date +%Y%m%d-%H%M)-$(git rev-parse --short HEAD)"
             echo "TAG=$TAG" >> $GITHUB_ENV
             echo "PUBLISH_LATEST=false" >> $GITHUB_ENV
 
-          else
+          else # Evento 'push' a la rama main
             echo "TAG=dev" >> $GITHUB_ENV
             echo "PUBLISH_LATEST=false" >> $GITHUB_ENV
           fi
@@ -68,6 +69,7 @@ jobs:
           echo "Determined TAG: ${{ env.TAG }}"
           echo "Branch name: ${{ github.ref_name }}"
           echo "Event name: ${{ github.event_name }}"
+          echo "Publish latest: ${{ env.PUBLISH_LATEST }}"
 
       
       - name: Build and push Docker image
@@ -76,29 +78,47 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:${{ env.TAG }}
+          # Incluye el tag 'latest' condicionalmente aquí
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:${{ env.TAG }}
+            ${{ env.PUBLISH_LATEST == 'true' && format('{0}/smartspend:latest', secrets.DOCKER_HUB_USERNAME) || '' }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Tag and push latest (for releases)
-        if: env.PUBLISH_LATEST == 'true'
+      # Este paso ha sido eliminado ya que la lógica de 'latest' se maneja en el paso anterior
+      # - name: Tag and push latest (for releases)
+      #   if: env.PUBLISH_LATEST == 'true'
+      #   run: |
+      #     docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:${{ env.TAG }} ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:latest
+      #     docker push ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:latest
+
+      - name: Install ORAS CLI
         run: |
-          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:${{ env.TAG }} ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:latest
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:latest
-
+          curl -LO "https://github.com/oras-project/oras/releases/download/v1.1.0/oras_1.1.0_linux_amd64.tar.gz"
+          tar -zxf oras_1.1.0_linux_amd64.tar.gz
+          sudo mv oras /usr/local/bin/
       
       - name: Publish docker-compose as OCI artifact
+        env:
+          ORAS_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          ORAS_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
         run: |
-          # Update compose file with correct image tag
-          sed "s|image:.*smartspend:.*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:${{ env.TAG }}|g" docker/docker-compose.yml > docker-compose-temp.yml
+          COMPOSE_REPO="${{ secrets.DOCKER_HUB_USERNAME }}/smartspend-compose"
           
-          # Create and push compose OCI artifact
-          cat > Dockerfile.compose << EOF
-          FROM scratch
-          COPY docker-compose-temp.yml /docker-compose.yml
-          EOF
+          # Actualiza el archivo docker-compose.yml para que apunte al tag correcto de la imagen
+          # Se usa una salida temporal para evitar modificar el archivo original directamente si hay errores
+          sed "s|image: .*/smartspend:.*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:${{ env.TAG }}|g" docker/docker-compose.yml > docker/docker-compose.temp.yml
           
-          COMPOSE_TAGS="--tag ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend-compose:${{ env.TAG }}"
+          # Push con el tag específico
+          oras push docker.io/${COMPOSE_REPO}:${{ env.TAG }} \
+            --artifact-type application/vnd.docker.compose.v2+yaml \
+            docker/docker-compose.temp.yml:application/vnd.docker.compose.v2+yaml
+          
+          # Push condicional con el tag 'latest'
           if [[ "${{ env.PUBLISH_LATEST }}" == "true" ]]; then
-            COMPOSE_TAGS="$COMPOSE_TAGS --tag ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend-compose:latest"
+            oras push docker.io/${COMPOSE_REPO}:latest \
+              --artifact-type application/vnd.docker.compose.v2+yaml \
+              docker/docker-compose.temp.yml:application/vnd.docker.compose.v2+yaml
           fi
-          
-          docker buildx build --push $COMPOSE_TAGS -f Dockerfile.compose .
+          # Eliminar el archivo temporal
+          rm docker/docker-compose.temp.yml
