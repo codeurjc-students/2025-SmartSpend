@@ -23,6 +23,7 @@ COPY backend/pom.xml ./
 RUN mvn dependency:go-offline
 
 COPY backend/ .
+COPY --from=frontend-build /app/frontend/dist/*/browser /app/backend/src/main/resources/static
 RUN mvn clean package -DskipTests
 
 
