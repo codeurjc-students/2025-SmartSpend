@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-     
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -37,29 +36,23 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      
       - name: Determine version tag
         run: |
-          # Use github.event_name para comparar el tipo de evento
           if [[ "${{ github.event_name }}" == "release" ]]; then
             echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
             echo "PUBLISH_LATEST=true" >> $GITHUB_ENV
-
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            # Para workflow_dispatch, genera un tag dinámico basado en la rama, fecha y SHA
             SANITIZED_BRANCH=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g' | tr '[:upper:]' '[:lower:]')
             TAG="${SANITIZED_BRANCH}-$(date +%Y%m%d-%H%M)-$(git rev-parse --short HEAD)"
             echo "TAG=$TAG" >> $GITHUB_ENV
             echo "PUBLISH_LATEST=false" >> $GITHUB_ENV
-
-          else # Evento 'push' a la rama main
+          else
             echo "TAG=dev" >> $GITHUB_ENV
             echo "PUBLISH_LATEST=false" >> $GITHUB_ENV
           fi
@@ -71,54 +64,40 @@ jobs:
           echo "Event name: ${{ github.event_name }}"
           echo "Publish latest: ${{ env.PUBLISH_LATEST }}"
 
-      
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./docker/Dockerfile
           push: true
-          # Incluye el tag 'latest' condicionalmente aquí
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:${{ env.TAG }}
             ${{ env.PUBLISH_LATEST == 'true' && format('{0}/smartspend:latest', secrets.DOCKER_HUB_USERNAME) || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Este paso ha sido eliminado ya que la lógica de 'latest' se maneja en el paso anterior
-      # - name: Tag and push latest (for releases)
-      #   if: env.PUBLISH_LATEST == 'true'
-      #   run: |
-      #     docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:${{ env.TAG }} ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:latest
-      #     docker push ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:latest
-
       - name: Install ORAS CLI
         run: |
           curl -LO "https://github.com/oras-project/oras/releases/download/v1.1.0/oras_1.1.0_linux_amd64.tar.gz"
           tar -zxf oras_1.1.0_linux_amd64.tar.gz
           sudo mv oras /usr/local/bin/
-      
+
       - name: Publish docker-compose as OCI artifact
         env:
           ORAS_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           ORAS_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
         run: |
           COMPOSE_REPO="${{ secrets.DOCKER_HUB_USERNAME }}/smartspend-compose"
-          
-          # Actualiza el archivo docker-compose.yml para que apunte al tag correcto de la imagen
-          # Se usa una salida temporal para evitar modificar el archivo original directamente si hay errores
           sed "s|image: .*/smartspend:.*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:${{ env.TAG }}|g" docker/docker-compose.yml > docker/docker-compose.temp.yml
-          
-          # Push con el tag específico
+
           oras push docker.io/${COMPOSE_REPO}:${{ env.TAG }} \
             --artifact-type application/vnd.docker.compose.v2+yaml \
             docker/docker-compose.temp.yml:application/vnd.docker.compose.v2+yaml
-          
-          # Push condicional con el tag 'latest'
+
           if [[ "${{ env.PUBLISH_LATEST }}" == "true" ]]; then
             oras push docker.io/${COMPOSE_REPO}:latest \
               --artifact-type application/vnd.docker.compose.v2+yaml \
               docker/docker-compose.temp.yml:application/vnd.docker.compose.v2+yaml
           fi
-          # Eliminar el archivo temporal
+
           rm docker/docker-compose.temp.yml
