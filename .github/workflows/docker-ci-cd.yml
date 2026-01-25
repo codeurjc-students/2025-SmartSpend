@@ -29,6 +29,18 @@ jobs:
         run: |
           echo "${KEYSTORE_P12_BASE64}" | base64 --decode > backend/src/main/resources/keystore.p12
 
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: Copy frontend build to backend
+        run: |
+          rm -rf backend/src/main/resources/static
+          mkdir -p backend/src/main/resources/static
+          cp -r frontend/dist/*/browser/* backend/src/main/resources/static/
+
       - name: Build backend
         working-directory: backend
         run: mvn clean package -DskipTests -B
@@ -100,4 +112,4 @@ jobs:
               docker/docker-compose.temp.yml:application/vnd.docker.compose.v2+yaml
           fi
 
-          rm docker/docker-compose.temp.yml
+          rm docker/docker-compose.temp.
