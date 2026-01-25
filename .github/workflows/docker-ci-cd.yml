@@ -112,4 +112,4 @@ jobs:
               docker/docker-compose.temp.yml:application/vnd.docker.compose.v2+yaml
           fi
 
-          rm docker/docker-compose.temp.
+          rm docker/docker-compose.temp.yml
