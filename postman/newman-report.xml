@@ -1,46 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="SmartSpend API Collection" tests="6" time="1.101">
-  <testsuite name="Authentication / Register" id="8ba5f13e-8055-4d15-9b65-5fc9a85e93e5" timestamp="2026-01-03T09:49:56.863Z" tests="3" failures="0" errors="0" time="0.549">
-    <testcase name="Status code is 201" time="0.549" classname="SmartSpendApiCollection"/>
-    <testcase name="Response has required fields" time="0.549" classname="SmartSpendApiCollection"/>
-    <testcase name="Save token for future requests" time="0.549" classname="SmartSpendApiCollection"/>
+<testsuites name="SmartSpend API Collection" tests="6" time="0.670">
+  <testsuite name="Authentication / Register" id="3c36907a-001d-43d4-85d3-268bc78d291d" timestamp="2026-01-08T16:19:09.658Z" tests="3" failures="0" errors="0" time="0.336">
+    <testcase name="Status code is 201" time="0.336" classname="SmartSpendApiCollection"/>
+    <testcase name="Response has required fields" time="0.336" classname="SmartSpendApiCollection"/>
+    <testcase name="Save token for future requests" time="0.336" classname="SmartSpendApiCollection"/>
   </testsuite>
-  <testsuite name="Authentication / Login" id="19c2e8f5-265d-457b-85a2-4f6600d0646d" timestamp="2026-01-03T09:49:56.863Z" tests="4" failures="0" errors="0" time="0.306">
-    <testcase name="Status code is 200" time="0.306" classname="SmartSpendApiCollection"/>
-    <testcase name="Response has required fields" time="0.306" classname="SmartSpendApiCollection"/>
-    <testcase name="Save token for future requests" time="0.306" classname="SmartSpendApiCollection"/>
-    <testcase name="Token is valid JWT format" time="0.306" classname="SmartSpendApiCollection"/>
+  <testsuite name="Authentication / Login" id="2539ea02-161d-4aff-a650-3e8994fa7bb4" timestamp="2026-01-08T16:19:09.658Z" tests="4" failures="0" errors="0" time="0.186">
+    <testcase name="Status code is 200" time="0.186" classname="SmartSpendApiCollection"/>
+    <testcase name="Response has required fields" time="0.186" classname="SmartSpendApiCollection"/>
+    <testcase name="Save token for future requests" time="0.186" classname="SmartSpendApiCollection"/>
+    <testcase name="Token is valid JWT format" time="0.186" classname="SmartSpendApiCollection"/>
   </testsuite>
-  <testsuite name="Bank Accounts / 001 - Post Account - Succes" id="16a1c7a9-f445-439b-949f-dd940bf22c95" timestamp="2026-01-03T09:49:56.863Z" tests="4" failures="0" errors="0" time="0.075">
-    <testcase name="Status code is 201" time="0.075" classname="SmartSpendApiCollection"/>
-    <testcase name="Content-Type is JSON" time="0.075" classname="SmartSpendApiCollection"/>
-    <testcase name="Response body matches expected structure and values" time="0.075" classname="SmartSpendApiCollection"/>
-    <testcase name="Save accountId for future requests" time="0.075" classname="SmartSpendApiCollection"/>
+  <testsuite name="Bank Accounts / 001 - Post Account - Succes" id="0bf78f69-a289-4c0a-aacb-4a8e6424918d" timestamp="2026-01-08T16:19:09.658Z" tests="4" failures="0" errors="0" time="0.043">
+    <testcase name="Status code is 201" time="0.043" classname="SmartSpendApiCollection"/>
+    <testcase name="Content-Type is JSON" time="0.043" classname="SmartSpendApiCollection"/>
+    <testcase name="Response body matches expected structure and values" time="0.043" classname="SmartSpendApiCollection"/>
+    <testcase name="Save accountId for future requests" time="0.043" classname="SmartSpendApiCollection"/>
   </testsuite>
-  <testsuite name="Bank Accounts / 002 - Get Account By Id - Succes" id="4b58adac-f96a-4f0b-947e-d97b682de1bb" timestamp="2026-01-03T09:49:56.863Z" tests="3" failures="0" errors="0" time="0.047">
-    <testcase name="Status code is 200" time="0.047" classname="SmartSpendApiCollection"/>
-    <testcase name="Content-Type is JSON" time="0.047" classname="SmartSpendApiCollection"/>
-    <testcase name="Response body matches expected structure and values" time="0.047" classname="SmartSpendApiCollection"/>
+  <testsuite name="Bank Accounts / 002 - Get Account By Id - Succes" id="8ee3d287-d5ad-4120-a4ae-42aa24b2240c" timestamp="2026-01-08T16:19:09.658Z" tests="3" failures="0" errors="0" time="0.029">
+    <testcase name="Status code is 200" time="0.029" classname="SmartSpendApiCollection"/>
+    <testcase name="Content-Type is JSON" time="0.029" classname="SmartSpendApiCollection"/>
+    <testcase name="Response body matches expected structure and values" time="0.029" classname="SmartSpendApiCollection"/>
   </testsuite>
-  <testsuite name="Bank Accounts / 003 - Get accounts by email" id="7ba4baf4-037f-4daa-8ce6-88ebcca596ed" timestamp="2026-01-03T09:49:56.863Z" tests="3" failures="1" errors="0" time="0.030">
-    <testcase name="Status code is 200 OK" time="0.030" classname="SmartSpendApiCollection"/>
-    <testcase name="Response is a valid JSON array" time="0.030" classname="SmartSpendApiCollection"/>
-    <testcase name="Array is not empty and contains bank account objects with expected properties" time="0.030" classname="SmartSpendApiCollection">
-      <failure type="AssertionFailure" message="expected { id: 1, …(4) } to have property 'balance'">
-        <![CDATA[Failed 1 times.]]>
-        <![CDATA[Collection JSON ID: 908729f7-efb0-4312-a142-ceba85bdd4c8.]]>
-        <![CDATA[Collection name: SmartSpend API Collection.]]>
-        <![CDATA[Request name: Bank Accounts / 003 - Get accounts by email.]]>
-        <![CDATA[Test description: Array is not empty and contains bank account objects with expected properties.]]>
-        <![CDATA[Error message: expected { id: 1, …(4) } to have property 'balance'.]]>
-        <![CDATA[Stacktrace: AssertionError: expected { id: 1, …(4) } to have property 'balance'
-   at Object.eval sandbox-script.js:3:5).]]>
-      </failure>
-    </testcase>
+  <testsuite name="Bank Accounts / 003 - Get accounts by email" id="253a197a-34dd-4642-b468-fa9525671fc8" timestamp="2026-01-08T16:19:09.658Z" tests="2" failures="0" errors="0" time="0.024">
+    <testcase name="Status code is 200 OK" time="0.024" classname="SmartSpendApiCollection"/>
+    <testcase name="Response is a valid JSON array" time="0.024" classname="SmartSpendApiCollection"/>
   </testsuite>
-  <testsuite name="Bank Accounts / 004 - Delete account by id" id="c8d01f7c-b315-4fed-bc80-403f72bdeefc" timestamp="2026-01-03T09:49:56.863Z" tests="3" failures="0" errors="0" time="0.094">
-    <testcase name="Status code is 204 No Content" time="0.094" classname="SmartSpendApiCollection"/>
-    <testcase name="Response body is empty" time="0.094" classname="SmartSpendApiCollection"/>
-    <testcase name="Clear accountId from environment (if successful)" time="0.094" classname="SmartSpendApiCollection"/>
+  <testsuite name="Bank Accounts / 004 - Delete account by id" id="c8fecde4-6213-4914-a7a3-b79f72439161" timestamp="2026-01-08T16:19:09.658Z" tests="3" failures="0" errors="0" time="0.052">
+    <testcase name="Status code is 204 No Content" time="0.052" classname="SmartSpendApiCollection"/>
+    <testcase name="Response body is empty" time="0.052" classname="SmartSpendApiCollection"/>
+    <testcase name="Clear accountId from environment (if successful)" time="0.052" classname="SmartSpendApiCollection"/>
   </testsuite>
 </testsuites>

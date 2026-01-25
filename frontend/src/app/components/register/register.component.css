@@ -17,6 +17,10 @@
 
 /* Tarjeta del formulario */
 .register-card {
+  display: flex;
+  flex-direction: column; /* Disposición vertical */
+  align-items: center; /* Centra horizontalmente los elementos dentro de la tarjeta */
+  align-content: center;
   background-color: var(--color-bg-card); /* Variable actualizada del tema actual */
   padding: clamp(0.75rem, 2.5vw, 1rem); /* Padding escalable */
   border-radius: var(--border-radius-base); /* Bordes redondeados */
