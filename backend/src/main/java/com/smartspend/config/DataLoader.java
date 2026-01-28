@@ -6,21 +6,29 @@ import org.springframework.stereotype.Component;
 import com.smartspend.category.Category;
 import com.smartspend.category.CategoryRepository;
 import com.smartspend.transaction.TransactionType;
+import com.smartspend.user.User;
+import com.smartspend.user.UserRepository;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 @Component
 public class DataLoader implements CommandLineRunner {
 
     private final CategoryRepository categoryRepository;
 
-    public DataLoader(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
+    private final UserRepository userRepository;
+
 
     @Override
     public void run(String... args) throws Exception {
         // Precargar categorías solo si no hay ninguna categoría existente
         if (categoryRepository.count() == 0) {
             System.out.println("Cargando categorías iniciales por defecto...");
+
+            userRepository.save(new User("admin", "admin@gmail.com", "admin123"));
+
+
 
             // Categorías de INGRESO
             categoryRepository.save(new Category("Nómina", "Ingresos por trabajo", "#27ae60", TransactionType.INCOME, "💰"));

@@ -1,6 +1,7 @@
 package com.smartspend.transaction;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -153,6 +154,36 @@ public class TransactionService {
 
     }
 
+    public Optional<TransactionResponseDto> updateTransaction(Long transactionId, CreateTransactionDto transactionDto, String userEmail) {
+        User user = userRepository.findByUserEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        BankAccount account = bankAccountRepository.findById(transactionDto.accountId())
+            .orElseThrow(() -> new RuntimeException("Bank account not found"));
+
+        Transaction transaction = transactionRepository.findById(transactionId)
+            .orElseThrow(() -> new RuntimeException("Transaction not found"));
+
+        // Actualiza los campos (sin tocar el id ni la cuenta)
+        transaction.setTitle(transactionDto.title());
+        transaction.setDescription(transactionDto.description());
+        BigDecimal oldAmount = transaction.getAmount();
+        transaction.setAmount(transactionDto.amount());
+        transaction.setDate(transactionDto.date() != null ? transactionDto.date() : LocalDate.now());
+        TransactionType oldType = transaction.getType();
+        transaction.setType(transactionDto.type());
+        transaction.setRecurrence(transactionDto.recurrence());
+
+        Category category = categoryRepository.findById(transactionDto.categoryId())
+            .orElseThrow(() -> new RuntimeException("Category not found"));
+        transaction.setCategory(category);
+
+        updateBalanceOfEditTransaction(transaction, oldAmount, oldType, account);
+        Transaction updated = transactionRepository.save(transaction);
+        bankAccountRepository.save(account);
+        return Optional.of(transactionMapper.toResponseDto(updated));
+    }
+
 
     public TransactionResponseDto saveTransactionWithImage(CreateTransactionWithImageDto transactionDto, String userEmail) {
 
@@ -209,6 +240,17 @@ public class TransactionService {
         } else {
             account.setCurrentBalance(account.getCurrentBalance().subtract(transaction.getAmount()));
         }
+    }
+
+    private void updateBalanceOfEditTransaction(Transaction transaction, BigDecimal oldAmount, TransactionType oldType, BankAccount account){
+
+        if (oldType == TransactionType.INCOME){
+            account.setCurrentBalance(account.getCurrentBalance().subtract(oldAmount)); // substract old income amount to restore balance
+        } else { 
+            account.setCurrentBalance(account.getCurrentBalance().add(oldAmount)); // add back old expense amount to restore balance
+        }
+        upadateAccountBalance(transaction, account);
+        
     }
 
 

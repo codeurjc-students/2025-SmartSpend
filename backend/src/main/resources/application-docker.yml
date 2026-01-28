@@ -1,7 +1,8 @@
 logging:
   level:
     org.springframework.boot.web.embedded.tomcat: INFO
-    org.hibernate.SQL: WARN
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
   pattern:
     console: "🐳 DOCKER 🐳 - %d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 

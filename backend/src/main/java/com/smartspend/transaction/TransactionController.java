@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -94,7 +95,7 @@ public class TransactionController {
 
         TransactionResponseDto transaction = transactionService.saveTransaction(transactionDto, userEmail);
         
-        return ResponseEntity.ok(transaction);
+        return ResponseEntity.status(HttpStatus.CREATED).body(transaction);
 
     }
 
@@ -117,7 +118,7 @@ public class TransactionController {
             );
             
             System.out.println("🎯 Transaction created successfully");
-            return ResponseEntity.ok(transaction);
+            return ResponseEntity.status(HttpStatus.CREATED).body(transaction);
             
         } catch (IllegalArgumentException e) {
             System.err.println("❌ IllegalArgumentException: " + e.getMessage());
@@ -129,4 +130,22 @@ public class TransactionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @PutMapping("/{transactionId}")
+    public ResponseEntity<TransactionResponseDto> updateTransaction(
+            @PathVariable Long transactionId,
+            @ModelAttribute CreateTransactionDto transactionDto,
+            Authentication authentication) {
+
+        String userEmail = authentication.getName();
+
+        Optional<TransactionResponseDto> updatedTransaction = transactionService.updateTransaction(transactionId, transactionDto, userEmail);
+
+        if (updatedTransaction.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(updatedTransaction.get());
+    }
+    
 }

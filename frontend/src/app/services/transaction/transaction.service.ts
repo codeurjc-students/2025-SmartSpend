@@ -57,6 +57,34 @@ export class TransactionService {
     return this.http.post<Transaction>(`${this.apiUrl}/transactions/with-image`, formData);
   }
 
+  // Actualizar transacción
+  updateTransaction(transactionData: any): Observable<Transaction> {
+    const formData = new FormData();
+    
+    // Agregar campos básicos
+    formData.append('title', transactionData.title);
+    formData.append('amount', transactionData.amount.toString());
+    formData.append('date', transactionData.date);
+    formData.append('type', transactionData.type);
+    formData.append('recurrence', transactionData.recurrence);
+    formData.append('accountId', transactionData.accountId.toString());
+    
+    if (transactionData.categoryId) {
+      formData.append('categoryId', transactionData.categoryId);
+    }
+    
+    if (transactionData.description) {
+      formData.append('description', transactionData.description);
+    }
+    
+    // Agregar imagen si existe
+    if (transactionData.imageFile) {
+      formData.append('imageFile', transactionData.imageFile);
+    }
+
+    return this.http.put<Transaction>(`${this.apiUrl}/transactions/${transactionData.id}`, formData);
+  }
+
 
   deleteTransaction(transactionId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/transactions/${transactionId}`);
