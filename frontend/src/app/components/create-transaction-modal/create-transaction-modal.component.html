@@ -15,7 +15,7 @@
     <!-- HEADER (FIJO) -->
     <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700">
       <h2 class="text-lg font-semibold text-slate-100">
-        💰 Nueva Transacción
+        {{ mode === 'edit' ? '✏️ Editar Transacción' : '💰 Nueva Transacción' }}
       </h2>
 
       <div class="flex items-center gap-3">
@@ -44,7 +44,9 @@
             *ngIf="isLoading"
             class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
           ></span>
-          {{ isLoading ? 'Creando...' : 'Crear' }}
+          {{ isLoading 
+            ? (mode === 'edit' ? 'Actualizando...' : 'Creando...') 
+            : (mode === 'edit' ? 'Actualizar' : 'Crear') }}
         </button>
 
         <button

@@ -498,4 +498,213 @@ public class TransactionServiceTest {
         
         assertEquals("Invalid image file", exception.getMessage());
     }
+
+    @Test
+    @DisplayName("TS-2.1 - Should update balance correctly when updating INCOME transaction")
+    void updateTransactionShouldUpdateBalanceForIncome() {
+        // Initial balance: 100, original transaction: INCOME 50, new amount: 80
+        testAccount.setCurrentBalance(new BigDecimal("100"));
+        Transaction originalTransaction = Transaction.builder()
+            .id(1L)
+            .title("Original Income")
+            .amount(new BigDecimal("50"))
+            .type(TransactionType.INCOME)
+            .account(testAccount)
+            .category(testCategory)
+            .build();
+
+        CreateTransactionDto dto = new CreateTransactionDto(
+            "Updated Income", "Updated description", new BigDecimal("80"),
+            TransactionType.INCOME, LocalDate.now().plusDays(1), Recurrence.MONTHLY, 1L, 1L
+        );
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(testAccount));
+        when(transactionRepository.findById(1L)).thenReturn(Optional.of(originalTransaction));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
+        when(transactionRepository.save(any(Transaction.class))).thenReturn(originalTransaction);
+        
+        TransactionResponseDto responseDto = new TransactionResponseDto(
+            1L, "Updated Income", "Updated description", new BigDecimal("80"),
+            LocalDate.now().plusDays(1), TransactionType.INCOME, Recurrence.MONTHLY, 
+            1L, "Test Account", testCategory, false, null, null, null
+        );
+        when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(responseDto);
+
+        Optional<TransactionResponseDto> result = transactionService.updateTransaction(1L, dto, "test@example.com");
+
+        // Balance should be: 100 - 50 (remove old) + 80 (add new) = 130
+        assertEquals(new BigDecimal("130"), testAccount.getCurrentBalance());
+        
+        // Verify all fields are updated
+        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository).save(transactionCaptor.capture());
+        
+        Transaction savedTransaction = transactionCaptor.getValue();
+        assertEquals("Updated Income", savedTransaction.getTitle());
+        assertEquals("Updated description", savedTransaction.getDescription());
+        assertEquals(new BigDecimal("80"), savedTransaction.getAmount());
+        assertEquals(TransactionType.INCOME, savedTransaction.getType());
+        assertEquals(Recurrence.MONTHLY, savedTransaction.getRecurrence());
+        assertEquals(testCategory, savedTransaction.getCategory());
+        
+        // Verify response
+        assertNotNull(result);
+        assertEquals("Updated Income", result.get().title());
+        assertEquals("Updated description", result.get().description());
+        assertEquals(new BigDecimal("80"), result.get().amount());
+    }
+
+    @Test
+    @DisplayName("TS-2.2 - Should update balance correctly when updating EXPENSE transaction")
+    void updateTransactionShouldUpdateBalanceForExpense() {
+        // Initial balance: 100, original transaction: EXPENSE 30, new amount: 10
+        testAccount.setCurrentBalance(new BigDecimal("100"));
+        Transaction originalTransaction = Transaction.builder()
+            .id(2L)
+            .title("Original Expense")
+            .description("Original description")
+            .amount(new BigDecimal("30"))
+            .type(TransactionType.EXPENSE)
+            .date(LocalDate.now().minusDays(1))
+            .recurrence(Recurrence.NONE)
+            .account(testAccount)
+            .category(testCategory)
+            .build();
+
+        CreateTransactionDto dto = new CreateTransactionDto(
+            "Updated Expense", "Updated expense description", new BigDecimal("10"),
+            TransactionType.EXPENSE, LocalDate.now(), Recurrence.WEEKLY, 1L, 1L
+        );
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(testAccount));
+        when(transactionRepository.findById(2L)).thenReturn(Optional.of(originalTransaction));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
+        when(transactionRepository.save(any(Transaction.class))).thenReturn(originalTransaction);
+        
+        TransactionResponseDto responseDto = new TransactionResponseDto(
+            2L, "Updated Expense", "Updated expense description", new BigDecimal("10"),
+            LocalDate.now(), TransactionType.EXPENSE, Recurrence.WEEKLY,
+            1L, "Test Account", testCategory, false, null, null, null
+        );
+        when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(responseDto);
+
+        Optional<TransactionResponseDto> result = transactionService.updateTransaction(2L, dto, "test@example.com");
+
+        // Balance should be: 100 + 30 (restore old) - 10 (subtract new) = 120
+        assertEquals(new BigDecimal("120"), testAccount.getCurrentBalance());
+        
+        // Verify all fields are updated
+        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository).save(transactionCaptor.capture());
+        
+        Transaction savedTransaction = transactionCaptor.getValue();
+        assertEquals("Updated Expense", savedTransaction.getTitle());
+        assertEquals("Updated expense description", savedTransaction.getDescription());
+        assertEquals(new BigDecimal("10"), savedTransaction.getAmount());
+        assertEquals(TransactionType.EXPENSE, savedTransaction.getType());
+        assertEquals(LocalDate.now(), savedTransaction.getDate());
+        assertEquals(Recurrence.WEEKLY, savedTransaction.getRecurrence());
+        assertEquals(testCategory, savedTransaction.getCategory());
+        
+        // Verify response
+        assertNotNull(result);
+        assertEquals("Updated Expense", result.get().title());
+        assertEquals("Updated expense description", result.get().description());
+        assertEquals(new BigDecimal("10"), result.get().amount());
+        assertEquals(Recurrence.WEEKLY, result.get().recurrence());
+    }
+
+    @Test
+    @DisplayName("TS-2.3 - Should update balance when changing transaction type from INCOME to EXPENSE")
+    void updateTransactionShouldUpdateBalanceWhenChangingIncomeToExpense() {
+        // Initial balance: 100, original transaction: INCOME 50, new: EXPENSE 30
+        testAccount.setCurrentBalance(new BigDecimal("100"));
+        Transaction originalTransaction = Transaction.builder()
+            .id(3L)
+            .title("Income Transaction")
+            .amount(new BigDecimal("50"))
+            .type(TransactionType.INCOME)
+            .account(testAccount)
+            .category(testCategory)
+            .build();
+
+        CreateTransactionDto dto = new CreateTransactionDto(
+            "Now Expense", "Changed to expense", new BigDecimal("30"),
+            TransactionType.EXPENSE, LocalDate.now(), Recurrence.NONE, 1L, 1L
+        );
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(testAccount));
+        when(transactionRepository.findById(3L)).thenReturn(Optional.of(originalTransaction));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
+        when(transactionRepository.save(any(Transaction.class))).thenReturn(originalTransaction);
+        
+        TransactionResponseDto responseDto = new TransactionResponseDto(
+            3L, "Now Expense", "Changed to expense", new BigDecimal("30"),
+            LocalDate.now(), TransactionType.EXPENSE, Recurrence.NONE,
+            1L, "Test Account", testCategory, false, null, null, null
+        );
+        when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(responseDto);
+
+        transactionService.updateTransaction(3L, dto, "test@example.com");
+
+        // Balance should be: 100 - 50 (remove old income) - 30 (subtract new expense) = 20
+        assertEquals(new BigDecimal("20"), testAccount.getCurrentBalance());
+        
+        // Verify type change
+        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository).save(transactionCaptor.capture());
+        
+        Transaction savedTransaction = transactionCaptor.getValue();
+        assertEquals(TransactionType.EXPENSE, savedTransaction.getType());
+        assertEquals("Now Expense", savedTransaction.getTitle());
+    }
+
+    @Test
+    @DisplayName("TS-2.4 - Should update balance when changing transaction type from EXPENSE to INCOME")
+    void updateTransactionShouldUpdateBalanceWhenChangingExpenseToIncome() {
+        // Initial balance: 100, original transaction: EXPENSE 40, new: INCOME 60
+        testAccount.setCurrentBalance(new BigDecimal("100"));
+        Transaction originalTransaction = Transaction.builder()
+            .id(4L)
+            .title("Expense Transaction")
+            .amount(new BigDecimal("40"))
+            .type(TransactionType.EXPENSE)
+            .account(testAccount)
+            .category(testCategory)
+            .build();
+
+        CreateTransactionDto dto = new CreateTransactionDto(
+            "Now Income", "Changed to income", new BigDecimal("60"),
+            TransactionType.INCOME, LocalDate.now(), Recurrence.NONE, 1L, 1L
+        );
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(testAccount));
+        when(transactionRepository.findById(4L)).thenReturn(Optional.of(originalTransaction));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
+        when(transactionRepository.save(any(Transaction.class))).thenReturn(originalTransaction);
+        
+        TransactionResponseDto responseDto = new TransactionResponseDto(
+            4L, "Now Income", "Changed to income", new BigDecimal("60"),
+            LocalDate.now(), TransactionType.INCOME, Recurrence.NONE,
+            1L, "Test Account", testCategory, false, null, null, null
+        );
+        when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(responseDto);
+
+        transactionService.updateTransaction(4L, dto, "test@example.com");
+
+        // Balance should be: 100 + 40 (restore old expense) + 60 (add new income) = 200
+        assertEquals(new BigDecimal("200"), testAccount.getCurrentBalance());
+        
+        // Verify type change
+        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository).save(transactionCaptor.capture());
+        
+        Transaction savedTransaction = transactionCaptor.getValue();
+        assertEquals(TransactionType.INCOME, savedTransaction.getType());
+        assertEquals("Now Income", savedTransaction.getTitle());
+    }
 }

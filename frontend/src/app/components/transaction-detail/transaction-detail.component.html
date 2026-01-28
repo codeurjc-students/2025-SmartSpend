@@ -92,7 +92,8 @@
 
           <!-- ACCIONES -->
           <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
-            <button class="px-6 py-2 rounded-xl bg-slate-600 hover:bg-slate-500 transition">
+            <button class="px-6 py-2 rounded-xl bg-slate-600 hover:bg-slate-500 transition"
+            (click)="onEditTransaction()">
               ✏️ Editar
             </button>
             <button
@@ -186,6 +187,15 @@
         </button>
       </div>
     </div>
+
+  <!-- Modal de Edición -->
+  <app-create-transaction-modal 
+    [isVisible]="showEditModal"
+    [mode]="'edit'"
+    [transactionToEdit]="transaction || undefined"
+    (closeModal)="onCloseEditModal()"
+    (transactionUpdated)="onTransactionUpdated($event)">
+  </app-create-transaction-modal>
 
   </div>
 

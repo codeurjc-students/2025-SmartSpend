@@ -1,490 +1,628 @@
 {
-	"info": {
-		"_postman_id": "908729f7-efb0-4312-a142-ceba85bdd4c8",
-		"name": "SmartSpend API Collection",
-		"description": "Collection básica para la API de SmartSpend - Sistema de gestión de gastos personales",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "49335114",
-		"_collection_link": "https://juan-bustos-moya-8522275.postman.co/workspace/Juan-Manuel-Bustos-Moya's-Works~3970243f-d399-4872-80fe-c350a10e5cee/collection/49335114-908729f7-efb0-4312-a142-ceba85bdd4c8?action=share&source=collection_link&creator=49335114"
-	},
-	"item": [
-		{
-			"name": "Authentication",
-			"item": [
-				{
-					"name": "Register",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 201\", function () {\r",
-									"    pm.response.to.have.status(201);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response has required fields\", function () {\r",
-									"    const jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData).to.have.property('id');\r",
-									"    pm.expect(jsonData).to.have.property('token');\r",
-									"    pm.expect(jsonData).to.have.property('username');\r",
-									"    pm.expect(jsonData).to.have.property('email');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Save token for future requests\", function () {\r",
-									"    const jsonData = pm.response.json();\r",
-									"    if (jsonData.token) {\r",
-									"        pm.environment.set(\"token\", jsonData.token);\r",
-									"        pm.environment.set(\"userId\", jsonData.id);\r",
-									"        console.log(\"Token guardado: \" + jsonData.token.substring(0, 20) + \"...\");\r",
-									"    }\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "{{contentType}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"nuevo_usuario\",\n    \"email\": \"user@gmail.com\",\n    \"password\": \"password123\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/auth/register",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"auth",
-								"register"
-							]
-						},
-						"description": "Registro de nuevo usuario"
-					},
-					"response": []
-				},
-				{
-					"name": "Login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Response has required fields\", function () {",
-									"    const jsonData = pm.response.json();",
-									"    pm.expect(jsonData).to.have.property('id');",
-									"    pm.expect(jsonData).to.have.property('token');",
-									"    pm.expect(jsonData).to.have.property('username');",
-									"    pm.expect(jsonData).to.have.property('email');",
-									"});",
-									"",
-									"pm.test(\"Save token for future requests\", function () {",
-									"    const jsonData = pm.response.json();",
-									"    if (jsonData.token) {",
-									"        pm.environment.set(\"token\", jsonData.token);",
-									"        pm.environment.set(\"userId\", jsonData.id);",
-									"        console.log(\"Login exitoso. Token guardado: \" + jsonData.token.substring(0, 20) + \"...\");",
-									"    }",
-									"});",
-									"",
-									"pm.test(\"Token is valid JWT format\", function () {",
-									"    const jsonData = pm.response.json();",
-									"    const token = jsonData.token;",
-									"    const parts = token.split('.');",
-									"    pm.expect(parts).to.have.lengthOf(3);",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "{{contentType}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"user@gmail.com\",\n    \"password\": \"password123\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/auth/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"auth",
-								"login"
-							]
-						},
-						"description": "Autenticación de usuario. Actualiza automáticamente el token en el environment."
-					},
-					"response": []
-				}
-			],
-			"description": "Endpoints relacionados con autenticación y autorización"
-		},
-		{
-			"name": "Bank Accounts",
-			"item": [
-				{
-					"name": "001 - Post Account - Succes",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 201\", function () {\r",
-									"    pm.response.to.have.status(201);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Content-Type is JSON\", function () {\r",
-									"    pm.response.to.have.header(\"Content-Type\", \"application/json\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response body matches expected structure and values\", function () {\r",
-									"    const jsonData = pm.response.json();\r",
-									"\r",
-									"    pm.expect(jsonData).to.have.property(\"id\");\r",
-									"    pm.expect(jsonData).to.have.property(\"user\");\r",
-									"    pm.expect(jsonData).to.have.property(\"accountName\");\r",
-									"    pm.expect(jsonData).to.have.property(\"currentBalance\");\r",
-									"    pm.expect(jsonData).to.have.property(\"createdAt\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Save accountId for future requests\", function () {\r",
-									"    const jsonData = pm.response.json();\r",
-									"    if (jsonData.id) {\r",
-									"        pm.environment.set(\"accountId\", jsonData.id);\r",
-									"        console.log(\"accountId guardado: \" + jsonData.id);\r",
-									"    } else {\r",
-									"        console.warn(\"No se encontró 'id' en la respuesta para guardar como accountId.\");\r",
-									"    }\r",
-									"});\r",
-									"\r",
-									"\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "{{contentType}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"accountName\": \"Cuenta Principal\",\n    \"initialBalance\": 1000.00\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/accounts",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"accounts"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "002 - Get Account By Id - Succes",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Content-Type is JSON\", function () {\r",
-									"    pm.response.to.have.header(\"Content-Type\", \"application/json\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response body matches expected structure and values\", function () {\r",
-									"    const jsonData = pm.response.json();\r",
-									"\r",
-									"    pm.expect(jsonData).to.have.property(\"id\");\r",
-									"    pm.expect(jsonData).to.have.property(\"user\");\r",
-									"    pm.expect(jsonData).to.have.property(\"accountName\");\r",
-									"    pm.expect(jsonData).to.have.property(\"currentBalance\");\r",
-									"    pm.expect(jsonData).to.have.property(\"createdAt\");\r",
-									"});\r",
-									"\r",
-									"\r",
-									"\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "{{contentType}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/accounts/{{accountId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"accounts",
-								"{{accountId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "003 - Get accounts by email",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200 OK\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response is a valid JSON array\", function () {\r",
-									"    pm.response.to.be.json;\r",
-									"    const jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData).to.be.an('array');\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "{{contentType}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"accountName\": \"Cuenta Principal\",\n    \"initialBalance\": 1000.00\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/accounts",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"accounts"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "004 - Delete account by id",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 204 No Content\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response body is empty\", function () {\r",
-									"    pm.expect(pm.response.text()).to.be.empty;\r",
-									"});\r",
-									"\r",
-									"// Opcional: Desestablece la variable accountId del entorno\r",
-									"// Esto es útil si solo esperas eliminar una cuenta por ejecución o si quieres evitar usar un ID de cuenta ya eliminado.\r",
-									"pm.test(\"Clear accountId from environment (if successful)\", function () {\r",
-									"    if (pm.response.code === 204) {\r",
-									"        pm.environment.unset(\"accountId\");\r",
-									"        console.log(\"accountId desestablecido del entorno después de una eliminación exitosa.\");\r",
-									"    }\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "{{contentType}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/accounts/{{accountId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"accounts",
-								"{{accountId}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	],
-	"auth": {
-		"type": "bearer",
-		"bearer": [
-			{
-				"key": "token",
-				"value": "{{token}}",
-				"type": "string"
-			}
-		]
-	},
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					"// Script que se ejecuta antes de cada request",
-					"console.log('Ejecutando request a: ' + pm.request.url);"
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					"// Script que se ejecuta después de cada response",
-					"console.log('Response status: ' + pm.response.code);"
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "https://localhost:8443",
-			"type": "string"
-		}
-	]
+  "info": {
+    "_postman_id": "7c6909d2-64ca-479e-8b0e-b8abf82deb41",
+    "name": "SmartSpend API Collection Copy",
+    "description": "Collection básica para la API de SmartSpend - Sistema de gestión de gastos personales",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43392822",
+    "_collection_link": "https://go.postman.co/collection/43392822-7c6909d2-64ca-479e-8b0e-b8abf82deb41?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response has required fields\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.have.property('id');\r",
+                  "    pm.expect(jsonData).to.have.property('token');\r",
+                  "    pm.expect(jsonData).to.have.property('username');\r",
+                  "    pm.expect(jsonData).to.have.property('email');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Save token for future requests\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    if (jsonData.token) {\r",
+                  "        pm.environment.set(\"token\", jsonData.token);\r",
+                  "        pm.environment.set(\"userId\", jsonData.id);\r",
+                  "        console.log(\"Token guardado: \" + jsonData.token.substring(0, 20) + \"...\");\r",
+                  "    }\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "{{contentType}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"nuevo_usuario\",\n    \"email\": \"user@gmail.com\",\n    \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Registro de nuevo usuario"
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "    pm.expect(jsonData).to.have.property('username');",
+                  "    pm.expect(jsonData).to.have.property('email');",
+                  "});",
+                  "",
+                  "pm.test(\"Save token for future requests\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.token) {",
+                  "        pm.environment.set(\"token\", jsonData.token);",
+                  "        pm.environment.set(\"userId\", jsonData.id);",
+                  "        console.log(\"Login exitoso. Token guardado: \" + jsonData.token.substring(0, 20) + \"...\");",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"Token is valid JWT format\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    const token = jsonData.token;",
+                  "    const parts = token.split('.');",
+                  "    pm.expect(parts).to.have.lengthOf(3);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "{{contentType}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"user@gmail.com\",\n    \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Autenticación de usuario. Actualiza automáticamente el token en el environment."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints relacionados con autenticación y autorización"
+    },
+    {
+      "name": "Bank Accounts",
+      "item": [
+        {
+          "name": "001 - Post Account - Succes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type is JSON\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response body matches expected structure and values\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData).to.have.property(\"id\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"user\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"accountName\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"currentBalance\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"createdAt\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Save accountId for future requests\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    if (jsonData.id) {\r",
+                  "        pm.environment.set(\"accountId\", jsonData.id);\r",
+                  "        console.log(\"accountId guardado: \" + jsonData.id);\r",
+                  "    } else {\r",
+                  "        console.warn(\"No se encontró 'id' en la respuesta para guardar como accountId.\");\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "{{contentType}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"accountName\": \"Cuenta Principal\",\n    \"initialBalance\": 1000.00\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/accounts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "accounts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "002 - Get Account By Id - Succes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type is JSON\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response body matches expected structure and values\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData).to.have.property(\"id\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"user\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"accountName\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"currentBalance\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"createdAt\");\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "{{contentType}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/accounts/{{accountId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "accounts",
+                "{{accountId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "003 - Get accounts by email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response is a valid JSON array\", function () {\r",
+                  "    pm.response.to.be.json;\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "{{contentType}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"accountName\": \"Cuenta Principal\",\n    \"initialBalance\": 1000.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/accounts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "accounts"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transaction",
+      "item": [
+        {
+          "name": "001 - Create transaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test 1: Verify response status is 201",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(201);",
+                  "});",
+                  "",
+                  "// Test 2: Verify the response has a JSON body",
+                  "pm.test(\"Response has JSON body\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Test 3: Check that the response contains expected properties",
+                  "pm.test(\"Response contains expected properties\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"id\");",
+                  "    pm.expect(jsonData).to.have.property(\"title\");",
+                  "    pm.expect(jsonData).to.have.property(\"description\");",
+                  "    pm.expect(jsonData).to.have.property(\"amount\");",
+                  "    pm.expect(jsonData).to.have.property(\"type\");",
+                  "    pm.expect(jsonData).to.have.property(\"date\");",
+                  "    pm.expect(jsonData).to.have.property(\"recurrence\");",
+                  "    pm.expect(jsonData).to.have.property(\"accountId\");",
+                  "    pm.expect(jsonData).to.have.property(\"accountName\");",
+                  "    pm.expect(jsonData).to.have.property(\"category\");",
+                  "    pm.expect(jsonData).to.have.property(\"hasImage\");",
+                  "    pm.expect(jsonData).to.have.property(\"imageBase64\");",
+                  "    pm.expect(jsonData).to.have.property(\"imageName\");",
+                  "    pm.expect(jsonData).to.have.property(\"imageType\");",
+                  "});",
+                  "",
+                  "// Test 4: Validate nested category object structure",
+                  "pm.test(\"Category object has expected properties\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.category).to.have.property(\"id\");",
+                  "    pm.expect(jsonData.category).to.have.property(\"name\");",
+                  "    pm.expect(jsonData.category).to.have.property(\"color\");",
+                  "    pm.expect(jsonData.category).to.have.property(\"icon\");",
+                  "    pm.expect(jsonData.category).to.have.property(\"type\");",
+                  "    pm.expect(jsonData.category).to.have.property(\"isDefault\");",
+                  "    pm.expect(jsonData.category).to.have.property(\"user\");",
+                  "});",
+                  "",
+                  "// Test 5: Validate that returned values match request body values",
+                  "pm.test(\"Returned values match request body\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    const requestBody = JSON.parse(pm.request.body.raw);",
+                  "    ",
+                  "    pm.expect(jsonData.title).to.eql(requestBody.title);",
+                  "    pm.expect(jsonData.description).to.eql(requestBody.description);",
+                  "    pm.expect(jsonData.amount).to.eql(requestBody.amount);",
+                  "    pm.expect(jsonData.type).to.eql(requestBody.type);",
+                  "    pm.expect(jsonData.date).to.eql(requestBody.date);",
+                  "    pm.expect(jsonData.recurrence).to.eql(requestBody.recurrence);",
+                  "    pm.expect(jsonData.accountId).to.eql(requestBody.accountId);",
+                  "});",
+                  "",
+                  "// Test 6: Verify transaction ID was generated",
+                  "pm.test(\"Transaction ID was generated\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.be.a(\"number\");",
+                  "    pm.expect(jsonData.id).to.be.above(0);",
+                  "});",
+                  "",
+                  "// Test 7: Validate image properties have correct types",
+                  "pm.test(\"Image properties have correct types\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.hasImage).to.be.a(\"boolean\");",
+                  "    // imageBase64, imageName, imageType can be null or string",
+                  "    if (jsonData.imageBase64 !== null) {",
+                  "        pm.expect(jsonData.imageBase64).to.be.a(\"string\");",
+                  "    }",
+                  "    if (jsonData.imageName !== null) {",
+                  "        pm.expect(jsonData.imageName).to.be.a(\"string\");",
+                  "    }",
+                  "    if (jsonData.imageType !== null) {",
+                  "        pm.expect(jsonData.imageType).to.be.a(\"string\");",
+                  "    }",
+                  "});",
+                  "",
+                  "// Test 8: Verify account name is present and is a string",
+                  "pm.test(\"Account name is present and is a string\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.accountName).to.be.a(\"string\");",
+                  "    pm.expect(jsonData.accountName.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "// Save transaction ID to environment variable for use in edit/delete requests",
+                  "const responseData = pm.response.json();",
+                  "const transactionId = responseData.id;",
+                  "pm.environment.set(\"transactionId\", transactionId);",
+                  "console.log(\"Transaction ID saved to environment variable 'transactionId':\", transactionId);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Supermarket purchase\",\r\n  \"description\": \"Weekly grocery shopping\",\r\n  \"amount\": 50,\r\n  \"type\": \"EXPENSE\",\r\n  \"date\": \"2026-01-28\",\r\n  \"recurrence\": \"NONE\",\r\n  \"accountId\": {{accountId}},\r\n  \"categoryId\": 5\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transactions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "003 - Delete transaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test that the response status is 200",
+                  "pm.test(\"Status code is 200 - Transaction deleted successfully\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test that response body is empty",
+                  "pm.test(\"Response body is empty\", function () {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/transactions/{{transactionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transactions",
+                "{{transactionId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Script que se ejecuta antes de cada request",
+          "console.log('Ejecutando request a: ' + pm.request.url);"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Script que se ejecuta después de cada response",
+          "console.log('Response status: ' + pm.response.code);"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:8443",
+      "type": "string"
+    }
+  ]
 }

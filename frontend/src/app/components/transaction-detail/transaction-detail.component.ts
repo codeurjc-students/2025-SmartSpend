@@ -3,11 +3,12 @@ import { Transaction } from '../../interfaces/transaction.interface';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TransactionService } from '../../services/transaction/transaction.service';
 import { CommonModule } from '@angular/common';
+import { CreateTransactionModalComponent } from '../create-transaction-modal/create-transaction-modal.component';
 
 @Component({
   selector: 'app-transaction-detail',
   standalone: true,
-  imports: [CommonModule], 
+  imports: [CommonModule, CreateTransactionModalComponent], 
   templateUrl: './transaction-detail.component.html',
   styleUrl: './transaction-detail.component.css'
 })
@@ -21,6 +22,9 @@ export class TransactionDetailComponent implements OnInit {
   showConfirmModal: boolean = false;
   showSuccessModal: boolean = false;
   isDeleting: boolean = false;
+  
+  // Variables para modal de edición
+  showEditModal: boolean = false;
 
   constructor(private route: ActivatedRoute, private transactionService: TransactionService, private router: Router) {}
 
@@ -93,6 +97,21 @@ export class TransactionDetailComponent implements OnInit {
   closeSuccessModal(): void {
     this.showSuccessModal = false;
     this.router.navigate(['/dashboard']);
+  }
+
+  // Métodos para modal de edición
+  onEditTransaction(): void {
+    this.showEditModal = true;
+  }
+
+  onCloseEditModal(): void {
+    this.showEditModal = false;
+  }
+
+  onTransactionUpdated(updatedTransaction: Transaction): void {
+    this.transaction = updatedTransaction; // Actualizar los datos locales
+    this.showEditModal = false;
+    console.log('Transacción actualizada:', updatedTransaction);
   }
 
   

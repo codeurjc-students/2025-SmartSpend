@@ -19,8 +19,11 @@ import { ActiveAccountService } from '../../services/active-account/active-accou
 
 export class CreateTransactionModalComponent implements OnInit {
   @Input() isVisible: boolean = false;
+  @Input() mode: 'create' | 'edit' = 'create';
+  @Input() transactionToEdit?: Transaction;
   @Output() closeModal = new EventEmitter<void>();
   @Output() transactionCreated = new EventEmitter<Transaction>();
+  @Output() transactionUpdated = new EventEmitter<Transaction>();
 
   // La cuenta activa se obtiene del servicio en lugar de ser un Input
   currentAccount: BankAccount | null = null;
@@ -56,22 +59,48 @@ export class CreateTransactionModalComponent implements OnInit {
     private activeAccountService: ActiveAccountService
   ) {}
 
-  ngOnInit(): void {    // Suscribirse a cambios en la cuenta activa
+  ngOnInit(): void {
+    // Suscribirse a cambios en la cuenta activa
     this.activeAccountService.activeAccount$.subscribe(account => {
       this.currentAccount = account;
     });
-        if (this.isVisible) {
+    if (this.isVisible) {
+      this.initializeForm();
       this.loadCategories();
     }
   }
 
   ngOnChanges(): void {
     if (this.isVisible) {
-      this.resetForm();
+      this.initializeForm();
       this.loadCategories();
     }
   }
-
+  private initializeForm(): void {
+    if (this.mode === 'edit' && this.transactionToEdit) {
+      // Modo edición: cargar datos existentes
+      this.newTransaction = {
+        title: this.transactionToEdit.title,
+        description: this.transactionToEdit.description || '',
+        amount: this.transactionToEdit.amount,
+        type: this.transactionToEdit.type,
+        recurrence: this.transactionToEdit.recurrence,
+        categoryId: this.transactionToEdit.category.id.toString(),
+        date: this.transactionToEdit.date,
+        imageFile: undefined
+      };
+      
+      // Manejar imagen existente
+      if (this.transactionToEdit.hasImage && this.transactionToEdit.imageBase64) {
+        this.imagePreview = `data:${this.transactionToEdit.imageType};base64,${this.transactionToEdit.imageBase64}`;
+      } else {
+        this.clearImage();
+      }
+    } else {
+      // Modo creación: resetear formulario
+      this.resetForm();
+    }
+  }
   loadCategories(): void {
     if (!this.newTransaction.type) return;
     
@@ -181,6 +210,43 @@ export class CreateTransactionModalComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = null;
 
+    if (this.mode === 'edit' && this.transactionToEdit) {
+      // Modo edición
+      this.updateTransaction();
+    } else {
+      // Modo creación
+      this.createTransaction();
+    }
+  }
+
+  private updateTransaction(): void {
+    const updateData = {
+      id: this.transactionToEdit!.id,
+      title: this.newTransaction.title!,
+      description: this.newTransaction.description || '',
+      amount: this.newTransaction.amount!,
+      type: this.newTransaction.type!,
+      recurrence: this.newTransaction.recurrence!,
+      categoryId: this.newTransaction.categoryId!,
+      date: this.newTransaction.date!,
+      accountId: this.currentAccount!.id,
+      imageFile: this.selectedImageFile || undefined
+    };
+
+    this.transactionService.updateTransaction(updateData).subscribe({
+      next: (updatedTransaction) => {
+        this.transactionUpdated.emit(updatedTransaction);
+        this.close();
+      },
+      error: (err) => {
+        console.error('Error updating transaction:', err);
+        this.errorMessage = err.error?.message || 'Error al actualizar la transacción.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private createTransaction(): void {
     const transactionData: CreateTransactionWithImageDto = {
       title: this.newTransaction.title!,
       description: this.newTransaction.description || '',
@@ -189,7 +255,7 @@ export class CreateTransactionModalComponent implements OnInit {
       recurrence: this.newTransaction.recurrence!,
       categoryId: this.newTransaction.categoryId!,
       date: this.newTransaction.date ?? new Date().toISOString().split('T')[0],
-      accountId: this.currentAccount.id,
+      accountId: this.currentAccount!.id,
       imageFile: this.selectedImageFile || undefined
     };
 
