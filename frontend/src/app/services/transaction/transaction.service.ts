@@ -1,7 +1,8 @@
 import { Observable } from 'rxjs';
 import { CreateTransactionDto } from '../../interfaces/create-transaction.interface';
-import { Transaction } from '../../interfaces/transaction.interface'; // Asegúrate de que Transaction esté importado desde interfaces
-import { HttpClient } from '@angular/common/http';
+import { Transaction } from '../../interfaces/transaction.interface';
+import { PaginatedResponse, TransactionFilters } from '../../interfaces/pagination.interface';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
 import { CreateTransactionWithImageDto } from '../../interfaces/create-transaction-with-image.interface';
@@ -88,6 +89,31 @@ export class TransactionService {
 
   deleteTransaction(transactionId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/transactions/${transactionId}`);
+  }
+
+  // Método para obtener transacciones paginadas con filtros
+  getTransactionsPaginated(
+    accountId: number,
+    page: number = 0,
+    size: number = 10,
+    filters: TransactionFilters
+  ): Observable<PaginatedResponse<Transaction>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    // Aplicar filtros si existen
+    if (filters.search) params = params.set('search', filters.search);
+    if (filters.type) params = params.set('type', filters.type);
+    if (filters.dateFrom) params = params.set('dateFrom', filters.dateFrom);
+    if (filters.dateTo) params = params.set('dateTo', filters.dateTo);
+    if (filters.minAmount) params = params.set('minAmount', filters.minAmount.toString());
+    if (filters.maxAmount) params = params.set('maxAmount', filters.maxAmount.toString());
+
+    return this.http.get<PaginatedResponse<Transaction>>(
+      `${this.apiUrl}/transactions/account/${accountId}/paginated`,
+      { params }
+    );
   }
   
 }

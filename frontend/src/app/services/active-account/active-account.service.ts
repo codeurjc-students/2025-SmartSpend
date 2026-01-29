@@ -34,6 +34,13 @@ export class ActiveAccountService {
   }
 
   /**
+   * Obtiene la cuenta activa actual (alias para compatibilidad)
+   */
+  getActiveAccountValue(): BankAccount | null {
+    return this.activeAccountSubject.value;
+  }
+
+  /**
    * Obtiene el ID de la cuenta activa guardada en localStorage
    */
   getSavedActiveAccountId(): number | null {

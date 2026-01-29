@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -76,7 +77,7 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
-    public Page<TransactionResponseDto> getTransactionsByAccount(Long accountId, String userEmail, Pageable pageable) {
+    public Page<TransactionResponseDto> getTransactionsByAccount(Long accountId, String userEmail, String search, String type, String dateFrom, String dateTo, BigDecimal minAmount, BigDecimal maxAmount, Long categoryId, Pageable pageable) {
         User user = userRepository.findByUserEmail(userEmail)
             .orElseThrow(() -> new RuntimeException("User not found"));
         
@@ -87,7 +88,35 @@ public class TransactionService {
             throw new RuntimeException("Unauthorized to access this account");
         }
 
-        Page<Transaction> transactions = transactionRepository.findByAccountIdOrderByDateDesc(accountId, pageable);
+        LocalDate parsedDateFrom = null;
+        LocalDate parsedDateTo = null;
+        
+        try {
+            if (dateFrom != null && !dateFrom.trim().isEmpty()) {
+                parsedDateFrom = LocalDate.parse(dateFrom);
+            }
+            if (dateTo != null && !dateTo.trim().isEmpty()) {
+                parsedDateTo = LocalDate.parse(dateTo);
+            }
+        } catch (Exception e) {
+            // Si las fechas no se pueden parsear, las ignoramos
+        }
+
+        System.out.println("🔍 FILTROS RECIBIDOS:");
+        System.out.println("  accountId: " + accountId);
+        System.out.println("  search: " + search);
+        System.out.println("  type: " + type);
+        System.out.println("  categoryId: " + categoryId);
+        System.out.println("  dateFrom: " + dateFrom);
+        System.out.println("  dateTo: " + dateTo);
+        System.out.println("  dateTo: " + dateTo);
+        
+        // Usar Specification para filtros dinámicos
+        Specification<Transaction> spec = TransactionSpecification.filterTransactions(
+            accountId, search, type, parsedDateFrom, parsedDateTo, minAmount, maxAmount, categoryId
+        );
+
+        Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
         
         return transactions.map(transactionMapper::toResponseDto);
     }

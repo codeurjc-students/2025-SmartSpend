@@ -60,12 +60,19 @@ public class TransactionController {
 
     @GetMapping("/account/{accountId}/paginated")
     public ResponseEntity<Page<TransactionResponseDto>> getTransactionsByAccountPaginated(
-            @PathVariable Long accountId,
-            @PageableDefault(size = 5, sort = "date", direction = Sort.Direction.DESC) Pageable pageable, // ✅ Valores por defecto
-            Authentication authentication) {
-        String userEmail = authentication.getName();
-        Page<TransactionResponseDto> transactionsPage = transactionService.getTransactionsByAccount(accountId, userEmail, pageable);
-        return ResponseEntity.ok(transactionsPage);
+        @PathVariable Long accountId,
+        @RequestParam(required = false) String search,
+        @RequestParam(required = false) String type,
+        @RequestParam(required = false) String dateFrom,
+        @RequestParam(required = false) String dateTo,
+        @RequestParam(required = false) BigDecimal minAmount,
+        @RequestParam(required = false) BigDecimal maxAmount,
+        @RequestParam(required = false) Long categoryId,
+        @PageableDefault(size = 5, sort = "date", direction = Sort.Direction.DESC) Pageable pageable, // ✅ Valores por defecto
+        Authentication authentication) {
+            String userEmail = authentication.getName();
+            Page<TransactionResponseDto> transactionsPage = transactionService.getTransactionsByAccount(accountId, userEmail, search, type, dateFrom, dateTo, minAmount, maxAmount, categoryId, pageable);
+            return ResponseEntity.ok(transactionsPage);
     }
 
     @GetMapping("/{transactionId}")

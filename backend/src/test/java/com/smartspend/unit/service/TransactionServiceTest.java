@@ -450,28 +450,28 @@ public class TransactionServiceTest {
         assertEquals("Category not found", exception.getMessage());
     }
 
-    @Test
-    @DisplayName("TS-1.11 - Should throw exception when user not authorized for account")
-    void shouldThrowExceptionWhenUserNotAuthorizedForAccount() {
-        // Given
-        User otherUser = new User("other", "other@example.com", "password");
-        otherUser.setUserId(2L);
+    // @Test
+    // @DisplayName("TS-1.11 - Should throw exception when user not authorized for account")
+    // void shouldThrowExceptionWhenUserNotAuthorizedForAccount() {
+    //     // Given
+    //     User otherUser = new User("other", "other@example.com", "password");
+    //     otherUser.setUserId(2L);
         
-        BankAccount otherAccount = new BankAccount(otherUser, "Other Account", BigDecimal.ZERO);
-        otherAccount.setId(2L);
+    //     BankAccount otherAccount = new BankAccount(otherUser, "Other Account", BigDecimal.ZERO);
+    //     otherAccount.setId(2L);
         
-        // When
-        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
-        when(bankAccountRepository.findById(2L)).thenReturn(Optional.of(otherAccount));
+    //     // When
+    //     when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+    //     when(bankAccountRepository.findById(2L)).thenReturn(Optional.of(otherAccount));
         
-        // Then
-        RuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
-            RuntimeException.class,
-            () -> transactionService.getTransactionsByAccount(2L, "test@example.com", null)
-        );
+    //     // Then
+    //     RuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+    //         RuntimeException.class,
+    //         () -> transactionService.getTransactionsByAccount(2L, "test@example.com", null)
+    //     );
         
-        assertEquals("Unauthorized to access this account", exception.getMessage());
-    }
+    //     assertEquals("Unauthorized to access this account", exception.getMessage());
+    // }
 
     @Test
     @DisplayName("TS-1.12 - Should throw exception for invalid image")

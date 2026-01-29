@@ -16,6 +16,12 @@ import { ActiveAccountService } from '../../services/active-account/active-accou
 export class TransactionListComponent implements OnInit, OnChanges { // ✅ Implementar OnChanges
   @Input() accountId: number | null = null;
   @Input() limit: number = 2; // ✅ Añadir un Input para el límite de transacciones a mostrar
+  
+  // ✅ Nuevos inputs para modo avanzado
+  @Input() advancedMode: boolean = false; // Si está en modo avanzado (recibe transacciones externas)
+  @Input() externalTransactions: Transaction[] | null = null; // Transacciones desde el padre
+  @Input() externalLoading: boolean = false; // Estado de carga externo
+  @Input() showMoreButton: boolean = true; // Mostrar botón "Ver más"
 
   // ✅ Estas propiedades ahora son internas del componente, no @Input
   transactions: Transaction[] = [];
@@ -35,26 +41,36 @@ export class TransactionListComponent implements OnInit, OnChanges { // ✅ Impl
   ) {}
 
   ngOnInit(): void {
-    // Suscribirse a cambios en la cuenta activa
-    this.activeAccountService.activeAccount$.subscribe(activeAccount => {
-      if (activeAccount) {
-        this.accountId = activeAccount.id;
-        this.loadTransactions();
-      } else {
-        this.accountId = null;
-        this.transactions = [];
-        this.hasMoreTransactions = false;
-      }
-    });
+    // Si está en modo avanzado, usar transacciones externas
+    if (this.advancedMode) {
+      this.handleExternalTransactions();
+    } else {
+      // Modo normal: suscribirse a cambios en la cuenta activa
+      this.activeAccountService.activeAccount$.subscribe(activeAccount => {
+        if (activeAccount) {
+          this.accountId = activeAccount.id;
+          this.loadTransactions();
+        } else {
+          this.accountId = null;
+          this.transactions = [];
+          this.hasMoreTransactions = false;
+        }
+      });
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // ✅ Reaccionar a cambios en el accountId para recargar las transacciones
-    if (changes['accountId'] && changes['accountId'].currentValue !== changes['accountId'].previousValue) {
+    // En modo avanzado, reaccionar a cambios en transacciones externas
+    if (this.advancedMode && changes['externalTransactions']) {
+      this.handleExternalTransactions();
+    }
+    
+    // En modo normal, reaccionar a cambios en el accountId
+    if (!this.advancedMode && changes['accountId'] && changes['accountId'].currentValue !== changes['accountId'].previousValue) {
       if (this.accountId) {
         this.loadTransactions();
       } else {
-        this.transactions = []; // Limpiar si no hay accountId
+        this.transactions = [];
         this.hasMoreTransactions = false;
       }
     }
@@ -91,6 +107,19 @@ export class TransactionListComponent implements OnInit, OnChanges { // ✅ Impl
     });
   }
 
+  // ✅ Método para manejar transacciones externas en modo avanzado
+  private handleExternalTransactions(): void {
+    if (this.externalTransactions) {
+      this.transactions = this.externalTransactions;
+      this.isLoading = this.externalLoading;
+      this.hasMoreTransactions = false; // En modo avanzado, la paginación la maneja el padre
+    } else {
+      this.transactions = [];
+      this.isLoading = this.externalLoading;
+      this.hasMoreTransactions = false;
+    }
+  }
+
   onAddTransaction(): void { 
     this.addTransactionClick.emit();
   }
@@ -117,7 +146,7 @@ export class TransactionListComponent implements OnInit, OnChanges { // ✅ Impl
   }
   onViewAllTransactions(): void {
     console.log('View all transactions clicked');
-    this.viewAllTransactionsClick.emit(); // Emitir evento para que el padre lo maneje
+    this.router.navigate(['/all-transactions']); // Navegar a la nueva página de todas las transacciones
   }
 
   getTransactionIcon(transaction: Transaction): string {

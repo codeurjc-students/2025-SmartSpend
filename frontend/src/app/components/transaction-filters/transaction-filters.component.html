@@ -1,0 +1,122 @@
+<!-- Componente de Filtros Reutilizable -->
+<div class="transaction-filters-container">
+  
+  <!-- Header del componente -->
+  <div *ngIf="showTitle" class="filters-header">
+    <h3 class="filters-title">
+      🔍 <span>{{ title }}</span>
+    </h3>
+    <button 
+      *ngIf="showClearButton"
+      (click)="onClearFilters()"
+      class="clear-button">
+      ✨ Limpiar Filtros
+    </button>
+  </div>
+  
+  <!-- Grid de filtros -->
+  <div class="filters-grid">
+    
+    <!-- Búsqueda por texto -->
+    <div *ngIf="showSearch" class="filter-field search-field">
+      <label class="filter-label">{{ searchLabel }}</label>
+      <input
+        type="text"
+        [(ngModel)]="filters.search"
+        placeholder="Título, descripción..."
+        class="filter-input"
+        (input)="onSearchChange()"
+        (keyup.enter)="onApplyFilters()"
+      />
+    </div>
+
+    <!-- Tipo de transacción -->
+    <div *ngIf="showType" class="filter-field">
+      <label class="filter-label">{{ typeLabel }}</label>
+      <select
+        [(ngModel)]="filters.type"
+        (ngModelChange)="onTypeChange()"
+        class="filter-select">
+        <option value="">Todos</option>
+        <option value="INCOME">Ingresos</option>
+        <option value="EXPENSE">Gastos</option>
+      </select>
+    </div>
+
+    <!-- Categoría (solo si hay tipo seleccionado) -->
+    <div *ngIf="showCategory && filters.type" class="filter-field">
+      <label class="filter-label">{{ categoryLabel }}</label>
+      <select
+        [(ngModel)]="filters.categoryId"
+        (ngModelChange)="onFilterChange()"
+        [disabled]="loadingCategories"
+        class="filter-select">
+        <option value="">Todas las categorías</option>
+        <option *ngIf="loadingCategories" disabled>Cargando...</option>
+        <option *ngFor="let category of categories" [value]="category.id.toString()">
+          {{ category.icon }} {{ category.name }} {{category.id}}
+        </option>
+      </select>
+    </div>
+
+    <!-- Fecha desde -->
+    <div *ngIf="showDateRange" class="filter-field">
+      <label class="filter-label">{{ dateFromLabel }}</label>
+      <input
+        type="date"
+        [(ngModel)]="filters.dateFrom"
+        (ngModelChange)="onFilterChange()"
+        class="filter-input"
+      />
+    </div>
+
+    <!-- Fecha hasta -->
+    <div *ngIf="showDateRange" class="filter-field">
+      <label class="filter-label">{{ dateToLabel }}</label>
+      <input
+        type="date"
+        [(ngModel)]="filters.dateTo"
+        (ngModelChange)="onFilterChange()"
+        class="filter-input"
+      />
+    </div>
+
+    <!-- Importe mínimo -->
+    <div *ngIf="showAmountRange" class="filter-field">
+      <label class="filter-label">{{ minAmountLabel }}</label>
+      <input
+        type="number"
+        [(ngModel)]="filters.minAmount"
+        step="0.01"
+        min="0"
+        placeholder="0.00"
+        (ngModelChange)="onFilterChange()"
+        class="filter-input"
+      />
+    </div>
+
+    <!-- Importe máximo -->
+    <div *ngIf="showAmountRange" class="filter-field">
+      <label class="filter-label">{{ maxAmountLabel }}</label>
+      <input
+        type="number"
+        [(ngModel)]="filters.maxAmount"
+        step="0.01"
+        min="0"
+        placeholder="999.99"
+        (ngModelChange)="onFilterChange()"
+        class="filter-input"
+      />
+    </div>
+
+    <!-- Botón aplicar filtros -->
+    <div *ngIf="showApplyButton" class="filter-field apply-button-field">
+      <button
+        (click)="onApplyFilters()"
+        class="apply-button">
+        🎯 Aplicar Filtros
+      </button>
+    </div>
+
+  </div>
+</div>
