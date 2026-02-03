@@ -109,6 +109,7 @@ export class TransactionService {
     if (filters.dateTo) params = params.set('dateTo', filters.dateTo);
     if (filters.minAmount) params = params.set('minAmount', filters.minAmount.toString());
     if (filters.maxAmount) params = params.set('maxAmount', filters.maxAmount.toString());
+    if (filters.categoryId) params = params.set('categoryId', filters.categoryId);
 
     return this.http.get<PaginatedResponse<Transaction>>(
       `${this.apiUrl}/transactions/account/${accountId}/paginated`,

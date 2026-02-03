@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface BankAccountRepository extends JpaRepository<BankAccount, Long>{
     List<BankAccount> findByUser_UserId(Long userId);
     Optional<BankAccount> findByIdAndUser_UserId(Long id, Long userId);
+    long countByUser(com.smartspend.user.User user);
 }

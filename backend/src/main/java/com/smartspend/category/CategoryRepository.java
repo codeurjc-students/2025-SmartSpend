@@ -14,6 +14,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     
     List<Category> findByUserUserIdAndType(Long userId, TransactionType type);
     
+    Category findByName(String name);
    
     long countByIsDefaultTrue();
 
