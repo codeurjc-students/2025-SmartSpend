@@ -1,0 +1,73 @@
+<!-- Página para visualizar todos los movimientos con filtros -->
+<div class="bg-slate-800 min-h-screen text-slate-200">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center space-x-4">
+        <button 
+          (click)="goBack()"
+          class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+        <h1 class="text-3xl font-bold">📊 Todos los Movimientos</h1>
+      </div>
+      
+      <div class="text-sm text-slate-400">
+        {{ transactions.length }} de {{ totalElements }} transacciones
+      </div>
+    </div>
+
+    <!-- Filtros usando el componente reutilizable -->
+    <app-transaction-filters
+      [initialFilters]="filters"
+      
+      (applyFilters)="onApplyFilters($event)">
+    </app-transaction-filters>
+
+    <!-- ✅ AQUÍ REUTILIZAMOS EL COMPONENTE EXISTENTE -->
+    <div class="bg-slate-700 rounded-xl shadow-lg">
+      <app-transaction-list
+        [advancedMode]="true"
+        [externalTransactions]="transactions"
+        [externalLoading]="isLoading"
+        [showMoreButton]="false">
+      </app-transaction-list>
+    </div>
+
+    <!-- Controles de paginación -->
+    <div *ngIf="!isLoading && transactions.length > 0" class="flex justify-between items-center mt-6">
+      
+      <!-- Info de páginas -->
+      <div class="text-sm text-slate-400">
+        Página {{ currentPage + 1 }} de {{ Math.ceil(totalElements / pageSize) }} 
+        ({{ totalElements }} transacciones en total)
+      </div>
+      
+      <!-- Botones de paginación -->
+      <div class="flex space-x-2">
+        <button
+          (click)="previousPage()"
+          [disabled]="currentPage === 0"
+          [class.opacity-50]="currentPage === 0"
+          [class.cursor-not-allowed]="currentPage === 0"
+          class="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors disabled:hover:bg-slate-600">
+          ⬅️ Anterior
+        </button>
+        
+        <button
+          (click)="nextPage()"
+          [disabled]="(currentPage + 1) * pageSize >= totalElements"
+          [class.opacity-50]="(currentPage + 1) * pageSize >= totalElements"
+          [class.cursor-not-allowed]="(currentPage + 1) * pageSize >= totalElements"
+          class="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors disabled:hover:bg-slate-600">
+          Siguiente ➡️
+        </button>
+      </div>
+      
+    </div>
+
+  </div>
+</div>

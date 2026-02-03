@@ -7,10 +7,14 @@ import com.smartspend.category.Category;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
+@Builder
+@AllArgsConstructor
 @Table(name="users")
 @Getter @Setter
 public class User {

@@ -57,7 +57,7 @@
   </div>
   
   <!-- Show more button solo cuando hay transacciones -->
-  <div *ngIf="!isLoading && transactions && transactions.length > 0 && hasMoreTransactions" class="mt-sm text-center">
+  <div *ngIf="!isLoading && transactions && transactions.length > 0 && hasMoreTransactions && showMoreButton" class="mt-sm text-center">
     <button class="btn btn-secondary btn-sm" (click)="onViewAllTransactions()">
       Ver todas las transacciones
     </button>

@@ -9,11 +9,15 @@ import com.smartspend.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Table(name = "bankAccounts")
+@Builder
+@AllArgsConstructor 
 @Getter @Setter
 public class BankAccount {
     @Id

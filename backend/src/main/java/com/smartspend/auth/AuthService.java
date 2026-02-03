@@ -78,6 +78,8 @@ public class AuthService {
 
         if (userOptional.isEmpty()) {
             throw new IllegalArgumentException("User not found after successful authentication.");
+        } else {
+            System.out.println("User details: " + userOptional.get().getUserName() + ", " + userOptional.get().getUserEmail());
         }
 
         User u = userOptional.get();
@@ -86,7 +88,7 @@ public class AuthService {
 
         String token = jwtService.generateToken(u.getUserId(), u.getUserEmail());
 
-         System.out.println("🔑 Token generated: " + token);
+        //  System.out.println("🔑 Token generated: " + token);
 
         AuthResponseDto res = new AuthResponseDto(
             u.getUserId(),
