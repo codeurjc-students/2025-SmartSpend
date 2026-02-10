@@ -99,19 +99,9 @@ public class TransactionService {
                 parsedDateTo = LocalDate.parse(dateTo);
             }
         } catch (Exception e) {
-            // Si las fechas no se pueden parsear, las ignoramos
+         
         }
-
-        System.out.println("🔍 FILTROS RECIBIDOS:");
-        System.out.println("  accountId: " + accountId);
-        System.out.println("  search: " + search);
-        System.out.println("  type: " + type);
-        System.out.println("  categoryId: " + categoryId);
-        System.out.println("  dateFrom: " + dateFrom);
-        System.out.println("  dateTo: " + dateTo);
-        System.out.println("  dateTo: " + dateTo);
         
-        // Usar Specification para filtros dinámicos
         Specification<Transaction> spec = TransactionSpecification.filterTransactions(
             accountId, search, type, parsedDateFrom, parsedDateTo, minAmount, maxAmount, categoryId
         );
@@ -171,6 +161,7 @@ public class TransactionService {
             .recurrence(transactionDto.recurrence())
             .category(category)
             .account(account)
+            .beforeBalance(account.getCurrentBalance()) // balance before transaction applied
             .build();
 
         upadateAccountBalance(transaction, account);
@@ -238,6 +229,7 @@ public class TransactionService {
             .recurrence(transactionDto.getRecurrence())
             .category(category)
             .account(account)
+            .beforeBalance(account.getCurrentBalance())
             .build();
         
         try {
