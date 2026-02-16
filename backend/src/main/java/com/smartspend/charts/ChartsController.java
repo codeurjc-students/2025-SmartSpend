@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import com.smartspend.charts.dtos.BarLineChartDto;
 import com.smartspend.charts.dtos.PieChartDto;
 import com.smartspend.transaction.TransactionType;
 
@@ -76,6 +77,36 @@ public class ChartsController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @GetMapping("/line/monthly")
+    public ResponseEntity<BarLineChartDto> getBarLineChartMonthly(
+        @RequestParam Long accountId,
+        @RequestParam int year,
+        @RequestParam int month,
+        Authentication authentication
+    ){
+
+        try {
+            String userEmail = authentication.getName();
+            BarLineChartDto barLineChartDto = chartsService.getBarLineChartByMonth(
+                userEmail, accountId, year, month
+            );
+            return ResponseEntity.ok(barLineChartDto);
+        } catch (RuntimeException e) {
+
+
+
+        }
+
+
+
+
+
+        return null;
+
+        
+
     }
 
 }

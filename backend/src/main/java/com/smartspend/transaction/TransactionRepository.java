@@ -1,4 +1,6 @@
 package com.smartspend.transaction;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -6,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -17,4 +20,37 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
     List<Transaction> findByAccountIdAndLimit(Long accountId, int limit);
 
     Page<Transaction> findByAccountIdOrderByDateDesc(Long accountId, Pageable pageable);
+
+    // ✅ QUERIES OPTIMIZADAS PARA CHARTS  
+    @Query("SELECT t FROM Transaction t WHERE t.account.id = :accountId " +
+           "AND t.date BETWEEN :dateFrom AND :dateTo " + 
+           "AND t.type = :type " +
+           "ORDER BY t.date ASC")
+    List<Transaction> findByAccountAndDateRangeAndType(
+        @Param("accountId") Long accountId,
+        @Param("dateFrom") LocalDate dateFrom, 
+        @Param("dateTo") LocalDate dateTo,
+        @Param("type") TransactionType type);
+
+    // ✅ QUERY SÚPER OPTIMIZADA - SOLO TOTALES POR CATEGORÍA
+    @Query("SELECT t.category.name, SUM(t.amount) " +
+           "FROM Transaction t WHERE t.account.id = :accountId " +
+           "AND t.date BETWEEN :dateFrom AND :dateTo " +
+           "AND t.type = :type " +
+           "GROUP BY t.category.name")
+    List<Object[]> findCategoryTotalsByAccountAndDateRangeAndType(
+        @Param("accountId") Long accountId,
+        @Param("dateFrom") LocalDate dateFrom,
+        @Param("dateTo") LocalDate dateTo, 
+        @Param("type") TransactionType type);
+
+    // ✅ QUERY SÚPER SIMPLE PARA TOTALES DE INGRESOS/GASTOS
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.account.id = :accountId " +
+           "AND t.date BETWEEN :dateFrom AND :dateTo " +
+           "AND t.type = :type")
+    BigDecimal findTotalByAccountAndDateRangeAndType(
+        @Param("accountId") Long accountId,
+        @Param("dateFrom") LocalDate dateFrom,
+        @Param("dateTo") LocalDate dateTo,
+        @Param("type") TransactionType type);
 }

@@ -9,11 +9,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.rsocket.RSocketProperties.Server.Spec;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.smartspend.bankAccount.BankAccount;
 import com.smartspend.bankAccount.BankAccountRepository;
+import com.smartspend.charts.dtos.BarLineChartDto;
 import com.smartspend.charts.dtos.PieChartDto;
 import com.smartspend.transaction.Transaction;
 import com.smartspend.transaction.TransactionRepository;
@@ -47,21 +49,20 @@ public class ChartsService {
         LocalDate dateFrom = LocalDate.of(year, month, 1);
         LocalDate dateTo = dateFrom.withDayOfMonth(dateFrom.lengthOfMonth());
 
-        Specification<Transaction> spec = TransactionSpecification.filterTransactionsForCharts(account.getId(), dateFrom, dateTo, transactionType);
-
-        List<Transaction> transactions = transactionRepository.findAll(spec);
-
-        Map<String, BigDecimal> categoryTotals = transactions.stream()
-            .collect(Collectors.groupingBy(
-                transaction -> transaction.getCategory().getName(),
-                LinkedHashMap::new, 
-                Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)
-            ));
+        // ✅ USAR QUERY OPTIMIZADA DIRECTA
+        List<Object[]> categoryTotalsResult = transactionRepository.findCategoryTotalsByAccountAndDateRangeAndType(
+            account.getId(), dateFrom, dateTo, transactionType);
         
-        BigDecimal totalAmount = categoryTotals.values().stream()
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-
+        // Construir el mapa de resultados
+        Map<String, BigDecimal> categoryTotals = new LinkedHashMap<>();
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        
+        for (Object[] result : categoryTotalsResult) {
+            String categoryName = (String) result[0];
+            BigDecimal amount = (BigDecimal) result[1];
+            categoryTotals.put(categoryName, amount);
+            totalAmount = totalAmount.add(amount);
+        }
 
         return buildPieChartDto(categoryTotals, totalAmount);
 
@@ -79,23 +80,28 @@ public class ChartsService {
 
         // controller gives year and month correctly
         LocalDate dateFrom = LocalDate.of(year, 1, 1);
-        LocalDate dateTo = LocalDate.of(year, 12, 31);
+        LocalDate dateTo;
 
-        Specification<Transaction> spec = TransactionSpecification.filterTransactionsForCharts(account.getId(), dateFrom, dateTo, transactionType);
+        if (year == LocalDate.now().getYear()) {
+            dateTo = LocalDate.now(); 
+        } else {
+            dateTo = LocalDate.of(year, 12, 31);
+        }
 
-        List<Transaction> transactions = transactionRepository.findAll(spec);
-
-        Map<String, BigDecimal> categoryTotals = transactions.stream()
-            .collect(Collectors.groupingBy(
-                transaction -> transaction.getCategory().getName(),
-                LinkedHashMap::new, 
-                Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)
-            ));
         
-        BigDecimal totalAmount = categoryTotals.values().stream()
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-
+        List<Object[]> categoryTotalsResult = transactionRepository.findCategoryTotalsByAccountAndDateRangeAndType(
+            account.getId(), dateFrom, dateTo, transactionType);
+        
+        // Construir el mapa de resultados
+        Map<String, BigDecimal> categoryTotals = new LinkedHashMap<>();
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        
+        for (Object[] result : categoryTotalsResult) {
+            String categoryName = (String) result[0];
+            BigDecimal amount = (BigDecimal) result[1];
+            categoryTotals.put(categoryName, amount);
+            totalAmount = totalAmount.add(amount);
+        }
 
         return buildPieChartDto(categoryTotals, totalAmount);
 
@@ -114,6 +120,77 @@ public class ChartsService {
         return new PieChartDto(labels, data, null, totalAmount);
 
     }
+
+
+    public BarLineChartDto getBarLineChartByMonth(String userEmail, Long accountId, int year, int month){
+
+        User user = userRepository.findByUserEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        BankAccount account = bankAccountRepository.findByIdAndUser_UserId(accountId, user.getUserId())
+            .orElseThrow(() -> new RuntimeException("Bank account not found"));
+
+
+        LocalDate dateFrom = LocalDate.of(year, month, 1);
+        LocalDate dateTo = dateFrom.withDayOfMonth(dateFrom.lengthOfMonth());
+
+        
+        BigDecimal incomesTotal = transactionRepository.findTotalByAccountAndDateRangeAndType(
+            accountId, dateFrom, dateTo, TransactionType.INCOME);
+        BigDecimal expensesTotal = transactionRepository.findTotalByAccountAndDateRangeAndType(
+            accountId, dateFrom, dateTo, TransactionType.EXPENSE);
+        
+        // Manejar valores null
+        if (incomesTotal == null) incomesTotal = BigDecimal.ZERO;
+        if (expensesTotal == null) expensesTotal = BigDecimal.ZERO;
+
+        List<String> labels = List.of("Incomes", "Expenses");
+        List<Float> data = List.of(incomesTotal.floatValue(), expensesTotal.floatValue());
+
+
+
+        return new BarLineChartDto(labels, data);
+
+    }
+
+    public BarLineChartDto getBarLineChartByYear(String userEmail, Long accountId, int year){
+
+        User user = userRepository.findByUserEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        BankAccount account = bankAccountRepository.findByIdAndUser_UserId(accountId, user.getUserId())
+            .orElseThrow(() -> new RuntimeException("Bank account not found"));
+
+
+        LocalDate dateFrom = LocalDate.of(year, 1, 1);
+        LocalDate dateTo;
+        
+        if (year == LocalDate.now().getYear()) {
+            dateTo = LocalDate.now(); 
+        } else {
+            dateTo = LocalDate.of(year, 12, 31);
+        }
+
+        
+        BigDecimal incomesTotal = transactionRepository.findTotalByAccountAndDateRangeAndType(
+            accountId, dateFrom, dateTo, TransactionType.INCOME);
+        BigDecimal expensesTotal = transactionRepository.findTotalByAccountAndDateRangeAndType(
+            accountId, dateFrom, dateTo, TransactionType.EXPENSE);
+        
+        
+        if (incomesTotal == null) incomesTotal = BigDecimal.ZERO;
+        if (expensesTotal == null) expensesTotal = BigDecimal.ZERO;
+
+        List<String> labels = List.of("Incomes", "Expenses");
+        List<Float> data = List.of(incomesTotal.floatValue(), expensesTotal.floatValue());
+
+
+
+        return new BarLineChartDto(labels, data);
+
+    }
+
+
 
 
 
