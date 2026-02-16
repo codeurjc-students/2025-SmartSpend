@@ -86,7 +86,6 @@ public class ChartsController {
         @RequestParam int month,
         Authentication authentication
     ){
-
         try {
             String userEmail = authentication.getName();
             BarLineChartDto barLineChartDto = chartsService.getBarLineChartByMonth(
@@ -94,19 +93,25 @@ public class ChartsController {
             );
             return ResponseEntity.ok(barLineChartDto);
         } catch (RuntimeException e) {
-
-
-
+            return ResponseEntity.badRequest().build();
         }
+    }
 
-
-
-
-
-        return null;
-
-        
-
+    @GetMapping("/line/yearly")
+    public ResponseEntity<BarLineChartDto> getBarLineChartYearly(
+        @RequestParam Long accountId,
+        @RequestParam int year,
+        Authentication authentication
+    ){
+        try {
+            String userEmail = authentication.getName();
+            BarLineChartDto barLineChartDto = chartsService.getBarLineChartByYear(
+                userEmail, accountId, year
+            );
+            return ResponseEntity.ok(barLineChartDto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 }
