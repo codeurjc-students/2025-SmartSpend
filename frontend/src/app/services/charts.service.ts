@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../environments/environment';
-import { PieChartDto, BarLineChartDto, ComparisonChartDto, TransactionType } from '../interfaces/chart.interface';
+import { PieChartDto, BarLineChartDto, ComparisonChartDto, TimelineChartDto, TransactionType } from '../interfaces/chart.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -84,6 +84,42 @@ export class ChartsService {
       .set('year', year.toString());
 
     return this.http.get<BarLineChartDto>(`${this.baseUrl}/bar/yearly`, { params })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Obtiene datos para gráfico timeline mensual (evolución del balance)
+   */
+  getTimelineChartByMonth(
+    accountId: number,
+    year: number,
+    month: number
+  ): Observable<TimelineChartDto> {
+    const params = new HttpParams()
+      .set('accountId', accountId.toString())
+      .set('year', year.toString())
+      .set('month', month.toString());
+
+    return this.http.get<TimelineChartDto>(`${this.baseUrl}/timeline/monthly`, { params })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Obtiene datos para gráfico timeline anual (evolución del balance)
+   */
+  getTimelineChartByYear(
+    accountId: number,
+    year: number
+  ): Observable<TimelineChartDto> {
+    const params = new HttpParams()
+      .set('accountId', accountId.toString())
+      .set('year', year.toString());
+
+    return this.http.get<TimelineChartDto>(`${this.baseUrl}/timeline/yearly`, { params })
       .pipe(
         catchError(this.handleError)
       );

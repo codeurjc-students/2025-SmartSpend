@@ -17,6 +17,14 @@ export interface ComparisonChartDto {
   expenses: number[];
 }
 
+// Nueva interfaz para gráficos timeline (evolución temporal)
+export interface TimelineChartDto {
+  labels: string[];
+  balanceData: number[];
+  incomesData: number[];
+  expensesData: number[];
+}
+
 export enum TransactionType {
   INCOME = 'INCOME',
   EXPENSE = 'EXPENSE'

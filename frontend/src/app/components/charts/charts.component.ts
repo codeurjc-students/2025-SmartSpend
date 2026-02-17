@@ -6,7 +6,7 @@ import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 import { ChartsService } from '../../services/charts.service';
 import { BankAccountServiceService, BankAccount } from '../../services/bankAccount/bank-account-service.service';
-import { PieChartDto, BarLineChartDto, TransactionType } from '../../interfaces/chart.interface';
+import { PieChartDto, BarLineChartDto, TimelineChartDto, TransactionType } from '../../interfaces/chart.interface';
 
 // Registrar todos los componentes de Chart.js
 Chart.register(...registerables);
@@ -36,11 +36,13 @@ export class ChartsComponent implements OnInit {
   loadingPieIncomes = false;
   loadingPieExpenses = false;
   loadingBarChart = false;
+  loadingTimelineChart = false;
   
   // Datos para los gráficos
   pieIncomesData: ChartConfiguration<'pie'>['data'] | null = null;
   pieExpensesData: ChartConfiguration<'pie'>['data'] | null = null;
   barChartData: ChartConfiguration<'bar'>['data'] | null = null;
+  timelineChartData: ChartConfiguration<'line'>['data'] | null = null;
   
   // Totales calculados
   incomeTotal = 0;
@@ -90,6 +92,44 @@ export class ChartsComponent implements OnInit {
     }
   };
 
+  lineChartOptions: ChartConfiguration<'line'>['options'] = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top'
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.dataset.label || '';
+            const value = context.formattedValue || '';
+            return `${label}: €${value}`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Tiempo'
+        }
+      },
+      y: {
+        beginAtZero: false,
+        title: {
+          display: true,
+          text: 'Cantidad (€)'
+        }
+      }
+    },
+    interaction: {
+      intersect: false,
+      mode: 'index'
+    }
+  };
+
   constructor(
     private chartsService: ChartsService,
     private bankAccountService: BankAccountServiceService
@@ -128,6 +168,7 @@ export class ChartsComponent implements OnInit {
     this.loadPieChart(TransactionType.INCOME);
     this.loadPieChart(TransactionType.EXPENSE);
     this.loadBarChart();
+    this.loadTimelineChart();
   }
 
   onViewTypeChange() {
@@ -274,6 +315,83 @@ export class ChartsComponent implements OnInit {
           backgroundColor: '#EF4444',
           borderColor: '#DC2626',
           borderWidth: 1
+        }
+      ]
+    };
+  }
+
+  private loadTimelineChart() {
+    if (!this.selectedAccountId) return;
+    
+    this.loadingTimelineChart = true;
+    
+    // Elegir entre endpoint mensual o anual
+    let chartObservable;
+    if (this.viewType === 'monthly') {
+      chartObservable = this.chartsService.getTimelineChartByMonth(
+        this.selectedAccountId,
+        this.selectedYear,
+        this.selectedMonth
+      );
+    } else {
+      chartObservable = this.chartsService.getTimelineChartByYear(
+        this.selectedAccountId,
+        this.selectedYear
+      );
+    }
+    
+    chartObservable.subscribe({
+      next: (data: TimelineChartDto) => {
+        this.timelineChartData = this.createTimelineChartData(data);
+        this.loadingTimelineChart = false;
+      },
+      error: (error: any) => {
+        console.error('Error al cargar gráfico timeline:', error);
+        this.loadingTimelineChart = false;
+        this.timelineChartData = null;
+      }
+    });
+  }
+
+  private createTimelineChartData(data: TimelineChartDto): ChartConfiguration<'line'>['data'] {
+    return {
+      labels: data.labels,
+      datasets: [
+        {
+          label: 'Balance Acumulado',
+          data: data.balanceData,
+          borderColor: '#64B5F6',
+          backgroundColor: 'rgba(100, 181, 246, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#64B5F6'
+        },
+        {
+          label: 'Ingresos Acumulados',
+          data: data.incomesData,
+          borderColor: '#66BB6A',
+          backgroundColor: 'rgba(102, 187, 106, 0.1)',
+          borderWidth: 2,
+          fill: false,
+          tension: 0.4,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          pointBackgroundColor: '#66BB6A'
+        },
+        {
+          label: 'Gastos Acumulados',
+          data: data.expensesData,
+          borderColor: '#EF7D7D',
+          backgroundColor: 'rgba(239, 125, 125, 0.1)',
+          borderWidth: 2,
+          fill: false,
+          tension: 0.4,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          pointBackgroundColor: '#EF7D7D'
         }
       ]
     };
