@@ -72,5 +72,33 @@ public class TransactionSpecification {
     }
 
 
+    public static Specification<Transaction> filterTransactionsForCharts(Long accountId, LocalDate dateFrom, LocalDate dateTo, TransactionType transactionType) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+        
+            predicates.add(criteriaBuilder.equal(root.get("account").get("id"), accountId));
+            
+            if (dateFrom != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("date"), dateFrom));
+            }
+
+            if (dateTo != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("date"), dateTo));
+            }
+
+            if (transactionType != null) {
+                predicates.add(criteriaBuilder.equal(root.get("type"), transactionType));
+            }
+
+            query.orderBy(
+                criteriaBuilder.asc(root.get("date")),
+                criteriaBuilder.asc(root.get("id"))            
+            );
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+
 
 }

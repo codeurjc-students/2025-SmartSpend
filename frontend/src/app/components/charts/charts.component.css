@@ -1,0 +1,5 @@
+/* CSS limpio - solo usando Tailwind */
+.chart-container canvas {
+  max-width: 100%;
+  height: auto;
+}

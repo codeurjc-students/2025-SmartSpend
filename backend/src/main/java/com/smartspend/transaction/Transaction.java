@@ -68,6 +68,8 @@ public class Transaction {
     @Column(name = "image_name", length = 255)
     private String imageName;
 
+    @Column(name = "before_balance", precision = 10, scale = 2)
+    private BigDecimal beforeBalance;
 
 
     public Transaction(String title, String description, BigDecimal amount, 
