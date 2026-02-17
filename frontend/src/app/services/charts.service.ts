@@ -66,7 +66,7 @@ export class ChartsService {
       .set('year', year.toString())
       .set('month', month.toString());
 
-    return this.http.get<BarLineChartDto>(`${this.baseUrl}/line/monthly`, { params })
+    return this.http.get<BarLineChartDto>(`${this.baseUrl}/bar/monthly`, { params })
       .pipe(
         catchError(this.handleError)
       );
@@ -83,7 +83,7 @@ export class ChartsService {
       .set('accountId', accountId.toString())
       .set('year', year.toString());
 
-    return this.http.get<BarLineChartDto>(`${this.baseUrl}/line/yearly`, { params })
+    return this.http.get<BarLineChartDto>(`${this.baseUrl}/bar/yearly`, { params })
       .pipe(
         catchError(this.handleError)
       );

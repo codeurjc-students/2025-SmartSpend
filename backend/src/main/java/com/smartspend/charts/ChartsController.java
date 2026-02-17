@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.smartspend.charts.dtos.BarLineChartDto;
+import com.smartspend.charts.dtos.LineChartDto;
 import com.smartspend.charts.dtos.PieChartDto;
 import com.smartspend.transaction.TransactionType;
 
@@ -79,7 +80,7 @@ public class ChartsController {
         }
     }
 
-    @GetMapping("/line/monthly")
+    @GetMapping("/bar/monthly")
     public ResponseEntity<BarLineChartDto> getBarLineChartMonthly(
         @RequestParam Long accountId,
         @RequestParam int year,
@@ -97,7 +98,7 @@ public class ChartsController {
         }
     }
 
-    @GetMapping("/line/yearly")
+    @GetMapping("/bar/yearly")
     public ResponseEntity<BarLineChartDto> getBarLineChartYearly(
         @RequestParam Long accountId,
         @RequestParam int year,
@@ -113,5 +114,41 @@ public class ChartsController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @GetMapping("/timeline/monthly")
+    public ResponseEntity<LineChartDto> getTimelineChartMonthly(
+        @RequestParam Long accountId,
+        @RequestParam int year,
+        @RequestParam int month,
+        Authentication authentication
+    ){
+        try {
+            String userEmail = authentication.getName();
+            LineChartDto lineChartDto = chartsService.getTimeLineChartByMonth(
+                userEmail, accountId, year, month
+            );
+            return ResponseEntity.ok(lineChartDto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/timeline/yearly")
+    public ResponseEntity<LineChartDto> getTimelineChartYearly(
+        @RequestParam Long accountId,
+        @RequestParam int year,
+        Authentication authentication
+    ){
+        try {
+            String userEmail = authentication.getName();
+            LineChartDto lineChartDto = chartsService.getTimeLineChartByYear(
+                userEmail, accountId, year
+            );
+            return ResponseEntity.ok(lineChartDto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 
 }

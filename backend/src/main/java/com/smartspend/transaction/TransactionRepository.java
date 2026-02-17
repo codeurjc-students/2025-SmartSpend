@@ -21,6 +21,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
 
     Page<Transaction> findByAccountIdOrderByDateDesc(Long accountId, Pageable pageable);
 
+    @Query("SELECT COALESCE(SUM(CASE WHEN t.type = 'INCOME' THEN t.amount ELSE -t.amount END), 0) " +
+           "FROM Transaction t WHERE t.account.id = :accountId AND t.date <= :endDate")
+    BigDecimal findBalanceUpToDate(@Param("accountId") Long accountId, @Param("endDate") LocalDate endDate);
+
     // ✅ QUERIES OPTIMIZADAS PARA CHARTS  
     @Query("SELECT t FROM Transaction t WHERE t.account.id = :accountId " +
            "AND t.date BETWEEN :dateFrom AND :dateTo " + 
