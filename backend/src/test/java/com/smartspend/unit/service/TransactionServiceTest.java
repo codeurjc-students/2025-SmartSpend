@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.atLeastOnce;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -706,5 +707,217 @@ public class TransactionServiceTest {
         Transaction savedTransaction = transactionCaptor.getValue();
         assertEquals(TransactionType.INCOME, savedTransaction.getType());
         assertEquals("Now Income", savedTransaction.getTitle());
+    }
+
+    // ===============================================
+    // TESTS PARA FUNCIONALIDAD DE RECURRENCIA
+    // ===============================================
+
+    @Test
+    @DisplayName("R-1: calculateNextRecurrenceDate - Should calculate daily recurrence correctly")
+    void shouldCalculateDailyRecurrenceCorrectly() throws Exception {
+        // Given
+        LocalDate startDate = LocalDate.of(2025, 2, 15);
+        
+        // When - Using reflection to access private method
+        java.lang.reflect.Method method = TransactionService.class.getDeclaredMethod(
+            "calculateNextRecurrenceDate", LocalDate.class, Recurrence.class);
+        method.setAccessible(true);
+        LocalDate result = (LocalDate) method.invoke(transactionService, startDate, Recurrence.DAILY);
+        
+        // Then
+        assertEquals(LocalDate.of(2025, 2, 16), result);
+    }
+
+    @Test
+    @DisplayName("R-2: calculateNextRecurrenceDate - Should calculate weekly recurrence correctly") 
+    void shouldCalculateWeeklyRecurrenceCorrectly() throws Exception {
+        // Given
+        LocalDate startDate = LocalDate.of(2025, 2, 15); // Saturday
+        
+        // When
+        java.lang.reflect.Method method = TransactionService.class.getDeclaredMethod(
+            "calculateNextRecurrenceDate", LocalDate.class, Recurrence.class);
+        method.setAccessible(true);
+        LocalDate result = (LocalDate) method.invoke(transactionService, startDate, Recurrence.WEEKLY);
+        
+        // Then
+        assertEquals(LocalDate.of(2025, 2, 22), result); // Next Saturday
+    }
+
+    @Test
+    @DisplayName("R-3: calculateNextRecurrenceDate - Should calculate monthly recurrence correctly")
+    void shouldCalculateMonthlyRecurrenceCorrectly() throws Exception {
+        // Given
+        LocalDate startDate = LocalDate.of(2025, 2, 15);
+        
+        // When
+        java.lang.reflect.Method method = TransactionService.class.getDeclaredMethod(
+            "calculateNextRecurrenceDate", LocalDate.class, Recurrence.class);
+        method.setAccessible(true);
+        LocalDate result = (LocalDate) method.invoke(transactionService, startDate, Recurrence.MONTHLY);
+        
+        // Then
+        assertEquals(LocalDate.of(2025, 3, 15), result);
+    }
+
+    @Test
+    @DisplayName("R-4: calculateNextRecurrenceDate - Should calculate yearly recurrence correctly")
+    void shouldCalculateYearlyRecurrenceCorrectly() throws Exception {
+        // Given
+        LocalDate startDate = LocalDate.of(2025, 2, 15);
+        
+        // When
+        java.lang.reflect.Method method = TransactionService.class.getDeclaredMethod(
+            "calculateNextRecurrenceDate", LocalDate.class, Recurrence.class);
+        method.setAccessible(true);
+        LocalDate result = (LocalDate) method.invoke(transactionService, startDate, Recurrence.YEARLY);
+        
+        // Then
+        assertEquals(LocalDate.of(2026, 2, 15), result);
+    }
+
+    @Test
+    @DisplayName("R-5: calculateNextRecurrenceDate - Should return null for NONE recurrence")
+    void shouldReturnNullForNoneRecurrence() throws Exception {
+        // Given
+        LocalDate startDate = LocalDate.of(2025, 2, 15);
+        
+        // When
+        java.lang.reflect.Method method = TransactionService.class.getDeclaredMethod(
+            "calculateNextRecurrenceDate", LocalDate.class, Recurrence.class);
+        method.setAccessible(true);
+        LocalDate result = (LocalDate) method.invoke(transactionService, startDate, Recurrence.NONE);
+        
+        // Then
+        assertEquals(null, result);
+    }
+
+    @Test
+    @DisplayName("R-6: saveTransaction - Should set isRecurringSeriesParent to true for recurring transactions")
+    void shouldSetRecurringSeriesParentForRecurringTransactions() {
+        // Given
+        CreateTransactionDto recurringTransactionDto = new CreateTransactionDto(
+            "Monthly Salary",
+            "Recurring salary payment", 
+            new BigDecimal("2000.00"),
+            TransactionType.INCOME,
+            LocalDate.now(),
+            Recurrence.MONTHLY,
+            1L,
+            1L
+        );
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(testAccount));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
+        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(
+            new TransactionResponseDto(1L, "Monthly Salary", "Recurring salary payment",
+            new BigDecimal("2000.00"), LocalDate.now(), TransactionType.INCOME, Recurrence.MONTHLY,
+            1L, "Test Account", testCategory, true, null, null, null)
+        );
+
+        // When  
+        TransactionResponseDto response = transactionService.saveTransaction(recurringTransactionDto, "test@example.com");
+
+        // Then
+        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository).save(transactionCaptor.capture());
+        
+        Transaction savedTransaction = transactionCaptor.getValue();
+        assertEquals(true, savedTransaction.getIsRecurringSeriesParent());
+        assertEquals(Recurrence.MONTHLY, savedTransaction.getRecurrence());
+        assertNotNull(savedTransaction.getNextRecurrenceDate());
+    }
+
+    @Test
+    @DisplayName("R-7: saveTransaction - Should set isRecurringSeriesParent to false for non-recurring transactions")
+    void shouldSetRecurringSeriesParentToFalseForNonRecurringTransactions() {
+        // Given
+        CreateTransactionDto nonRecurringTransactionDto = new CreateTransactionDto(
+            "One-time expense",
+            "Single payment", 
+            new BigDecimal("50.00"),
+            TransactionType.EXPENSE,
+            LocalDate.now(),
+            Recurrence.NONE,
+            1L,
+            1L
+        );
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(testAccount));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
+        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(
+            new TransactionResponseDto(1L, "One-time expense", "Single payment",
+            new BigDecimal("50.00"), LocalDate.now(), TransactionType.EXPENSE, Recurrence.NONE,
+            1L, "Test Account", testCategory, false, null, null, null)
+        );
+
+        // When  
+        TransactionResponseDto response = transactionService.saveTransaction(nonRecurringTransactionDto, "test@example.com");
+
+        // Then
+        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository).save(transactionCaptor.capture());
+        
+        Transaction savedTransaction = transactionCaptor.getValue();
+        assertEquals(false, savedTransaction.getIsRecurringSeriesParent());
+        assertEquals(Recurrence.NONE, savedTransaction.getRecurrence());
+        assertEquals(null, savedTransaction.getNextRecurrenceDate());
+    }
+
+    @Test
+    @DisplayName("R-8: saveTransaction - Should calculate next recurrence date for different recurrence types")
+    void shouldCalculateNextRecurrenceDateForDifferentTypes() {
+        // Test for each recurrence type
+        LocalDate testDate = LocalDate.of(2025, 2, 15);
+        
+        // Test DAILY
+        testRecurrenceCalculation(testDate, Recurrence.DAILY, testDate.plusDays(1));
+        
+        // Test WEEKLY  
+        testRecurrenceCalculation(testDate, Recurrence.WEEKLY, testDate.plusWeeks(1));
+        
+        // Test MONTHLY
+        testRecurrenceCalculation(testDate, Recurrence.MONTHLY, testDate.plusMonths(1));
+        
+        // Test YEARLY
+        testRecurrenceCalculation(testDate, Recurrence.YEARLY, testDate.plusYears(1));
+    }
+    
+    private void testRecurrenceCalculation(LocalDate transactionDate, Recurrence recurrence, LocalDate expectedNextDate) {
+        CreateTransactionDto recurringTransactionDto = new CreateTransactionDto(
+            "Recurring Transaction",
+            "Test recurrence", 
+            new BigDecimal("100.00"),
+            TransactionType.INCOME,
+            transactionDate,
+            recurrence,
+            1L,
+            1L
+        );
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(testAccount));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
+        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(
+            new TransactionResponseDto(1L, "Recurring Transaction", "Test recurrence",
+            new BigDecimal("100.00"), transactionDate, TransactionType.INCOME, recurrence,
+            1L, "Test Account", testCategory, true, null, null, null)
+        );
+
+        // When  
+        TransactionResponseDto response = transactionService.saveTransaction(recurringTransactionDto, "test@example.com");
+
+        // Then
+        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository, atLeastOnce()).save(transactionCaptor.capture());
+        
+        Transaction savedTransaction = transactionCaptor.getValue();
+        assertEquals(expectedNextDate, savedTransaction.getNextRecurrenceDate());
     }
 }

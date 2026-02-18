@@ -23,7 +23,7 @@ public class RecurringTransactionScheduler {
     @Autowired
     private TransactionService transactionService;
 
-    @Scheduled(cron = "0 * * * * ?") // 🧪 TESTING: Ejecutar cada minuto para pruebas
+    @Scheduled(cron = "0 0 0 * * ?") 
     @Transactional
     public void generateRecurringTransactions() {
         LocalDate today = LocalDate.now();
