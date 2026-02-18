@@ -27,30 +27,30 @@ public class RecurringTransactionScheduler {
     @Transactional
     public void generateRecurringTransactions() {
         LocalDate today = LocalDate.now();
-        System.out.println("🤖 [" + java.time.LocalTime.now() + "] Ejecutando scheduler de transacciones recurrentes para fecha: " + today);
+        System.out.println("Ejecutando scheduler de transacciones recurrentes para fecha: " + today);
 
         List<Transaction> pendingTransactions = transactionRepository.findPendingRecurringTransactions(today);
 
         if (pendingTransactions.isEmpty()){
-            System.out.println("✅ Sin transacciones recurrentes pendientes para hoy");
+            System.out.println("Sin transacciones recurrentes pendientes para hoy");
             return;
         } 
 
-        System.out.println("⚙️ Encontradas " + pendingTransactions.size() + " transacciones recurrentes pendientes:");
+        System.out.println("Encontradas " + pendingTransactions.size() + " transacciones recurrentes pendientes:");
 
         for (Transaction parentTransaction : pendingTransactions){
             try {
-                System.out.println("  📋 Procesando: '" + parentTransaction.getTitle() + "' (próxima fecha: " + parentTransaction.getNextRecurrenceDate() + ")");
+                System.out.println("Procesando: '" + parentTransaction.getTitle() + "' (próxima fecha: " + parentTransaction.getNextRecurrenceDate() + ")");
                 generateChildTransaction(parentTransaction);
                 updateNextRecurrenceDate(parentTransaction);
-                System.out.println("  ✅ Generada exitosamente: '" + parentTransaction.getTitle() + "'");
+                System.out.println("Generada exitosamente: '" + parentTransaction.getTitle() + "'");
             } catch (Exception e) {
-                System.out.println("  ❌ Error generando transaccion recurrente '" + parentTransaction.getTitle() + "': " + e.getMessage());
+                System.out.println("Error generando transaccion recurrente '" + parentTransaction.getTitle() + "': " + e.getMessage());
                 e.printStackTrace();
             }
         }
 
-        System.out.println("🎯 Scheduler completado para " + today);
+        System.out.println("Scheduler completado para " + today);
     }
 
     private void generateChildTransaction(Transaction parent){
