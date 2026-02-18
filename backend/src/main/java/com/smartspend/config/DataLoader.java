@@ -104,6 +104,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(nomina)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Nómina Enero - 2500.00€");
             
@@ -116,6 +118,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(venta)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Venta artículos usados - 150.00€");
             
@@ -128,6 +132,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(regalo)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Regalo cumpleaños - 100.00€");
 
@@ -141,6 +147,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(nomina)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Nómina Febrero - 2600.00€");
 
@@ -153,6 +161,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(inversion)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Dividendos - 75.50€");
 
@@ -168,6 +178,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(alimentacion)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Mercadona - 95.30€");
                 
@@ -180,6 +192,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(alimentacion)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Carrefour - 158.75€");
                 
@@ -192,6 +206,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(alimentacion)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Panadería - 25.60€");
             
@@ -204,6 +220,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(transporte)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Gasolina - 65.40€");
                 
@@ -216,6 +234,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(transporte)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Metro mensual - 54.60€");
             
@@ -228,6 +248,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(vivienda)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Alquiler - 850.00€");
             
@@ -240,6 +262,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(facturas)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Factura electricidad - 89.45€");
                 
@@ -252,6 +276,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(facturas)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Internet + Móvil - 45.90€");
             
@@ -264,6 +290,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(ocio)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Netflix - 15.99€");
                 
@@ -276,6 +304,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(ocio)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Cena restaurante - 42.80€");
                 
@@ -288,6 +318,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(ocio)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Entradas cine - 18.00€");
             
@@ -300,6 +332,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(ropa)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Zara - 89.95€");
 
@@ -314,6 +348,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(alimentacion)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Lidl - 67.25€");
                 
@@ -326,6 +362,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(alimentacion)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Restaurante italiano - 35.50€");
             
@@ -338,6 +376,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(transporte)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Metro mensual febrero - 54.60€");
                 
@@ -350,6 +390,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(transporte)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Uber - 28.90€");
             
@@ -362,6 +404,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(vivienda)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Alquiler febrero - 850.00€");
             
@@ -374,6 +418,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(salud)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Farmacia - 23.75€");
             
@@ -386,6 +432,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(educacion)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Curso online - 49.99€");
 
@@ -400,6 +448,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(nomina)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Nómina Diciembre - 3200.00€");
             
@@ -412,6 +462,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(viajes)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Vacaciones Navidad - 450.00€");
             
@@ -424,6 +476,8 @@ public class DataLoader implements CommandLineRunner {
                 .recurrence(com.smartspend.transaction.Recurrence.NONE)
                 .category(otros)
                 .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Regalos Navidad - 180.65€");
 

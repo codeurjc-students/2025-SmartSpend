@@ -1,6 +1,7 @@
 package com.smartspend.transaction;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import com.smartspend.bankAccount.BankAccount;
 import com.smartspend.category.Category;
@@ -42,11 +43,17 @@ public class Transaction {
     @Column(nullable = false)
     private TransactionType type; // INCOME o EXPENSE
 
-    
+        
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Recurrence recurrence = Recurrence.NONE;
     
+    @Column(nullable = false)
+    private Boolean isRecurringSeriesParent = false;
+
+    @Column(name = "next_recurrence_date")
+    private LocalDate nextRecurrenceDate;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "account_id")
     @JsonManagedReference
