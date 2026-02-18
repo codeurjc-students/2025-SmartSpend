@@ -151,6 +151,14 @@ public class TransactionService {
         Category category = categoryRepository.findById(transactionDto.categoryId())
             .orElseThrow(() -> new RuntimeException("Category not found"));
         
+        // ✅ Lógica para recurrencia:
+        boolean isRecurring = false;
+        LocalDate nextRecurrenceDate = null;
+
+        if (transactionDto.recurrence() != null && transactionDto.recurrence() != Recurrence.NONE) {
+            isRecurring = true;
+            nextRecurrenceDate = calculateNextRecurrenceDate(transactionDate, transactionDto.recurrence());
+        }
 
         Transaction transaction = Transaction.builder()
             .title(transactionDto.title())
@@ -158,10 +166,12 @@ public class TransactionService {
             .amount(transactionDto.amount())
             .date(transactionDate)
             .type(transactionDto.type())
-            .recurrence(transactionDto.recurrence())
+            .recurrence(transactionDto.recurrence() != null ? transactionDto.recurrence() : Recurrence.NONE)
             .category(category)
             .account(account)
             .beforeBalance(account.getCurrentBalance()) // balance before transaction applied
+            .isRecurringSeriesParent(isRecurring) // ✅ Nuevo campo
+            .nextRecurrenceDate(nextRecurrenceDate) // ✅ Nuevo campo
             .build();
 
         upadateAccountBalance(transaction, account);
@@ -219,17 +229,29 @@ public class TransactionService {
         
         Category category = categoryRepository.findById(transactionDto.getCategoryId())
             .orElseThrow(() -> new RuntimeException("Category not found"));
+        
+        // ✅ Lógica para recurrencia:
+        boolean isRecurring = false;
+        LocalDate nextRecurrenceDate = null;
+        LocalDate transactionDate = transactionDto.getDate() != null ? transactionDto.getDate() : LocalDate.now();
+
+        if (transactionDto.getRecurrence() != null && transactionDto.getRecurrence() != Recurrence.NONE) {
+            isRecurring = true;
+            nextRecurrenceDate = calculateNextRecurrenceDate(transactionDate, transactionDto.getRecurrence());
+        }
 
         Transaction transaction = Transaction.builder()
             .title(transactionDto.getTitle())
             .description(transactionDto.getDescription())
             .amount(transactionDto.getAmount())
-            .date(transactionDto.getDate() != null ? transactionDto.getDate() : LocalDate.now())
+            .date(transactionDate)
             .type(transactionDto.getType())
-            .recurrence(transactionDto.getRecurrence())
+            .recurrence(transactionDto.getRecurrence() != null ? transactionDto.getRecurrence() : Recurrence.NONE)
             .category(category)
             .account(account)
             .beforeBalance(account.getCurrentBalance())
+            .isRecurringSeriesParent(isRecurring) // ✅ Nuevo campo
+            .nextRecurrenceDate(nextRecurrenceDate) // ✅ Nuevo campo
             .build();
         
         try {
@@ -255,7 +277,7 @@ public class TransactionService {
 
     
 
-    private void upadateAccountBalance(Transaction transaction, BankAccount account) {
+    public void upadateAccountBalance(Transaction transaction, BankAccount account) {
         if (transaction.getType() == TransactionType.INCOME){
             account.setCurrentBalance(account.getCurrentBalance().add(transaction.getAmount()));
         } else {
@@ -274,12 +296,15 @@ public class TransactionService {
         
     }
 
-
-    
-    
-
-    
-
-
+    // ✅ Método auxiliar para calcular la próxima fecha de recurrencia
+    private LocalDate calculateNextRecurrenceDate(LocalDate currentDate, Recurrence recurrenceType) {
+        return switch (recurrenceType) {
+            case DAILY -> currentDate.plusDays(1);
+            case WEEKLY -> currentDate.plusWeeks(1);
+            case MONTHLY -> currentDate.plusMonths(1);
+            case YEARLY -> currentDate.plusYears(1);
+            case NONE -> null; // Si no hay recurrencia, no hay próxima fecha
+        };
+    }
 
 }

@@ -57,4 +57,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
         @Param("dateFrom") LocalDate dateFrom,
         @Param("dateTo") LocalDate dateTo,
         @Param("type") TransactionType type);
+
+       List<Transaction> findByIsRecurringSeriesParentTrueAndRecurrenceIsNotAndNextRecurrenceDateLessThanEqual(
+        Recurrence recurrenceType, LocalDate today);
+
+       @Query("SELECT t FROM Transaction t WHERE t.isRecurringSeriesParent = true " +
+           "AND t.recurrence != 'NONE' " +
+           "AND t.nextRecurrenceDate <= :today")
+       List<Transaction> findPendingRecurringTransactions(@Param("today") LocalDate today);
 }
