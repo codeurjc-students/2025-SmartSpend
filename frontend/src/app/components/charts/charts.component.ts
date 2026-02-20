@@ -5,6 +5,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 import { ChartsService } from '../../services/charts.service';
+import { ReportService } from '../../services/report.service';
 import { BankAccountServiceService, BankAccount } from '../../services/bankAccount/bank-account-service.service';
 import { PieChartDto, BarLineChartDto, TimelineChartDto, TransactionType } from '../../interfaces/chart.interface';
 
@@ -37,6 +38,7 @@ export class ChartsComponent implements OnInit {
   loadingPieExpenses = false;
   loadingBarChart = false;
   loadingTimelineChart = false;
+  generatingPdf = false; // Nueva propiedad para el estado del PDF
   
   // Datos para los gráficos
   pieIncomesData: ChartConfiguration<'pie'>['data'] | null = null;
@@ -132,7 +134,8 @@ export class ChartsComponent implements OnInit {
 
   constructor(
     private chartsService: ChartsService,
-    private bankAccountService: BankAccountServiceService
+    private bankAccountService: BankAccountServiceService,
+    private reportService: ReportService
   ) {}
 
   ngOnInit() {
@@ -395,6 +398,44 @@ export class ChartsComponent implements OnInit {
         }
       ]
     };
+  }
+
+  generateMonthlyPdf() {
+    if (!this.selectedAccountId || this.generatingPdf) return;
+
+    console.log('Iniciando generación de PDF...');
+    console.log('Parámetros:', {
+      accountId: this.selectedAccountId,
+      year: this.selectedYear,
+      month: this.selectedMonth
+    });
+
+    this.generatingPdf = true;
+    
+    // Primero obtenemos los datos del reporte
+    this.reportService.getReportData(this.selectedAccountId, this.selectedYear, this.selectedMonth)
+      .subscribe({
+        next: async (reportData) => {
+          console.log('Datos del reporte recibidos exitosamente:', reportData);
+          
+          try {
+            // Luego generamos el PDF con jsPDF (ahora async)
+            await this.reportService.generateMonthlyPdf(reportData, this.selectedYear, this.selectedMonth);
+            console.log('PDF generado exitosamente!');
+          } catch (error) {
+            console.error('Error generando PDF:', error);
+            alert('Error al generar PDF: ' + error);
+          } finally {
+            this.generatingPdf = false;
+          }
+        },
+        error: (error) => {
+          console.error('Error obteniendo datos del reporte:', error);
+          console.error('Error completo:', error);
+          this.generatingPdf = false;
+          alert('Error obteniendo datos del reporte. Revisa la consola para más detalles.');
+        }
+      });
   }
 
   getMonthName(month: number): string {
