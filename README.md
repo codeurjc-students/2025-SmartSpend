@@ -86,6 +86,17 @@ Smart Spend se encuentra en desarrollo activo. Continuamente estamos trabajando 
 ### Vídeo Demostrativo de la Versión 0.1
 https://youtu.be/vEshQWBvltg
 
+---
+
+### 🌐 Acceso a la Aplicación en Producción
+
+**Smart Spend está desplegado y disponible en AWS:**
+
+🔗 **URL de producción:** https://56.228.32.202
+
+**Nota:** La aplicación utiliza un certificado SSL autofirmado. En tu navegador, acepta el aviso de seguridad para acceder.
+
+La aplicación se actualiza automáticamente cada vez que se genera una nueva release en el repositorio. Para detalles técnicos sobre el despliegue, consulta la [Guía de Desarrollo](Readmes/7.GuiaDeDesarrollo.md#despliegue-en-producción-aws).
 
 ---
 
