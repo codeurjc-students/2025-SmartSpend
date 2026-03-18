@@ -1,0 +1,138 @@
+name: Deploy to Production
+
+on:
+  release:
+    types: [published]
+
+env:
+  DOCKER_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # ========================================
+      # 1. CHECKOUT CODE
+      # ========================================
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ========================================
+      # 2. EXTRACT VERSION FROM RELEASE TAG
+      # ========================================
+      - name: Extract version from release tag
+        id: version
+        run: |
+          # Remove 'v' prefix if present (v0.1.0 -> 0.1.0)
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      # ========================================
+      # 3. SET UP DOCKER BUILDX
+      # ========================================
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # ========================================
+      # 4. LOGIN TO DOCKER HUB
+      # ========================================
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      # ========================================
+      # 5. BUILD AND PUSH DOCKER IMAGE
+      # ========================================
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.version }}
+            ${{ env.DOCKER_IMAGE }}:latest
+          cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache,mode=max
+
+      # ========================================
+      # 6. DEPLOY TO EC2 VIA SSH
+      # ========================================
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            cd ~/smartspend
+            
+            # Update image version in docker-compose.yml
+            sed -i "s|image: .*/smartspend:.*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/smartspend:${{ steps.version.outputs.version }}|g" docker-compose.yml
+            
+            # Pull new image
+            docker-compose pull app
+            
+            # Restart application (zero-downtime)
+            docker-compose up -d --no-deps app
+            
+            # Clean up old images
+            docker image prune -af --filter "until=24h"
+            
+            echo "✅ Deployment completed successfully!"
+            echo "Version ${{ steps.version.outputs.version }} is now running"
+
+      # ========================================
+      # 7. VERIFY DEPLOYMENT
+      # ========================================
+      - name: Verify deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            cd ~/smartspend
+            
+            # Check if container is running
+            if docker-compose ps | grep -q "smartspend-app.*Up"; then
+              echo "✅ Container is running"
+              docker-compose ps app
+            else
+              echo "❌ Container is not running!"
+              docker-compose logs --tail=50 app
+              exit 1
+            fi
+
+      # ========================================
+      # 8. NOTIFY SUCCESS
+      # ========================================
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "🚀 Deployment Summary"
+          echo "===================="
+          echo "✅ Image: ${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.version }}"
+          echo "✅ Server: ${{ secrets.EC2_HOST }}"
+          echo "✅ Status: Deployed successfully"
+          echo ""
+          echo "Access your application at: https://${{ secrets.EC2_HOST }}"
+
+      # ========================================
+      # 9. NOTIFY FAILURE
+      # ========================================
+      - name: Deployment failed
+        if: failure()
+        run: |
+          echo "❌ Deployment Failed"
+          echo "===================="
+          echo "Version: ${{ steps.version.outputs.version }}"
+          echo "Please check the logs above for details"
+          exit 1
