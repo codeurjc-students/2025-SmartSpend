@@ -105,7 +105,6 @@ jobs:
           command_timeout: 5m
           strict_host_key_checking: false
           script: |
-          script: |
             cd ~/smartspend
             
             # Check if container is running
