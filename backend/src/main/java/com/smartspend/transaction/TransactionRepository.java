@@ -14,6 +14,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long>, JpaSpecificationExecutor<Transaction> {   
 
+    @Query("SELECT t FROM Transaction t WHERE t.account.id = :accountId AND t.title = :title AND t.amount = :amount AND t.type = 'INCOME' AND t.excludeFromStats = true")
+    List<Transaction> findAdjustments(@Param("accountId") Long accountId, @Param("title") String title, @Param("amount") BigDecimal amount);
+
     List<Transaction> findByAccount_User_UserIdOrderByDateDesc(Long userId);
 
     @Query(value = "SELECT * FROM transactions WHERE account_id = :accountId ORDER BY date DESC, id DESC LIMIT :limit", nativeQuery = true)
@@ -37,10 +40,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
         @Param("type") TransactionType type);
 
     // ✅ QUERY SÚPER OPTIMIZADA - SOLO TOTALES POR CATEGORÍA
-    @Query("SELECT t.category.name, SUM(t.amount) " +
+    @Query("SELECT t.category.name, SUM(COALESCE(t.effectiveAmount, t.amount)) " +
            "FROM Transaction t WHERE t.account.id = :accountId " +
            "AND t.date BETWEEN :dateFrom AND :dateTo " +
            "AND t.type = :type " +
+           "AND (t.excludeFromStats IS NULL OR t.excludeFromStats = false) " +
            "GROUP BY t.category.name")
     List<Object[]> findCategoryTotalsByAccountAndDateRangeAndType(
         @Param("accountId") Long accountId,
@@ -49,9 +53,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
         @Param("type") TransactionType type);
 
     // ✅ QUERY SÚPER SIMPLE PARA TOTALES DE INGRESOS/GASTOS
-    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.account.id = :accountId " +
+    @Query("SELECT SUM(COALESCE(t.effectiveAmount, t.amount)) FROM Transaction t WHERE t.account.id = :accountId " +
            "AND t.date BETWEEN :dateFrom AND :dateTo " +
-           "AND t.type = :type")
+           "AND t.type = :type " +
+           "AND (t.excludeFromStats IS NULL OR t.excludeFromStats = false)")
     BigDecimal findTotalByAccountAndDateRangeAndType(
         @Param("accountId") Long accountId,
         @Param("dateFrom") LocalDate dateFrom,

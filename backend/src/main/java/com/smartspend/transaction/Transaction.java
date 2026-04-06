@@ -2,6 +2,8 @@ package com.smartspend.transaction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.smartspend.bankAccount.BankAccount;
 import com.smartspend.category.Category;
@@ -77,6 +79,18 @@ public class Transaction {
 
     @Column(name = "before_balance", precision = 10, scale = 2)
     private BigDecimal beforeBalance;
+
+    @Column(name = "effective_amount", precision = 10, scale = 2)
+    private BigDecimal effectiveAmount;
+
+    @Column(name = "exclude_from_stats", nullable = false)
+    @Builder.Default
+    private Boolean excludeFromStats = false;
+
+    
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Debt> sharedDebts;
+
 
 
     public Transaction(String title, String description, BigDecimal amount, 

@@ -46,7 +46,7 @@ public class SmartSpendSecConfig {
                     "http://127.0.0.1:4200",
                     "https://127.0.0.1:4200"
             ));
-            corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
             corsConfig.setAllowedHeaders(java.util.List.of("*"));
             corsConfig.setAllowCredentials(true);
             return corsConfig;

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -90,9 +91,16 @@ public class TransactionController {
     public void deleteTransaction(@PathVariable Long transactionId, Authentication authentication) {
         String userEmail = authentication.getName();
 
-        System.out.println("Deleting transaction with ID: " + transactionId + " for user: " + userEmail);
-        
-        transactionService.deleteTransaction(transactionId, userEmail);
+        // Verificar si es un ajuste de deuda para usar la lógica especial
+        TransactionResponseDto transaction = transactionService.getTransactionById(transactionId)
+            .orElseThrow(() -> new RuntimeException("Transaction not found"));
+
+        if (Boolean.TRUE.equals(transaction.excludeFromStats()) && 
+            transaction.title().startsWith("Ajuste deuda: ")) {
+            transactionService.deleteAdjustmentAndRestoreDebt(transactionId, userEmail);
+        } else {
+            transactionService.deleteTransaction(transactionId, userEmail);
+        }
     }
 
     @PostMapping
@@ -153,6 +161,17 @@ public class TransactionController {
         }
 
         return ResponseEntity.ok(updatedTransaction.get());
+    }
+
+    @PatchMapping("/{transactionId}/debts/{debtId}/pay")
+    public ResponseEntity<TransactionResponseDto> markDebtAsPaid(
+            @PathVariable Long transactionId,
+            @PathVariable Long debtId,
+            Authentication authentication) {
+
+        String userEmail = authentication.getName();
+        TransactionResponseDto updatedTransaction = transactionService.markDebtAsPaid(transactionId, debtId, userEmail);
+        return ResponseEntity.ok(updatedTransaction);
     }
     
 }

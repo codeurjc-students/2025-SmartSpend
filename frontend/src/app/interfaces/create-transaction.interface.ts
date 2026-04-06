@@ -1,3 +1,9 @@
+export interface DebtDto {
+    name: string;
+    amount: number;
+    isPaid: boolean;
+}
+
 export interface CreateTransactionDto {
     title: string;
     description?: string;
@@ -5,11 +11,13 @@ export interface CreateTransactionDto {
     type: 'EXPENSE' | 'INCOME';
     recurrence: 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY';
     categoryId?: string;
-    date: string; // Fecha en formato YYYY-MM-DD (YYYY-MM-DD),
+    date: string;
     accountId: number;
+    personalAmount?: number;
+    excludeFromStats?: boolean;
+    debts?: DebtDto[];
 }
 
-// Nueva interfaz para transacciones con imagen
 export interface CreateTransactionWithImageDto extends CreateTransactionDto {
     imageFile?: File;
 }
