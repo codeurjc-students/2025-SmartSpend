@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.smartspend.bankAccount.BankAccount;
 import com.smartspend.bankAccount.BankAccountRepository;
@@ -22,6 +23,7 @@ import com.smartspend.category.CategoryRepository;
 import com.smartspend.config.ImageUtils;
 import com.smartspend.transaction.dtos.CreateTransactionDto;
 import com.smartspend.transaction.dtos.CreateTransactionWithImageDto;
+import com.smartspend.transaction.dtos.DebtDto;
 import com.smartspend.transaction.dtos.TransactionResponseDto;
 import com.smartspend.user.User;
 import com.smartspend.user.UserRepository;
@@ -29,6 +31,9 @@ import com.smartspend.user.UserRepository;
 @Service 
 public class TransactionService {
     
+    @Autowired
+    private DebtRepository debtRepository;
+
     @Autowired
     private TransactionRepository transactionRepository;
 
@@ -51,6 +56,68 @@ public class TransactionService {
     public Optional<TransactionResponseDto> getTransactionById(Long transactionId) {
         return transactionRepository.findById(transactionId)
                 .map(transactionMapper::toResponseDto);
+    }
+
+    @Transactional
+    public TransactionResponseDto markDebtAsPaid(Long transactionId, Long debtId, String userEmail) {
+        User user = userRepository.findByUserEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Transaction transaction = transactionRepository.findById(transactionId)
+            .orElseThrow(() -> new RuntimeException("Transaction not found"));
+
+        BankAccount account = transaction.getAccount();
+        if (!account.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("Unauthorized to update this debt");
+        }
+
+        Debt debt = debtRepository.findById(debtId)
+            .orElseThrow(() -> new RuntimeException("Debt not found"));
+
+        if (!debt.getTransaction().getId().equals(transactionId)) {
+            throw new RuntimeException("Debt does not belong to transaction");
+        }
+
+        if (Boolean.TRUE.equals(debt.getIsPaid())) {
+            return transactionMapper.toResponseDto(transaction);
+        }
+
+        debt.setIsPaid(true);
+        debtRepository.save(debt);
+
+        String adjustmentTitle = truncateToMaxLength("Ajuste deuda: " + debt.getName(), 30);
+        String adjustmentDescription = truncateToMaxLength(
+            "Cobro de deuda de '" + transaction.getTitle() + "'",
+            100
+        );
+
+        Transaction adjustmentTransaction = Transaction.builder()
+            .title(adjustmentTitle)
+            .description(adjustmentDescription)
+            .amount(debt.getAmount())
+            .effectiveAmount(debt.getAmount())
+            .excludeFromStats(true)
+            .date(LocalDate.now())
+            .type(TransactionType.INCOME)
+            .recurrence(Recurrence.NONE)
+            .category(transaction.getCategory())
+            .account(account)
+            .beforeBalance(account.getCurrentBalance())
+            .isRecurringSeriesParent(false)
+            .build();
+
+        upadateAccountBalance(adjustmentTransaction, account);
+        bankAccountRepository.save(account);
+        transactionRepository.save(adjustmentTransaction);
+
+        return transactionMapper.toResponseDto(transaction);
+    }
+
+    private String truncateToMaxLength(String value, int maxLength) {
+        if (value == null) {
+            return null;
+        }
+        return value.length() > maxLength ? value.substring(0, maxLength) : value;
     }
 
     public List<TransactionResponseDto> findAll(String email) {
@@ -111,7 +178,9 @@ public class TransactionService {
         return transactions.map(transactionMapper::toResponseDto);
     }
 
+    @Transactional
     public void deleteTransaction(Long transactionId, String email) {
+        System.out.println("DEBUG: Iniciando deleteTransaction para ID=" + transactionId + ", email=" + email);
 
         User user = userRepository.findByUserEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -120,18 +189,49 @@ public class TransactionService {
 
         BankAccount account = transaction.getAccount();
         if (!account.getUser().getUserId().equals(user.getUserId())) {
+            System.err.println("DEBUG: Intento de borrado no autorizado por " + email);
             throw new RuntimeException("Unauthorized to delete this transaction");
         }
 
+        System.out.println("DEBUG: Transacción encontrada: " + transaction.getTitle() + " (" + transaction.getType() + ")");
+
         if (transaction.getType() == TransactionType.INCOME){
+            System.out.println("DEBUG: Descontando ingreso del balance: " + transaction.getAmount());
             account.setCurrentBalance(account.getCurrentBalance().subtract(transaction.getAmount()));
         } else {
+            System.out.println("DEBUG: Restaurando gasto al balance: " + transaction.getAmount());
             account.setCurrentBalance(account.getCurrentBalance().add(transaction.getAmount()));
+            
+            // ✅ ELIMINAR TRANSACCIONES DE AJUSTE (Si es un gasto con deudas pagadas)
+            if (transaction.getSharedDebts() != null && !transaction.getSharedDebts().isEmpty()) {
+                System.out.println("DEBUG: Procesando " + transaction.getSharedDebts().size() + " deudas compartidas");
+                for (Debt debt : transaction.getSharedDebts()) {
+                    if (Boolean.TRUE.equals(debt.getIsPaid())) {
+                        String adjustmentTitle = truncateToMaxLength("Ajuste deuda: " + debt.getName(), 30);
+                        System.out.println("DEBUG: Buscando ajustes con título: " + adjustmentTitle);
+                        
+                        List<Transaction> adjustments = transactionRepository.findAdjustments(
+                            account.getId(), 
+                            adjustmentTitle, 
+                            debt.getAmount()
+                        );
+                        
+                        System.out.println("DEBUG: Ajustes encontrados: " + adjustments.size());
+                        // Restar del balance y eliminar cada ajuste encontrado
+                        for (Transaction adj : adjustments) {
+                            System.out.println("DEBUG: Eliminando ajuste ID=" + adj.getId() + ", amount=" + adj.getAmount());
+                            account.setCurrentBalance(account.getCurrentBalance().subtract(adj.getAmount()));
+                            transactionRepository.delete(adj);
+                        }
+                    }
+                }
+            }
         }
         
-
+        System.out.println("DEBUG: Guardando balance final: " + account.getCurrentBalance());
         bankAccountRepository.save(account);
         transactionRepository.delete(transaction);
+        System.out.println("DEBUG: Borrado completado con éxito");
     }
 
     public TransactionResponseDto saveTransaction(CreateTransactionDto transactionDto, String userEmail) {
@@ -160,6 +260,8 @@ public class TransactionService {
             nextRecurrenceDate = calculateNextRecurrenceDate(transactionDate, transactionDto.recurrence());
         }
 
+        BigDecimal effectiveAmount = resolveEffectiveAmount(transactionDto.amount(), transactionDto.personalAmount(), transactionDto.debts());
+
         Transaction transaction = Transaction.builder()
             .title(transactionDto.title())
             .description(transactionDto.description())
@@ -169,17 +271,18 @@ public class TransactionService {
             .recurrence(transactionDto.recurrence() != null ? transactionDto.recurrence() : Recurrence.NONE)
             .category(category)
             .account(account)
-            .beforeBalance(account.getCurrentBalance()) // balance before transaction applied
-            .isRecurringSeriesParent(isRecurring) // ✅ Nuevo campo
-            .nextRecurrenceDate(nextRecurrenceDate) // ✅ Nuevo campo
+            .beforeBalance(account.getCurrentBalance())
+            .isRecurringSeriesParent(isRecurring)
+            .nextRecurrenceDate(nextRecurrenceDate)
+            .effectiveAmount(effectiveAmount)
+            .excludeFromStats(transactionDto.excludeFromStats() != null ? transactionDto.excludeFromStats() : false)
             .build();
 
         upadateAccountBalance(transaction, account);
-
         bankAccountRepository.save(account);
-
         Transaction savedTransaction = transactionRepository.save(transaction);
-        
+        savedTransaction = attachSharedDebts(savedTransaction, transactionDto.debts());
+
         return transactionMapper.toResponseDto(savedTransaction);
 
     }
@@ -240,6 +343,8 @@ public class TransactionService {
             nextRecurrenceDate = calculateNextRecurrenceDate(transactionDate, transactionDto.getRecurrence());
         }
 
+        BigDecimal effectiveAmountWithImage = resolveEffectiveAmount(transactionDto.getAmount(), transactionDto.getPersonalAmount(), transactionDto.getDebts());
+
         Transaction transaction = Transaction.builder()
             .title(transactionDto.getTitle())
             .description(transactionDto.getDescription())
@@ -250,8 +355,10 @@ public class TransactionService {
             .category(category)
             .account(account)
             .beforeBalance(account.getCurrentBalance())
-            .isRecurringSeriesParent(isRecurring) // ✅ Nuevo campo
-            .nextRecurrenceDate(nextRecurrenceDate) // ✅ Nuevo campo
+            .isRecurringSeriesParent(isRecurring)
+            .nextRecurrenceDate(nextRecurrenceDate)
+            .effectiveAmount(effectiveAmountWithImage)
+            .excludeFromStats(transactionDto.getExcludeFromStats() != null ? transactionDto.getExcludeFromStats() : false)
             .build();
         
         try {
@@ -266,16 +373,41 @@ public class TransactionService {
         
 
         upadateAccountBalance(transaction, account);
-
         bankAccountRepository.save(account);
+        Transaction savedTransactionWithImage = transactionRepository.save(transaction);
+        savedTransactionWithImage = attachSharedDebts(savedTransactionWithImage, transactionDto.getDebts());
 
-        Transaction savedTransaction = transactionRepository.save(transaction);
-        
-        return transactionMapper.toResponseDto(savedTransaction);
+        return transactionMapper.toResponseDto(savedTransactionWithImage);
 
     }
 
-    
+    private BigDecimal resolveEffectiveAmount(BigDecimal total, BigDecimal personalAmount, List<DebtDto> debts) {
+        if (debts == null || debts.isEmpty()) {
+            return total;
+        }
+        BigDecimal pAmount = personalAmount != null ? personalAmount : BigDecimal.ZERO;
+        BigDecimal debtsTotal = debts.stream().map(DebtDto::amount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (pAmount.add(debtsTotal).compareTo(total) != 0) {
+            throw new RuntimeException("personalAmount + sum(debts) must equal amount");
+        }
+        return pAmount;
+    }
+
+    private Transaction attachSharedDebts(Transaction saved, List<DebtDto> debts) {
+        if (debts == null || debts.isEmpty()) {
+            return saved;
+        }
+        List<Debt> debtEntities = debts.stream()
+            .map(dto -> Debt.builder()
+                .name(dto.name())
+                .amount(dto.amount())
+                .isPaid(dto.isPaid() != null ? dto.isPaid() : false)
+                .transaction(saved)
+                .build())
+            .collect(Collectors.toList());
+        saved.setSharedDebts(debtEntities);
+        return transactionRepository.save(saved);
+    }
 
     public void upadateAccountBalance(Transaction transaction, BankAccount account) {
         if (transaction.getType() == TransactionType.INCOME){
@@ -307,4 +439,40 @@ public class TransactionService {
         };
     }
 
+    @Transactional
+    public void deleteAdjustmentAndRestoreDebt(Long adjustmentId, String email) {
+        User user = userRepository.findByUserEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        
+        Transaction adjustment = transactionRepository.findById(adjustmentId)
+            .orElseThrow(() -> new RuntimeException("Adjustment transaction not found"));
+
+        if (!Boolean.TRUE.equals(adjustment.getExcludeFromStats()) || adjustment.getType() != TransactionType.INCOME) {
+            throw new RuntimeException("This transaction is not a debt adjustment");
+        }
+
+        BankAccount account = adjustment.getAccount();
+        if (!account.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        // 1. Extraer nombre del deudor del título "Ajuste deuda: Nombre"
+        String title = adjustment.getTitle();
+        if (title.startsWith("Ajuste deuda: ")) {
+            String debtorName = title.substring("Ajuste deuda: ".length());
+            
+            // 2. Buscar la deuda correspondiente en la misma cuenta
+            debtRepository.findByTransaction_Account_IdAndNameAndAmount(
+                account.getId(), debtorName, adjustment.getAmount()
+            ).ifPresent(debt -> {
+                // 3. Marcar como NO pagada
+                debt.setIsPaid(false);
+                debtRepository.save(debt);
+            });
+        }
+
+        // 4. Revertir balance y eliminar ajuste
+        account.setCurrentBalance(account.getCurrentBalance().subtract(adjustment.getAmount()));
+        bankAccountRepository.save(account);
+        transactionRepository.delete(adjustment);
+    }
 }
