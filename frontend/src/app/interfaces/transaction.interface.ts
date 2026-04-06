@@ -1,17 +1,26 @@
 import { Category } from "./category.interface";
 
+export interface DebtResponse {
+  id: number;
+  name: string;
+  amount: number;
+  isPaid: boolean;
+}
+
 export interface Transaction {
   id: number;
   title: string;
   description?: string;
   amount: number;
+  effectiveAmount?: number;
   date: string;
   type: 'EXPENSE' | 'INCOME';
   recurrence: 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY';
   accountId: number;
   accountName: string;
-  category: Category; // Objeto Category completo
-  // Nuevos campos para imagen
+  category: Category;
+  excludeFromStats?: boolean;
+  debts?: DebtResponse[];
   hasImage: boolean;
   imageBase64?: string | null;
   imageName?: string | null;

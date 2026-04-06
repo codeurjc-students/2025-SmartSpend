@@ -2,6 +2,7 @@ package com.smartspend.transaction.dtos;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,24 +19,12 @@ public class CreateTransactionWithImageDto {
     private Long accountId;
     private Long categoryId;
     private MultipartFile imageFile;
+    private BigDecimal personalAmount;
+    private Boolean excludeFromStats;
+    private List<DebtDto> debts;
 
     // Constructor vacío
     public CreateTransactionWithImageDto() {}
-
-    // Constructor completo
-    public CreateTransactionWithImageDto(String title, String description, BigDecimal amount,
-                                       TransactionType type, LocalDate date, Recurrence recurrence,
-                                       Long accountId, Long categoryId, MultipartFile imageFile) {
-        this.title = title;
-        this.description = description;
-        this.amount = amount;
-        this.type = type;
-        this.date = date;
-        this.recurrence = recurrence;
-        this.accountId = accountId;
-        this.categoryId = categoryId;
-        this.imageFile = imageFile;
-    }
 
     // Getters y Setters
     public String getTitle() { return title; }
@@ -65,17 +54,12 @@ public class CreateTransactionWithImageDto {
     public MultipartFile getImageFile() { return imageFile; }
     public void setImageFile(MultipartFile imageFile) { this.imageFile = imageFile; }
 
-    // Método helper para convertir a CreateTransactionDto
-    public CreateTransactionDto toCreateTransactionDto() {
-        return new CreateTransactionDto(
-            this.title,
-            this.description,
-            this.amount,
-            this.type,
-            this.date,
-            this.recurrence,
-            this.accountId,
-            this.categoryId
-        );
-    }
+    public BigDecimal getPersonalAmount() { return personalAmount; }
+    public void setPersonalAmount(BigDecimal personalAmount) { this.personalAmount = personalAmount; }
+
+    public Boolean getExcludeFromStats() { return excludeFromStats; }
+    public void setExcludeFromStats(Boolean excludeFromStats) { this.excludeFromStats = excludeFromStats; }
+
+    public List<DebtDto> getDebts() { return debts; }
+    public void setDebts(List<DebtDto> debts) { this.debts = debts; }
 }

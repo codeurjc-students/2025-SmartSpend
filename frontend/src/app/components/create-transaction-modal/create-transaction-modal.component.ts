@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TransactionService } from '../../services/transaction/transaction.service';
 import { BankAccount } from '../../services/bankAccount/bank-account-service.service';
 import { CategoryService } from '../../services/category/category.service';
-import { CreateTransactionDto, CreateTransactionWithImageDto } from '../../interfaces/create-transaction.interface';
+import { CreateTransactionDto, CreateTransactionWithImageDto, DebtDto } from '../../interfaces/create-transaction.interface';
 import { Category } from '../../interfaces/category.interface';
 import { Transaction } from '../../interfaces/transaction.interface';
 import { CommonModule } from '@angular/common';
@@ -45,9 +45,14 @@ export class CreateTransactionModalComponent implements OnInit {
   imagePreview: string | null = null;
   imageError: string | null = null;
 
+  // Gastos compartidos
+  isSharedMode: boolean = false;
+  personalAmount: number | undefined = undefined;
+  sharedDebts: DebtDto[] = [];
+
   // Categories for current transaction type
   availableCategories: Category[] = [];
-  
+
   // Loading states
   isLoading = false;
   isLoadingCategories = false;
@@ -89,7 +94,7 @@ export class CreateTransactionModalComponent implements OnInit {
         date: this.transactionToEdit.date,
         imageFile: undefined
       };
-      
+
       // Manejar imagen existente
       if (this.transactionToEdit.hasImage && this.transactionToEdit.imageBase64) {
         this.imagePreview = `data:${this.transactionToEdit.imageType};base64,${this.transactionToEdit.imageBase64}`;
@@ -103,7 +108,7 @@ export class CreateTransactionModalComponent implements OnInit {
   }
   loadCategories(): void {
     if (!this.newTransaction.type) return;
-    
+
     this.isLoadingCategories = true;
     this.categoryService.getCategoriesForType(this.newTransaction.type).subscribe({
       next: (categories) => {
@@ -131,7 +136,7 @@ export class CreateTransactionModalComponent implements OnInit {
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    
+
     if (!file) {
       this.clearImage();
       return;
@@ -139,7 +144,7 @@ export class CreateTransactionModalComponent implements OnInit {
 
     // Validaciones de imagen
     this.imageError = null;
-    
+
     // Validar tipo
     if (!file.type.startsWith('image/')) {
       this.imageError = 'Por favor selecciona un archivo de imagen válido';
@@ -158,7 +163,7 @@ export class CreateTransactionModalComponent implements OnInit {
     // Guardar archivo y crear preview
     this.selectedImageFile = file;
     this.newTransaction.imageFile = file;
-    
+
     // Crear preview para mostrar al usuario
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -173,7 +178,7 @@ export class CreateTransactionModalComponent implements OnInit {
     this.imagePreview = null;
     this.imageError = null;
     this.newTransaction.imageFile = undefined;
-    
+
     // Limpiar el input file
     const fileInput = document.getElementById('imageInput') as HTMLInputElement;
     if (fileInput) {
@@ -256,11 +261,16 @@ export class CreateTransactionModalComponent implements OnInit {
       categoryId: this.newTransaction.categoryId!,
       date: this.newTransaction.date ?? new Date().toISOString().split('T')[0],
       accountId: this.currentAccount!.id,
-      imageFile: this.selectedImageFile || undefined
+      imageFile: this.selectedImageFile || undefined,
+      ...(this.isSharedMode && this.sharedDebts.length > 0 && {
+        personalAmount: this.personalAmount,
+        excludeFromStats: false,
+        debts: this.sharedDebts
+      })
     };
 
     // Decidir qué método usar según si hay imagen o no
-    const serviceCall = this.selectedImageFile 
+    const serviceCall = this.selectedImageFile
       ? this.transactionService.createTransactionWithImage(transactionData)
       : this.transactionService.createTransaction(transactionData as CreateTransactionDto);
 
@@ -278,7 +288,7 @@ export class CreateTransactionModalComponent implements OnInit {
   }
 
   isFormValid(): boolean {
-    return !!(
+    const baseValid = !!(
       this.newTransaction.title &&
       this.newTransaction.title.trim() &&
       this.newTransaction.amount &&
@@ -287,6 +297,9 @@ export class CreateTransactionModalComponent implements OnInit {
       this.newTransaction.recurrence &&
       this.newTransaction.categoryId
     );
+    if (!baseValid) return false;
+    if (this.isSharedMode) return this.isSharedValid();
+    return true;
   }
 
   close(): void {
@@ -305,8 +318,56 @@ export class CreateTransactionModalComponent implements OnInit {
       imageFile: undefined
     };
     this.clearImage();
+    this.resetSharedMode();
     this.errorMessage = null;
     this.isLoading = false;
+  }
+
+  resetSharedMode(): void {
+    this.isSharedMode = false;
+    this.personalAmount = undefined;
+    this.sharedDebts = [];
+  }
+
+  toggleSharedMode(): void {
+    this.isSharedMode = !this.isSharedMode;
+    if (!this.isSharedMode) {
+      this.personalAmount = undefined;
+      this.sharedDebts = [];
+    }
+  }
+
+  addDebt(): void {
+    this.sharedDebts.push({ name: '', amount: 0, isPaid: false });
+  }
+
+  removeDebt(index: number): void {
+    this.sharedDebts.splice(index, 1);
+  }
+
+  splitEqually(): void {
+    const total = this.newTransaction.amount ?? 0;
+    const count = this.sharedDebts.length + 1; // +1 por el usuario
+    if (count < 2) return;
+    const share = Math.round((total / count) * 100) / 100;
+    this.personalAmount = share;
+    this.sharedDebts = this.sharedDebts.map(d => ({ ...d, amount: share }));
+  }
+
+  getDebtsTotal(): number {
+    return this.sharedDebts.reduce((acc, d) => acc + (d.amount ?? 0), 0);
+  }
+
+  getRemainder(): number {
+    const total = this.newTransaction.amount ?? 0;
+    const personal = this.personalAmount ?? 0;
+    return Math.round((total - personal - this.getDebtsTotal()) * 100) / 100;
+  }
+
+  isSharedValid(): boolean {
+    if (this.sharedDebts.length === 0) return false;
+    const allNamed = this.sharedDebts.every(d => d.name.trim().length > 0);
+    return allNamed && this.getRemainder() === 0;
   }
 
 // Helper method para obtener la categoría seleccionada

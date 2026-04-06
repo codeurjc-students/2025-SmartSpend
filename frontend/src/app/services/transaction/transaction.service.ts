@@ -27,13 +27,20 @@ export class TransactionService {
     return this.http.get<Transaction>(`${this.apiUrl}/transactions/${transactionId}`);
   }
 
+  markDebtAsPaid(transactionId: number, debtId: number): Observable<Transaction> {
+    return this.http.patch<Transaction>(
+      `${this.apiUrl}/transactions/${transactionId}/debts/${debtId}/pay`,
+      {}
+    );
+  }
+
   createTransaction(transaction: CreateTransactionDto): Observable<Transaction> {
     return this.http.post<Transaction>(`${this.apiUrl}/transactions`, transaction);
   }
 
   createTransactionWithImage(transactionData: CreateTransactionWithImageDto): Observable<Transaction> {
     const formData = new FormData();
-    
+
     // Agregar todos los campos de la transacción directamente (no anidados)
     formData.append('title', transactionData.title);
     formData.append('amount', transactionData.amount.toString());
@@ -41,15 +48,15 @@ export class TransactionService {
     formData.append('type', transactionData.type);
     formData.append('recurrence', transactionData.recurrence);
     formData.append('accountId', transactionData.accountId.toString());
-    
+
     if (transactionData.categoryId) {
       formData.append('categoryId', transactionData.categoryId);
     }
-    
+
     if (transactionData.description) {
       formData.append('description', transactionData.description);
     }
-    
+
     // Agregar la imagen si existe
     if (transactionData.imageFile) {
       formData.append('imageFile', transactionData.imageFile); // Nota: 'imageFile' no 'image'
@@ -61,7 +68,7 @@ export class TransactionService {
   // Actualizar transacción
   updateTransaction(transactionData: any): Observable<Transaction> {
     const formData = new FormData();
-    
+
     // Agregar campos básicos
     formData.append('title', transactionData.title);
     formData.append('amount', transactionData.amount.toString());
@@ -69,15 +76,15 @@ export class TransactionService {
     formData.append('type', transactionData.type);
     formData.append('recurrence', transactionData.recurrence);
     formData.append('accountId', transactionData.accountId.toString());
-    
+
     if (transactionData.categoryId) {
       formData.append('categoryId', transactionData.categoryId);
     }
-    
+
     if (transactionData.description) {
       formData.append('description', transactionData.description);
     }
-    
+
     // Agregar imagen si existe
     if (transactionData.imageFile) {
       formData.append('imageFile', transactionData.imageFile);
@@ -116,5 +123,5 @@ export class TransactionService {
       { params }
     );
   }
-  
+
 }

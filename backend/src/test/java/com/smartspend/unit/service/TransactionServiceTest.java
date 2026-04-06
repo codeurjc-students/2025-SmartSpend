@@ -23,6 +23,8 @@ import org.mockito.MockitoAnnotations;
 import com.smartspend.category.Category;
 import com.smartspend.category.CategoryRepository;
 import com.smartspend.transaction.Recurrence;
+import com.smartspend.transaction.Debt;
+import com.smartspend.transaction.DebtRepository;
 import com.smartspend.transaction.Transaction;
 import com.smartspend.transaction.TransactionMapper;
 import com.smartspend.transaction.TransactionRepository;
@@ -49,6 +51,9 @@ public class TransactionServiceTest {
     
     @Mock
     private CategoryRepository categoryRepository;
+    
+    @Mock
+    private DebtRepository debtRepository;
     
     @Mock
     private ImageUtils imageUtils;
@@ -95,7 +100,8 @@ public class TransactionServiceTest {
             LocalDate.now(),
             Recurrence.NONE,
             1L,
-            1L
+            1L,
+            null, null, null
         );
         
         // When
@@ -118,9 +124,9 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
         
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            1L, "Salary Payment", "Monthly salary", transactionAmount,
+            1L, "Salary Payment", "Monthly salary", transactionAmount, null,
             LocalDate.now(), TransactionType.INCOME, Recurrence.NONE,
-            1L, "Test Account", testCategory, false, null, null, null
+            1L, "Test Account", testCategory, false, null, false, null, null, null
         );
         when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(responseDto);
         
@@ -157,7 +163,8 @@ public class TransactionServiceTest {
             LocalDate.now(),
             Recurrence.NONE,
             1L,
-            1L
+            1L,
+            null, null, null
         );
         
         // When
@@ -180,9 +187,9 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
 
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            1L, "Grocery Shopping", "Weekly groceries", transactionAmount,
+            1L, "Grocery Shopping", "Weekly groceries", transactionAmount, null,
             LocalDate.now(), TransactionType.EXPENSE, Recurrence.NONE,
-            1L, "Test Account", testCategory, false, null, null, null
+            1L, "Test Account", testCategory, false, null, false, null, null, null
         );
         when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(responseDto);
 
@@ -299,6 +306,207 @@ public class TransactionServiceTest {
     }
 
     @Test
+    @DisplayName("TS-2.1 - Should delete adjustments when main transaction is deleted")
+    void shouldDeleteAdjustmentsWhenMainTransactionIsDeleted() {
+        // Given
+        BigDecimal initialBalance = new BigDecimal("1000.00");
+        BigDecimal mainAmount = new BigDecimal("100.00");
+        BigDecimal debtAmount = new BigDecimal("40.00");
+        
+        // El balance inicial ya refleja el gasto principal (-100) y el cobro (+40) = 940
+        testAccount.setCurrentBalance(new BigDecimal("940.00"));
+        
+        // Deuda ya pagada
+        Debt paidDebt = Debt.builder()
+            .id(1L)
+            .name("Juan")
+            .amount(debtAmount)
+            .isPaid(true)
+            .build();
+            
+        Transaction mainTransaction = Transaction.builder()
+            .id(100L)
+            .title("Dinner")
+            .amount(mainAmount)
+            .type(TransactionType.EXPENSE)
+            .account(testAccount)
+            .sharedDebts(List.of(paidDebt))
+            .build();
+            
+        Transaction adjustment = Transaction.builder()
+            .id(200L)
+            .title("Ajuste deuda: Juan")
+            .amount(debtAmount)
+            .type(TransactionType.INCOME)
+            .account(testAccount)
+            .excludeFromStats(true)
+            .build();
+            
+        // When
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(transactionRepository.findById(100L)).thenReturn(Optional.of(mainTransaction));
+        when(transactionRepository.findAdjustments(testAccount.getId(), "Ajuste deuda: Juan", debtAmount))
+            .thenReturn(List.of(adjustment));
+            
+        transactionService.deleteTransaction(100L, "test@example.com");
+        
+        // Then
+        ArgumentCaptor<BankAccount> accountCaptor = ArgumentCaptor.forClass(BankAccount.class);
+        verify(bankAccountRepository).save(accountCaptor.capture());
+        
+        // Balance final: 
+        // 940 (inicial) 
+        // + 100 (revertir gasto principal) 
+        // - 40 (revertir ajuste de deuda) 
+        // = 1000
+        assertEquals(0, new BigDecimal("1000.00").compareTo(accountCaptor.getValue().getCurrentBalance()),
+            "Balance should revert both main transaction and its debt adjustments");
+            
+        verify(transactionRepository).delete(mainTransaction);
+        verify(transactionRepository).delete(adjustment);
+    }
+
+    @Test
+    @DisplayName("TS-2.2 - Should restore debt status when adjustment is deleted")
+    void shouldRestoreDebtStatusWhenAdjustmentIsDeleted() {
+        // Given
+        BigDecimal initialBalance = new BigDecimal("1000.00");
+        BigDecimal adjustmentAmount = new BigDecimal("50.00");
+        
+        testAccount.setCurrentBalance(initialBalance);
+        
+        Transaction adjustment = Transaction.builder()
+            .id(200L)
+            .title("Ajuste deuda: Maria")
+            .amount(adjustmentAmount)
+            .type(TransactionType.INCOME)
+            .account(testAccount)
+            .excludeFromStats(true)
+            .build();
+            
+        Debt debt = Debt.builder()
+            .id(1L)
+            .name("Maria")
+            .amount(adjustmentAmount)
+            .isPaid(true) // Inicialmente pagada
+            .build();
+            
+        // When
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(transactionRepository.findById(200L)).thenReturn(Optional.of(adjustment));
+        when(debtRepository.findByTransaction_Account_IdAndNameAndAmount(testAccount.getId(), "Maria", adjustmentAmount))
+            .thenReturn(Optional.of(debt));
+            
+        transactionService.deleteAdjustmentAndRestoreDebt(200L, "test@example.com");
+        
+        // Then
+        // 1. Verificar balance: 1000 - 50 = 950
+        ArgumentCaptor<BankAccount> accountCaptor = ArgumentCaptor.forClass(BankAccount.class);
+        verify(bankAccountRepository).save(accountCaptor.capture());
+        assertEquals(0, new BigDecimal("950.00").compareTo(accountCaptor.getValue().getCurrentBalance()));
+        
+        // 2. Verificar que la deuda vuelve a estar pendiente
+        assertEquals(false, debt.getIsPaid(), "Debt should be marked as UNPAID after deleting adjustment");
+        verify(debtRepository).save(debt);
+        
+        // 3. Verificar borrado de la transacción de ajuste
+        verify(transactionRepository).delete(adjustment);
+    }
+
+    @Test
+    @DisplayName("TS-2.3 - Should increase balance when marking debt as paid")
+    void shouldIncreaseBalanceWhenMarkingDebtAsPaid() {
+        // Given
+        BigDecimal initialBalance = new BigDecimal("1000.00");
+        BigDecimal debtAmount = new BigDecimal("45.50");
+        BigDecimal expectedBalance = initialBalance.add(debtAmount);
+        
+        testAccount.setCurrentBalance(initialBalance);
+        
+        Transaction mainTransaction = Transaction.builder()
+            .id(100L)
+            .title("Dinner")
+            .amount(new BigDecimal("150.00"))
+            .type(TransactionType.EXPENSE)
+            .account(testAccount)
+            .category(testCategory)
+            .build();
+            
+        Debt debt = Debt.builder()
+            .id(1L)
+            .name("User A")
+            .amount(debtAmount)
+            .isPaid(false)
+            .transaction(mainTransaction)
+            .build();
+            
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(transactionRepository.findById(100L)).thenReturn(Optional.of(mainTransaction));
+        when(debtRepository.findById(1L)).thenReturn(Optional.of(debt));
+        when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(null); // No nos importa el retorno en este test
+        
+        // When
+        transactionService.markDebtAsPaid(100L, 1L, "test@example.com");
+        
+        // Then
+        // 1. Verificar balance de la cuenta
+        ArgumentCaptor<BankAccount> accountCaptor = ArgumentCaptor.forClass(BankAccount.class);
+        verify(bankAccountRepository).save(accountCaptor.capture());
+        assertEquals(0, expectedBalance.compareTo(accountCaptor.getValue().getCurrentBalance()), 
+            "Balance should increase by debt amount when marked as paid");
+            
+        // 2. Verificar que se crea la transacción de ajuste como INCOME y EXCLUDE_FROM_STATS
+        ArgumentCaptor<Transaction> transCaptor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository).save(transCaptor.capture());
+        Transaction adjustment = transCaptor.getValue();
+        
+        assertEquals(TransactionType.INCOME, adjustment.getType());
+        assertEquals(debtAmount, adjustment.getAmount());
+        assertEquals(true, adjustment.getExcludeFromStats());
+        assertEquals("Ajuste deuda: User A", adjustment.getTitle());
+        
+        // 3. Verificar que la deuda se marca como pagada
+        assertEquals(true, debt.getIsPaid());
+        verify(debtRepository).save(debt);
+    }
+
+    @Test
+    @DisplayName("TS-2.4 - Should NOT double increase balance if debt is already paid")
+    void shouldNotDoubleIncreaseBalanceIfAlreadyPaid() {
+        // Given
+        BigDecimal initialBalance = new BigDecimal("1000.00");
+        testAccount.setCurrentBalance(initialBalance);
+        
+        Transaction mainTransaction = Transaction.builder()
+            .id(100L)
+            .title("Dinner")
+            .amount(new BigDecimal("150.00"))
+            .type(TransactionType.EXPENSE)
+            .account(testAccount)
+            .build();
+            
+        Debt debt = Debt.builder()
+            .id(1L)
+            .name("User A")
+            .amount(new BigDecimal("50.00"))
+            .isPaid(true) // YA PAGADA
+            .transaction(mainTransaction)
+            .build();
+            
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(transactionRepository.findById(100L)).thenReturn(Optional.of(mainTransaction));
+        when(debtRepository.findById(1L)).thenReturn(Optional.of(debt));
+        when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(null);
+        
+        // When
+        transactionService.markDebtAsPaid(100L, 1L, "test@example.com");
+        
+        // Then
+        // No debería guardarse la cuenta ni el repositorio de transacciones de nuevo
+        verify(bankAccountRepository, org.mockito.Mockito.never()).save(any(BankAccount.class));
+    }
+
+    @Test
     @DisplayName("TS-1.6 - Should throw exception when transaction not found")
     void shouldThrowExceptionWhenTransactionNotFound() {
         // Given
@@ -326,7 +534,8 @@ public class TransactionServiceTest {
             null,
             Recurrence.NONE,
             1L,
-            1L
+            1L,
+            null, null, null
         );
         
         // When
@@ -348,9 +557,9 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
         
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            1L, "Test Transaction", "Test description", new BigDecimal("100.00"),
+            1L, "Test Transaction", "Test description", new BigDecimal("100.00"), null,
             today, TransactionType.EXPENSE, Recurrence.NONE,
-            1L, "Test Account", testCategory, false, null, null, null
+            1L, "Test Account", testCategory, false, null, false, null, null, null
         );
         when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(responseDto);
         
@@ -378,7 +587,8 @@ public class TransactionServiceTest {
             LocalDate.now(),
             Recurrence.NONE,
             2L,
-            1L
+            1L,
+            null, null, null
         );
         
         // When
@@ -406,7 +616,8 @@ public class TransactionServiceTest {
             LocalDate.now(),
             Recurrence.NONE,
             999L,
-            1L
+            1L,
+            null, null, null
         );
         
         // When
@@ -434,7 +645,8 @@ public class TransactionServiceTest {
             LocalDate.now(),
             Recurrence.NONE,
             1L,
-            999L
+            999L,
+            null, null, null
         );
         
         // When
@@ -516,7 +728,8 @@ public class TransactionServiceTest {
 
         CreateTransactionDto dto = new CreateTransactionDto(
             "Updated Income", "Updated description", new BigDecimal("80"),
-            TransactionType.INCOME, LocalDate.now().plusDays(1), Recurrence.MONTHLY, 1L, 1L
+            TransactionType.INCOME, LocalDate.now().plusDays(1), Recurrence.MONTHLY, 1L, 1L,
+            null, null, null
         );
 
         when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
@@ -526,9 +739,9 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(originalTransaction);
         
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            1L, "Updated Income", "Updated description", new BigDecimal("80"),
-            LocalDate.now().plusDays(1), TransactionType.INCOME, Recurrence.MONTHLY, 
-            1L, "Test Account", testCategory, false, null, null, null
+            1L, "Updated Income", "Updated description", new BigDecimal("80"), null,
+            LocalDate.now().plusDays(1), TransactionType.INCOME, Recurrence.MONTHLY,
+            1L, "Test Account", testCategory, false, null, false, null, null, null
         );
         when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(responseDto);
 
@@ -575,7 +788,8 @@ public class TransactionServiceTest {
 
         CreateTransactionDto dto = new CreateTransactionDto(
             "Updated Expense", "Updated expense description", new BigDecimal("10"),
-            TransactionType.EXPENSE, LocalDate.now(), Recurrence.WEEKLY, 1L, 1L
+            TransactionType.EXPENSE, LocalDate.now(), Recurrence.WEEKLY, 1L, 1L,
+            null, null, null
         );
 
         when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
@@ -585,9 +799,9 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(originalTransaction);
         
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            2L, "Updated Expense", "Updated expense description", new BigDecimal("10"),
+            2L, "Updated Expense", "Updated expense description", new BigDecimal("10"), null,
             LocalDate.now(), TransactionType.EXPENSE, Recurrence.WEEKLY,
-            1L, "Test Account", testCategory, false, null, null, null
+            1L, "Test Account", testCategory, false, null, false, null, null, null
         );
         when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(responseDto);
 
@@ -633,7 +847,8 @@ public class TransactionServiceTest {
 
         CreateTransactionDto dto = new CreateTransactionDto(
             "Now Expense", "Changed to expense", new BigDecimal("30"),
-            TransactionType.EXPENSE, LocalDate.now(), Recurrence.NONE, 1L, 1L
+            TransactionType.EXPENSE, LocalDate.now(), Recurrence.NONE, 1L, 1L,
+            null, null, null
         );
 
         when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
@@ -643,9 +858,9 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(originalTransaction);
         
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            3L, "Now Expense", "Changed to expense", new BigDecimal("30"),
+            3L, "Now Expense", "Changed to expense", new BigDecimal("30"), null,
             LocalDate.now(), TransactionType.EXPENSE, Recurrence.NONE,
-            1L, "Test Account", testCategory, false, null, null, null
+            1L, "Test Account", testCategory, false, null, false, null, null, null
         );
         when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(responseDto);
 
@@ -679,7 +894,8 @@ public class TransactionServiceTest {
 
         CreateTransactionDto dto = new CreateTransactionDto(
             "Now Income", "Changed to income", new BigDecimal("60"),
-            TransactionType.INCOME, LocalDate.now(), Recurrence.NONE, 1L, 1L
+            TransactionType.INCOME, LocalDate.now(), Recurrence.NONE, 1L, 1L,
+            null, null, null
         );
 
         when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
@@ -689,9 +905,9 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(originalTransaction);
         
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            4L, "Now Income", "Changed to income", new BigDecimal("60"),
+            4L, "Now Income", "Changed to income", new BigDecimal("60"), null,
             LocalDate.now(), TransactionType.INCOME, Recurrence.NONE,
-            1L, "Test Account", testCategory, false, null, null, null
+            1L, "Test Account", testCategory, false, null, false, null, null, null
         );
         when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(responseDto);
 
@@ -805,7 +1021,8 @@ public class TransactionServiceTest {
             LocalDate.now(),
             Recurrence.MONTHLY,
             1L,
-            1L
+            1L,
+            null, null, null
         );
 
         when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
@@ -814,8 +1031,8 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(
             new TransactionResponseDto(1L, "Monthly Salary", "Recurring salary payment",
-            new BigDecimal("2000.00"), LocalDate.now(), TransactionType.INCOME, Recurrence.MONTHLY,
-            1L, "Test Account", testCategory, true, null, null, null)
+            new BigDecimal("2000.00"), null, LocalDate.now(), TransactionType.INCOME, Recurrence.MONTHLY,
+            1L, "Test Account", testCategory, false, null, true, null, null, null)
         );
 
         // When  
@@ -843,7 +1060,8 @@ public class TransactionServiceTest {
             LocalDate.now(),
             Recurrence.NONE,
             1L,
-            1L
+            1L,
+            null, null, null
         );
 
         when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
@@ -852,8 +1070,8 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(
             new TransactionResponseDto(1L, "One-time expense", "Single payment",
-            new BigDecimal("50.00"), LocalDate.now(), TransactionType.EXPENSE, Recurrence.NONE,
-            1L, "Test Account", testCategory, false, null, null, null)
+            new BigDecimal("50.00"), null, LocalDate.now(), TransactionType.EXPENSE, Recurrence.NONE,
+            1L, "Test Account", testCategory, false, null, false, null, null, null)
         );
 
         // When  
@@ -897,7 +1115,8 @@ public class TransactionServiceTest {
             transactionDate,
             recurrence,
             1L,
-            1L
+            1L,
+            null, null, null
         );
 
         when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
@@ -906,8 +1125,8 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(
             new TransactionResponseDto(1L, "Recurring Transaction", "Test recurrence",
-            new BigDecimal("100.00"), transactionDate, TransactionType.INCOME, recurrence,
-            1L, "Test Account", testCategory, true, null, null, null)
+            new BigDecimal("100.00"), null, transactionDate, TransactionType.INCOME, recurrence,
+            1L, "Test Account", testCategory, false, null, true, null, null, null)
         );
 
         // When  

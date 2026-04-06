@@ -3,12 +3,13 @@ import { Transaction } from '../../interfaces/transaction.interface';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TransactionService } from '../../services/transaction/transaction.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { CreateTransactionModalComponent } from '../create-transaction-modal/create-transaction-modal.component';
 
 @Component({
   selector: 'app-transaction-detail',
   standalone: true,
-  imports: [CommonModule, CreateTransactionModalComponent], 
+  imports: [CommonModule, FormsModule, CreateTransactionModalComponent],
   templateUrl: './transaction-detail.component.html',
   styleUrl: './transaction-detail.component.css'
 })
@@ -17,14 +18,15 @@ export class TransactionDetailComponent implements OnInit {
   transactionId: number | null = null;
   transaction: Transaction | null = null;
   error: string | null = null;
-  
+
   // Variables para modales
   showConfirmModal: boolean = false;
   showSuccessModal: boolean = false;
   isDeleting: boolean = false;
-  
+
   // Variables para modal de edición
   showEditModal: boolean = false;
+  updatingDebtId: number | null = null;
 
   constructor(private route: ActivatedRoute, private transactionService: TransactionService, private router: Router) {}
 
@@ -32,7 +34,7 @@ export class TransactionDetailComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       const idParam = params.get('id');
       this.transactionId = idParam ? +idParam : null;
-      
+
       if (this.transactionId !== null) {
         this.transactionService.getTransactionById(this.transactionId).subscribe({
           next: (data: Transaction) => {
@@ -68,14 +70,14 @@ export class TransactionDetailComponent implements OnInit {
 
   confirmDelete(): void {
     if (!this.transactionId) return;
-    
+
     this.isDeleting = true;
     this.transactionService.deleteTransaction(this.transactionId).subscribe({
       next: () => {
         this.showConfirmModal = false;
         this.isDeleting = false;
         this.showSuccessModal = true;
-        
+
         // Redirigir al dashboard después de 2 segundos
         setTimeout(() => {
           this.router.navigate(['/dashboard']);
@@ -114,5 +116,70 @@ export class TransactionDetailComponent implements OnInit {
     console.log('Transacción actualizada:', updatedTransaction);
   }
 
-  
+  hasSharedDebts(): boolean {
+    return !!(this.transaction?.debts && this.transaction.debts.length > 0);
+  }
+
+  getPaidDebtsCount(): number {
+    if (!this.transaction?.debts) return 0;
+    return this.transaction.debts.filter(d => d.isPaid).length;
+  }
+
+  getPendingDebtsCount(): number {
+    if (!this.transaction?.debts) return 0;
+    return this.transaction.debts.filter(d => !d.isPaid).length;
+  }
+
+  getEffectiveAmount(): number {
+    if (!this.transaction) return 0;
+    return this.transaction.effectiveAmount ?? this.transaction.amount;
+  }
+
+  getSharedAmount(): number {
+    if (!this.transaction) return 0;
+    return Math.max(0, this.transaction.amount - this.getEffectiveAmount());
+  }
+
+  getPaidDebtsAmount(): number {
+    if (!this.transaction?.debts) return 0;
+    return this.transaction.debts
+      .filter(d => d.isPaid)
+      .reduce((sum, d) => sum + d.amount, 0);
+  }
+
+  getPendingDebtsAmount(): number {
+    if (!this.transaction?.debts) return 0;
+    return this.transaction.debts
+      .filter(d => !d.isPaid)
+      .reduce((sum, d) => sum + d.amount, 0);
+  }
+
+  getDebtsProgress(): number {
+    const total = this.transaction?.debts?.length ?? 0;
+    if (total === 0) return 0;
+    return Math.round((this.getPaidDebtsCount() / total) * 100);
+  }
+
+  onDebtPaidChange(debtId: number, checked: boolean): void {
+    if (!checked || !this.transactionId) return;
+
+    this.updatingDebtId = debtId;
+    this.transactionService.markDebtAsPaid(this.transactionId, debtId).subscribe({
+      next: (updatedTransaction) => {
+        this.transaction = updatedTransaction;
+        this.error = null;
+        this.updatingDebtId = null;
+      },
+      error: (err) => {
+        if (this.transaction?.debts) {
+          const debt = this.transaction.debts.find(d => d.id === debtId);
+          if (debt) debt.isPaid = false;
+        }
+        this.error = 'Error al marcar deuda como pagada: ' + (err.error?.message || err.message);
+        this.updatingDebtId = null;
+      }
+    });
+  }
+
+
 }
