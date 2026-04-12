@@ -1,169 +1,176 @@
 <div class="dashboard-grid-container">
-  
+
   <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="loading-card">
-      <div class="spinner spinner-lg"></div>
-      <p style="margin-top: 20px;">Cargando cuentas...</p>
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <div class="loading-card">
+        <div class="spinner spinner-lg"></div>
+        <p style="margin-top: 20px;">Cargando cuentas...</p>
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Error State -->
-  <div *ngIf="errorMessage && !showCreateAccountForm" class="loading-overlay">
-    <div class="error-card">
-      <div style="margin-bottom: 20px;">{{ errorMessage }}</div>
-      <button class="btn btn-secondary" (click)="loadUserAccounts()">🔄 Reintentar</button>
+  @if (errorMessage && !showCreateAccountForm) {
+    <div class="loading-overlay">
+      <div class="error-card">
+        <div style="margin-bottom: 20px;">{{ errorMessage }}</div>
+        <button class="btn btn-secondary" (click)="loadUserAccounts()">🔄 Reintentar</button>
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Empty State - No hay cuentas -->
-  <div *ngIf="accounts.length === 0 && !isLoading && !showCreateAccountForm" class="loading-overlay">
-    <div class="welcome-state-card">
-      <h2>Bienvenido a Smart Spend</h2>
-      <p>Comienza a gestionar tus finanzas de forma inteligente</p>
-      <button class="btn-welcome" (click)="createFirstAccount()">
-        Crear Primera Cuenta
-      </button>
+  @if (accounts.length === 0 && !isLoading && !showCreateAccountForm) {
+    <div class="loading-overlay">
+      <div class="welcome-state-card">
+        <h2>Bienvenido a Smart Spend</h2>
+        <p>Comienza a gestionar tus finanzas de forma inteligente</p>
+        <button class="btn-welcome" (click)="createFirstAccount()">
+          Crear Primera Cuenta
+        </button>
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Modal para crear cuenta -->
-  <div *ngIf="showCreateAccountForm" class="modal-overlay show" (click)="closeCreateAccountModal()">
-    <div class="modal modal-md" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3 class="modal-title">Nueva Cuenta Bancaria</h3>
-        <button class="modal-close" (click)="closeCreateAccountModal()">✕</button>
-      </div>
-
-      <div class="modal-body">
-        <form (ngSubmit)="createAccount()">
-          <div class="form-group">
-            <label for="accountName">Nombre de la cuenta <span style="color: var(--color-danger);">*</span></label>
-            <input type="text" id="accountName" [(ngModel)]="newAccountName" name="accountName"
-              placeholder="Ej: Cuenta Principal, Ahorros..." [disabled]="isCreatingAccount"
-              required maxlength="50">
-          </div>
-          
-          <div class="form-group">
-            <label for="initialBalance">Saldo inicial <span style="color: var(--color-danger);">*</span></label>
-            <input type="number" id="initialBalance" [(ngModel)]="initialBalance" name="initialBalance"
-              placeholder="0.00" [disabled]="isCreatingAccount" required step="0.01"
-              style="font-size: 1.2rem; font-weight: 600; text-align: right;">
-          </div>
-
-          <!-- Mensaje de error dentro del modal -->
-          <div *ngIf="errorMessage" class="form-group">
-            <small style="color: var(--color-danger);">{{ errorMessage }}</small>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeCreateAccountModal()"
-              [disabled]="isCreatingAccount">
-              Cancelar
-            </button>
-            <button type="submit" class="btn btn-primary" [disabled]="isCreatingAccount || !newAccountName.trim()">
-              <span *ngIf="isCreatingAccount" class="spinner" style="margin-right: 8px;"></span>
-              {{ isCreatingAccount ? 'Creando...' : 'Crear Cuenta' }}
-            </button>
-          </div>
-        </form>
+  @if (showCreateAccountForm) {
+    <div class="modal-overlay show" (click)="closeCreateAccountModal()">
+      <div class="modal modal-md" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">Nueva Cuenta Bancaria</h3>
+          <button class="modal-close" (click)="closeCreateAccountModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="createAccount()">
+            <div class="form-group">
+              <label for="accountName">Nombre de la cuenta <span style="color: var(--color-danger);">*</span></label>
+              <input type="text" id="accountName" [(ngModel)]="newAccountName" name="accountName"
+                placeholder="Ej: Cuenta Principal, Ahorros..." [disabled]="isCreatingAccount"
+                required maxlength="50">
+            </div>
+            <div class="form-group">
+              <label for="initialBalance">Saldo inicial <span style="color: var(--color-danger);">*</span></label>
+              <input type="number" id="initialBalance" [(ngModel)]="initialBalance" name="initialBalance"
+                placeholder="0.00" [disabled]="isCreatingAccount" required step="0.01"
+                style="font-size: 1.2rem; font-weight: 600; text-align: right;">
+            </div>
+            <!-- Mensaje de error dentro del modal -->
+            @if (errorMessage) {
+              <div class="form-group">
+                <small style="color: var(--color-danger);">{{ errorMessage }}</small>
+              </div>
+            }
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" (click)="closeCreateAccountModal()"
+                [disabled]="isCreatingAccount">
+                Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary" [disabled]="isCreatingAccount || !newAccountName.trim()">
+                @if (isCreatingAccount) {
+                  <span class="spinner" style="margin-right: 8px;"></span>
+                }
+                {{ isCreatingAccount ? 'Creando...' : 'Crear Cuenta' }}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
+  }
 
   <!-- Main Grid Layout (solo si hay cuentas y el modal no está abierto) -->
-  <div *ngIf="accounts.length > 0 && !showCreateAccountForm && !isLoading" class="dashboard-grid">
-    
-    <!-- Fixed Expenses -->
-    <div class="grid-section fixed-expenses">
-      <div class="section-header">
-        <h3>💸 Deudas pendientes</h3>
-      </div>
-      <div class="section-content scrollable-content">
-        <p>Coming soon...</p>
-        <small class="text-muted">Recurring expense management</small>
-      </div>
-    </div>
-
-    <!-- Subscriptions -->
-    <div class="grid-section subscriptions">
-      <div class="section-header">
-        <h3>💳 Gastos fijos</h3>
-      </div>
-      <div class="section-content scrollable-content">
-        <p>Coming soon...</p>
-        <small class="text-muted">Gastos fijos mensuales</small>
-      </div>
-    </div>
-
-    <!-- Account Central (current dashboard content) -->
-    <div class="grid-section account-central">
-      
-      <!-- Navigation Arrows - Smaller -->
-      <button *ngIf="accounts.length > 1" class="nav-arrow nav-arrow-left" (click)="previousAccount()">
-        ←
-      </button>
-      <button *ngIf="accounts.length > 1" class="nav-arrow nav-arrow-right" (click)="nextAccount()">
-        →
-      </button>
-
-      <!-- Account Content Direct -->
-      <div *ngIf="currentAccount" class="account-content-direct">
-        
-        <!-- Title at the very top -->
-        <div class="account-title">
-          <h2>{{ currentAccount.accountName }}</h2>
+  @if (accounts.length > 0 && !showCreateAccountForm && !isLoading) {
+    <div class="dashboard-grid">
+      <!-- Fixed Expenses -->
+      <div class="grid-section fixed-expenses">
+        <div class="section-header">
+          <h3>💸 Deudas pendientes</h3>
         </div>
-        
-        <!-- Balance -->
-        <div class="account-balance">
-          {{ (currentAccount.currentBalance | number:'1.2-2') + ' €' }}
+        <div class="section-content scrollable-content">
+          <p>Coming soon...</p>
+          <small class="text-muted">Recurring expense management</small>
         </div>
-
-        <!-- Transactions Content (scrollable) -->
-        <div class="account-transactions">
-          <app-transaction-list 
-              (addTransactionClick)="onAddTransactionFromList()"
-              (transactionDeletedSuccess)="onTransactionDeletedSuccess()">
-          </app-transaction-list>
+      </div>
+      <!-- Subscriptions -->
+      <div class="grid-section subscriptions">
+        <div class="section-header">
+          <h3>💳 Gastos fijos</h3>
         </div>
-
-        <!-- Fixed Add Button at Bottom -->
-        <div class="account-add-button">
-          <button class="btn-add-transaction" (click)="onAddTransactionFromList()">
-            ➕ Añadir Transacción
+        <div class="section-content scrollable-content">
+          <p>Coming soon...</p>
+          <small class="text-muted">Gastos fijos mensuales</small>
+        </div>
+      </div>
+      <!-- Account Central (current dashboard content) -->
+      <div class="grid-section account-central">
+        <!-- Navigation Arrows - Smaller -->
+        @if (accounts.length > 1) {
+          <button class="nav-arrow nav-arrow-left" (click)="previousAccount()">
+            ←
           </button>
-        </div>
-
-        <!-- Page Indicators below button -->
-        <div *ngIf="accounts.length > 1" class="account-indicators">
-          <div class="indicators-small">
-            <button *ngFor="let account of accounts; let i = index" 
-                    class="indicator-small" 
-                    [class.active]="currentAccount && account.id === currentAccount.id"
-                    (click)="goToAccount(i)" 
-                    [title]="account.accountName">
-              {{ i + 1 }}
-            </button>
+        }
+        @if (accounts.length > 1) {
+          <button class="nav-arrow nav-arrow-right" (click)="nextAccount()">
+            →
+          </button>
+        }
+        <!-- Account Content Direct -->
+        @if (currentAccount) {
+          <div class="account-content-direct">
+            <!-- Title at the very top -->
+            <div class="account-title">
+              <h2>{{ currentAccount.accountName }}</h2>
+            </div>
+            <!-- Balance -->
+            <div class="account-balance">
+              {{ (currentAccount.currentBalance | number:'1.2-2') + ' €' }}
+            </div>
+            <!-- Transactions Content (scrollable) -->
+            <div class="account-transactions">
+              <app-transaction-list
+                (addTransactionClick)="onAddTransactionFromList()"
+                (transactionDeletedSuccess)="onTransactionDeletedSuccess()">
+              </app-transaction-list>
+            </div>
+            <!-- Fixed Add Button at Bottom -->
+            <div class="account-add-button">
+              <button class="btn-add-transaction" (click)="onAddTransactionFromList()">
+                ➕ Añadir Transacción
+              </button>
+            </div>
+            <!-- Page Indicators below button -->
+            @if (accounts.length > 1) {
+              <div class="account-indicators">
+                <div class="indicators-small">
+                  @for (account of accounts; track account; let i = $index) {
+                    <button
+                      class="indicator-small"
+                      [class.active]="currentAccount && account.id === currentAccount.id"
+                      (click)="goToAccount(i)"
+                      [title]="account.accountName">
+                      {{ i + 1 }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
           </div>
+        }
+      </div>
+      <!-- Balance Overview -->
+      <div class="grid-section balance">
+        <div class="section-header">
+          <h3>💰 Balance de gastos/ingresos</h3>
         </div>
-        
+        <div class="section-content scrollable-content">
+          <div class="balance-icon">📊</div>
+          <p>Coming soon...</p>
+          <small class="text-muted">Financial balance analysis</small>
+        </div>
       </div>
     </div>
-
-    <!-- Balance Overview -->
-    <div class="grid-section balance">
-      <div class="section-header">
-        <h3>💰 Balance de gastos/ingresos</h3>
-      </div>
-      <div class="section-content scrollable-content">
-        <div class="balance-icon">📊</div>
-        <p>Coming soon...</p>
-        <small class="text-muted">Financial balance analysis</small>
-      </div>
-    </div>
-
-  </div>
+  }
 
   <!-- Create transaction Modal Component - MOVED OUTSIDE GRID -->
   <app-create-transaction-modal [isVisible]="showCreateTransactionModal"

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BankAccountServiceService } from '../../services/bankAccount/bank-account-service.service';
@@ -6,7 +6,7 @@ import { BankAccountServiceService } from '../../services/bankAccount/bank-accou
 @Component({
   selector: 'app-account-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './account-form.component.html',
   styleUrl: './account-form.component.css'
 })

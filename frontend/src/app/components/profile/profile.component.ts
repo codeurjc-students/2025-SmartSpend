@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { BankAccount, BankAccountServiceService } from '../../services/bankAccount/bank-account-service.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { jwtDecode } from 'jwt-decode';
@@ -17,7 +17,7 @@ interface UserInfo {
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, AccountFormComponent],
+  imports: [AccountFormComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })

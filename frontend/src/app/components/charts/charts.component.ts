@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
@@ -15,7 +15,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-charts',
   standalone: true,
-  imports: [CommonModule, FormsModule, BaseChartDirective],
+  imports: [FormsModule, BaseChartDirective],
   templateUrl: './charts.component.html',
   styleUrls: ['./charts.component.css']
 })

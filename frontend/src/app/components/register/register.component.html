@@ -2,7 +2,7 @@
   <div class="register-card">
     <img src="assets/images/logoBlanco.svg" alt="Logo" style="width: 70%; aspect-ratio: 85/16; display: block;">
     <h2 class="form-title">Registrar Cuenta</h2>
-    
+
     <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
       <div class="form-group">
         <label for="username">Nombre</label>
@@ -15,10 +15,12 @@
           placeholder="Ingresa tu nombre"
           required
           #username="ngModel"
-        />
-        <div *ngIf="username.invalid && (username.dirty || username.touched)" class="error-message">
-          El nombre es obligatorio.
-        </div>
+          />
+        @if (username.invalid && (username.dirty || username.touched)) {
+          <div class="error-message">
+            El nombre es obligatorio.
+          </div>
+        }
       </div>
 
       <div class="form-group">
@@ -33,11 +35,17 @@
           required
           email
           #email="ngModel"
-        />
-        <div *ngIf="email.invalid && (email.dirty || email.touched)" class="error-message">
-          <div *ngIf="email.errors?.['required']">El email es obligatorio.</div>
-          <div *ngIf="email.errors?.['email']">Ingresa un email válido.</div>
-        </div>
+          />
+        @if (email.invalid && (email.dirty || email.touched)) {
+          <div class="error-message">
+            @if (email.errors?.['required']) {
+              <div>El email es obligatorio.</div>
+            }
+            @if (email.errors?.['email']) {
+              <div>Ingresa un email válido.</div>
+            }
+          </div>
+        }
       </div>
 
       <div class="form-group">
@@ -52,28 +60,38 @@
           required
           minlength="8"
           #password="ngModel"
-        />
-        <div *ngIf="password.invalid && (password.dirty || password.touched)" class="error-message">
-          <div *ngIf="password.errors?.['required']">La contraseña es obligatoria.</div>
-          <div *ngIf="password.errors?.['minlength']">La contraseña debe tener al menos 8 caracteres.</div>
-        </div>
+          />
+        @if (password.invalid && (password.dirty || password.touched)) {
+          <div class="error-message">
+            @if (password.errors?.['required']) {
+              <div>La contraseña es obligatoria.</div>
+            }
+            @if (password.errors?.['minlength']) {
+              <div>La contraseña debe tener al menos 8 caracteres.</div>
+            }
+          </div>
+        }
       </div>
 
       <button
         type="submit"
         class="btn btn-primary"
         [disabled]="registerForm.invalid || isLoading"
-      >
+        >
         {{ isLoading ? 'Registrando...' : 'Registrarse' }}
       </button>
 
-      <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
+      @if (errorMessage) {
+        <div class="error-message">
+          {{ errorMessage }}
+        </div>
+      }
 
-      <div *ngIf="successMessage" class="success-message">
-        {{ successMessage }}
-      </div>
+      @if (successMessage) {
+        <div class="success-message">
+          {{ successMessage }}
+        </div>
+      }
     </form>
 
     <div class="register-link">

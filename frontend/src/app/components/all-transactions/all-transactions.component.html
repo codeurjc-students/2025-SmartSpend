@@ -5,7 +5,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
       <div class="flex items-center space-x-4">
-        <button 
+        <button
           (click)="goBack()"
           class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,7 +14,7 @@
         </button>
         <h1 class="text-3xl font-bold">📊 Todos los Movimientos</h1>
       </div>
-      
+
       <div class="text-sm text-slate-400">
         {{ transactions.length }} de {{ totalElements }} transacciones
       </div>
@@ -23,7 +23,7 @@
     <!-- Filtros usando el componente reutilizable -->
     <app-transaction-filters
       [initialFilters]="filters"
-      
+
       (applyFilters)="onApplyFilters($event)">
     </app-transaction-filters>
 
@@ -38,36 +38,34 @@
     </div>
 
     <!-- Controles de paginación -->
-    <div *ngIf="!isLoading && transactions.length > 0" class="flex justify-between items-center mt-6">
-      
-      <!-- Info de páginas -->
-      <div class="text-sm text-slate-400">
-        Página {{ currentPage + 1 }} de {{ Math.ceil(totalElements / pageSize) }} 
-        ({{ totalElements }} transacciones en total)
+    @if (!isLoading && transactions.length > 0) {
+      <div class="flex justify-between items-center mt-6">
+        <!-- Info de páginas -->
+        <div class="text-sm text-slate-400">
+          Página {{ currentPage + 1 }} de {{ Math.ceil(totalElements / pageSize) }}
+          ({{ totalElements }} transacciones en total)
+        </div>
+        <!-- Botones de paginación -->
+        <div class="flex space-x-2">
+          <button
+            (click)="previousPage()"
+            [disabled]="currentPage === 0"
+            [class.opacity-50]="currentPage === 0"
+            [class.cursor-not-allowed]="currentPage === 0"
+            class="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors disabled:hover:bg-slate-600">
+            ⬅️ Anterior
+          </button>
+          <button
+            (click)="nextPage()"
+            [disabled]="(currentPage + 1) * pageSize >= totalElements"
+            [class.opacity-50]="(currentPage + 1) * pageSize >= totalElements"
+            [class.cursor-not-allowed]="(currentPage + 1) * pageSize >= totalElements"
+            class="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors disabled:hover:bg-slate-600">
+            Siguiente ➡️
+          </button>
+        </div>
       </div>
-      
-      <!-- Botones de paginación -->
-      <div class="flex space-x-2">
-        <button
-          (click)="previousPage()"
-          [disabled]="currentPage === 0"
-          [class.opacity-50]="currentPage === 0"
-          [class.cursor-not-allowed]="currentPage === 0"
-          class="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors disabled:hover:bg-slate-600">
-          ⬅️ Anterior
-        </button>
-        
-        <button
-          (click)="nextPage()"
-          [disabled]="(currentPage + 1) * pageSize >= totalElements"
-          [class.opacity-50]="(currentPage + 1) * pageSize >= totalElements"
-          [class.cursor-not-allowed]="(currentPage + 1) * pageSize >= totalElements"
-          class="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors disabled:hover:bg-slate-600">
-          Siguiente ➡️
-        </button>
-      </div>
-      
-    </div>
+    }
 
   </div>
 </div>

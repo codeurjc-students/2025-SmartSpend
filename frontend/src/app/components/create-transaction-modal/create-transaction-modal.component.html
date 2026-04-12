@@ -1,36 +1,32 @@
 <!-- MODAL BACKDROP -->
-<div
-  *ngIf="isVisible"
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-  (click)="close()"
->
-
-  <!-- MODAL -->
+@if (isVisible) {
   <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+    (click)="close()"
+    >
+    <!-- MODAL -->
+    <div
     class="w-full max-w-2xl bg-slate-800 rounded-2xl shadow-xl
            max-h-[90vh] flex flex-col"
-    (click)="$event.stopPropagation()"
-  >
-
-    <!-- HEADER (FIJO) -->
-    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700">
-      <h2 class="text-lg font-semibold text-slate-100">
-        {{ mode === 'edit' ? '✏️ Editar Transacción' : '💰 Nueva Transacción' }}
-      </h2>
-
-      <div class="flex items-center gap-3">
-        <button
-          type="button"
-          (click)="close()"
-          class="px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 transition text-sm"
-          [disabled]="isLoading"
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="submit"
-          form="transactionForm"
+      (click)="$event.stopPropagation()"
+      >
+      <!-- HEADER (FIJO) -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+        <h2 class="text-lg font-semibold text-slate-100">
+          {{ mode === 'edit' ? '✏️ Editar Transacción' : '💰 Nueva Transacción' }}
+        </h2>
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            (click)="close()"
+            class="px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 transition text-sm"
+            [disabled]="isLoading"
+            >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            form="transactionForm"
           class="px-4 py-2 rounded-lg text-sm font-medium transition-all
          flex items-center gap-2
          bg-indigo-500 text-white
@@ -38,82 +34,77 @@
          disabled:cursor-not-allowed
          enabled:hover:bg-indigo-600
          enabled:shadow-md enabled:shadow-indigo-500/25"
-  [disabled]="!isFormValid() || isLoading"
-        >
-          <span
-            *ngIf="isLoading"
-            class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
-          ></span>
-          {{ isLoading
+            [disabled]="!isFormValid() || isLoading"
+            >
+            @if (isLoading) {
+              <span
+                class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+              ></span>
+            }
+            {{ isLoading
             ? (mode === 'edit' ? 'Actualizando...' : 'Creando...')
             : (mode === 'edit' ? 'Actualizar' : 'Crear') }}
-        </button>
-
-        <button
-          (click)="close()"
-          class="text-slate-400 hover:text-slate-200 transition text-xl ml-1"
-        >
-          ✕
-        </button>
-      </div>
-    </div>
-
-    <!-- BODY (SCROLLABLE) -->
-    <div class="px-6 py-5 overflow-y-auto overflow-x-hidden flex-1">
-
-      <!-- ERROR -->
-      <div *ngIf="errorMessage" class="mb-4">
-        <p class="text-sm text-red-400">{{ errorMessage }}</p>
-      </div>
-
-      <!-- FORM -->
-      <form
-        id="transactionForm"
-        (ngSubmit)="onSubmit()"
-        #transactionForm="ngForm"
-        class="grid grid-cols-1 md:grid-cols-2 gap-5"
-      >
-
-        <!-- Cuenta (readonly) -->
-        <div class="md:col-span-2">
-          <label class="block text-sm text-slate-400 mb-1">
-            Cuenta
-          </label>
-          <div class="px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-slate-300 opacity-80">
-            {{ currentAccount?.accountName || 'Sin cuenta seleccionada' }}
-          </div>
+          </button>
+          <button
+            (click)="close()"
+            class="text-slate-400 hover:text-slate-200 transition text-xl ml-1"
+            >
+            ✕
+          </button>
         </div>
-
-        <!-- Título -->
-        <div>
-          <label class="block text-sm text-slate-400 mb-1">
-            Título <span class="text-red-400">*</span>
-          </label>
-          <input
-            type="text"
-            [(ngModel)]="newTransaction.title"
-            name="title"
-            required
-            maxlength="30"
-            placeholder="Ej: Supermercado, Nómina..."
+      </div>
+      <!-- BODY (SCROLLABLE) -->
+      <div class="px-6 py-5 overflow-y-auto overflow-x-hidden flex-1">
+        <!-- ERROR -->
+        @if (errorMessage) {
+          <div class="mb-4">
+            <p class="text-sm text-red-400">{{ errorMessage }}</p>
+          </div>
+        }
+        <!-- FORM -->
+        <form
+          id="transactionForm"
+          (ngSubmit)="onSubmit()"
+          #transactionForm="ngForm"
+          class="grid grid-cols-1 md:grid-cols-2 gap-5"
+          >
+          <!-- Cuenta (readonly) -->
+          <div class="md:col-span-2">
+            <label class="block text-sm text-slate-400 mb-1">
+              Cuenta
+            </label>
+            <div class="px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-slate-300 opacity-80">
+              {{ currentAccount?.accountName || 'Sin cuenta seleccionada' }}
+            </div>
+          </div>
+          <!-- Título -->
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">
+              Título <span class="text-red-400">*</span>
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="newTransaction.title"
+              name="title"
+              required
+              maxlength="30"
+              placeholder="Ej: Supermercado, Nómina..."
             class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
                    text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        <!-- Tipo -->
-        <!-- Tipo -->
-        <!-- Tipo -->
-        <div>
-          <label class="block text-sm text-slate-400 mb-2">
-            Tipo <span class="text-red-400">*</span>
-          </label>
-
-          <div class="grid grid-cols-2 gap-4">
-            <!-- GASTO -->
-            <button
-              type="button"
-              (click)="newTransaction.type='EXPENSE'; onTransactionTypeChange()"
+              />
+          </div>
+          <!-- Tipo -->
+          <!-- Tipo -->
+          <!-- Tipo -->
+          <div>
+            <label class="block text-sm text-slate-400 mb-2">
+              Tipo <span class="text-red-400">*</span>
+            </label>
+            <div class="grid grid-cols-2 gap-4">
+              <!-- GASTO -->
+              <button
+                type="button"
+                (click)="newTransaction.type='EXPENSE'; onTransactionTypeChange()"
               class="flex items-center justify-center gap-2
                     px-3 py-2.5 rounded-lg border text-sm font-medium
                     transition-all"
@@ -123,14 +114,13 @@
                 'bg-slate-900 border-slate-700 text-slate-400 hover:bg-slate-800':
                   newTransaction.type !== 'EXPENSE'
               }"
-            >
-              💸 Gasto
-            </button>
-
-            <!-- INGRESO -->
-            <button
-              type="button"
-              (click)="newTransaction.type='INCOME'; onTransactionTypeChange()"
+                >
+                💸 Gasto
+              </button>
+              <!-- INGRESO -->
+              <button
+                type="button"
+                (click)="newTransaction.type='INCOME'; onTransactionTypeChange()"
               class="flex items-center justify-center gap-2
                     px-3 py-2.5 rounded-lg border text-sm font-medium
                     transition-all"
@@ -140,59 +130,58 @@
                 'bg-slate-900 border-slate-700 text-slate-400 hover:bg-slate-800':
                   newTransaction.type !== 'INCOME'
               }"
-            >
-              💰 Ingreso
-            </button>
+                >
+                💰 Ingreso
+              </button>
+            </div>
           </div>
-        </div>
-
-
-        <!-- Categoría -->
-        <div>
-          <label class="block text-sm text-slate-400 mb-1">
-            Categoría <span class="text-red-400">*</span>
-          </label>
-
-          <div *ngIf="isLoadingCategories" class="py-4 text-center text-slate-400">
-            Cargando categorías...
-          </div>
-
-          <select
-            *ngIf="!isLoadingCategories"
-            [(ngModel)]="newTransaction.categoryId"
-            name="categoryId"
-            required
+          <!-- Categoría -->
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">
+              Categoría <span class="text-red-400">*</span>
+            </label>
+            @if (isLoadingCategories) {
+              <div class="py-4 text-center text-slate-400">
+                Cargando categorías...
+              </div>
+            }
+            @if (!isLoadingCategories) {
+              <select
+                [(ngModel)]="newTransaction.categoryId"
+                name="categoryId"
+                required
             class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
                    text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option
-              *ngFor="let category of availableCategories"
-              [value]="category.id"
-            >
-              {{ category.icon }} {{ category.name }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Cantidad -->
-        <div>
-          <label class="block text-sm text-slate-400 mb-1">
-            Cantidad <span class="text-red-400">*</span>
-          </label>
-          <div class="relative">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold">
-              €
-            </span>
-            <input
-              type="number"
-              [(ngModel)]="newTransaction.amount"
-              name="amount"
-              step="0.01"
-              min="0.01"
-              placeholder="0.00"
-              (focus)="onAmountFocus()"
-              required
-              [readonly]="mode === 'edit' && transactionToEdit?.debts && transactionToEdit!.debts!.length > 0"
+                >
+                @for (category of availableCategories; track category) {
+                  <option
+                    [value]="category.id"
+                    >
+                    {{ category.icon }} {{ category.name }}
+                  </option>
+                }
+              </select>
+            }
+          </div>
+          <!-- Cantidad -->
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">
+              Cantidad <span class="text-red-400">*</span>
+            </label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold">
+                €
+              </span>
+              <input
+                type="number"
+                [(ngModel)]="newTransaction.amount"
+                name="amount"
+                step="0.01"
+                min="0.01"
+                placeholder="0.00"
+                (focus)="onAmountFocus()"
+                required
+                [readonly]="mode === 'edit' && transactionToEdit?.debts && transactionToEdit!.debts!.length > 0"
               class="w-full pl-8 rounded-lg border px-3 py-2
                      text-slate-200 text-right font-semibold
                      focus:outline-none focus:ring-2 focus:ring-indigo-500
@@ -200,277 +189,269 @@
               [ngClass]="mode === 'edit' && transactionToEdit?.debts && transactionToEdit!.debts!.length > 0
                 ? 'bg-slate-800 border-slate-700 opacity-60'
                 : 'bg-slate-900 border-slate-700'"
-            />
+                />
+            </div>
           </div>
-        </div>
-
-        <!-- GASTO COMPARTIDO (solo EXPENSE) -->
-        <div class="md:col-span-2" *ngIf="newTransaction.type === 'EXPENSE'">
-
-          <!-- Toggle (Solo en modo creación) -->
-          <button
-            *ngIf="mode === 'create'"
-            type="button"
-            (click)="toggleSharedMode()"
-            class="flex items-center gap-2 text-sm font-medium transition-colors"
+          <!-- GASTO COMPARTIDO (solo EXPENSE) -->
+          @if (newTransaction.type === 'EXPENSE') {
+            <div class="md:col-span-2">
+              <!-- Toggle (Solo en modo creación) -->
+              @if (mode === 'create') {
+                <button
+                  type="button"
+                  (click)="toggleSharedMode()"
+                  class="flex items-center gap-2 text-sm font-medium transition-colors"
             [ngClass]="isSharedMode
               ? 'text-indigo-400 hover:text-indigo-300'
               : 'text-slate-400 hover:text-slate-300'"
-          >
-            <span
-              class="w-9 h-5 rounded-full flex items-center transition-colors relative"
-              [ngClass]="isSharedMode ? 'bg-indigo-500' : 'bg-slate-600'"
-            >
-              <span
-                class="w-4 h-4 bg-white rounded-full absolute transition-transform shadow"
-                [ngClass]="isSharedMode ? 'translate-x-4' : 'translate-x-0.5'"
-              ></span>
-            </span>
-            👥 Gasto compartido
-          </button>
-
-          <!-- Aviso en modo edición -->
-          <div *ngIf="mode === 'edit' && transactionToEdit?.debts && transactionToEdit!.debts!.length > 0"
-               class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-start gap-3">
-            <div class="p-2 rounded-lg bg-indigo-500/20 text-indigo-400">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-indigo-300 uppercase tracking-wider mb-0.5">Gasto compartido</p>
-              <p class="text-xs text-slate-400 leading-relaxed">
-                Para modificar el reparto de deudas, deberás eliminar la transacción y volver a crearla. Los importes se mantienen bloqueados por integridad.
-              </p>
-            </div>
-          </div>
-
-          <!-- Panel compartido -->
-          <div *ngIf="isSharedMode && mode === 'create'" class="mt-4 rounded-xl border border-slate-600 bg-slate-900/60 p-4 flex flex-col gap-4">
-
-            <!-- Tu parte -->
-            <div>
-              <label class="block text-sm text-slate-400 mb-1">
-                Tu parte <span class="text-red-400">*</span>
-              </label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold">€</span>
-                <input
-                  type="number"
-                  [(ngModel)]="personalAmount"
-                  name="personalAmount"
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
+                  >
+                  <span
+                    class="w-9 h-5 rounded-full flex items-center transition-colors relative"
+                    [ngClass]="isSharedMode ? 'bg-indigo-500' : 'bg-slate-600'"
+                    >
+                    <span
+                      class="w-4 h-4 bg-white rounded-full absolute transition-transform shadow"
+                      [ngClass]="isSharedMode ? 'translate-x-4' : 'translate-x-0.5'"
+                    ></span>
+                  </span>
+                  👥 Gasto compartido
+                </button>
+              }
+              <!-- Aviso en modo edición -->
+              @if (mode === 'edit' && transactionToEdit?.debts && transactionToEdit!.debts!.length > 0) {
+                <div
+                  class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-start gap-3">
+                  <div class="p-2 rounded-lg bg-indigo-500/20 text-indigo-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-indigo-300 uppercase tracking-wider mb-0.5">Gasto compartido</p>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                      Para modificar el reparto de deudas, deberás eliminar la transacción y volver a crearla. Los importes se mantienen bloqueados por integridad.
+                    </p>
+                  </div>
+                </div>
+              }
+              <!-- Panel compartido -->
+              @if (isSharedMode && mode === 'create') {
+                <div class="mt-4 rounded-xl border border-slate-600 bg-slate-900/60 p-4 flex flex-col gap-4">
+                  <!-- Tu parte -->
+                  <div>
+                    <label class="block text-sm text-slate-400 mb-1">
+                      Tu parte <span class="text-red-400">*</span>
+                    </label>
+                    <div class="relative">
+                      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold">€</span>
+                      <input
+                        type="number"
+                        [(ngModel)]="personalAmount"
+                        name="personalAmount"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
                   class="w-full pl-8 rounded-lg bg-slate-800 border border-slate-600 px-3 py-2
                          text-slate-200 text-right font-semibold
                          focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-            </div>
-
-            <!-- Lista de participantes -->
-            <div>
-              <label class="block text-sm text-slate-400 mb-2">Participantes</label>
-
-              <div class="flex flex-col gap-2">
-                <div
-                  *ngFor="let debt of sharedDebts; let i = index"
-                  class="flex items-center gap-2"
-                >
-                  <input
-                    type="text"
-                    [(ngModel)]="debt.name"
-                    [name]="'debtName_' + i"
-                    placeholder="Nombre"
-                    maxlength="30"
+                        />
+                    </div>
+                  </div>
+                  <!-- Lista de participantes -->
+                  <div>
+                    <label class="block text-sm text-slate-400 mb-2">Participantes</label>
+                    <div class="flex flex-col gap-2">
+                      @for (debt of sharedDebts; track debt; let i = $index) {
+                        <div
+                          class="flex items-center gap-2"
+                          >
+                          <input
+                            type="text"
+                            [(ngModel)]="debt.name"
+                            [name]="'debtName_' + i"
+                            placeholder="Nombre"
+                            maxlength="30"
                     class="flex-1 rounded-lg bg-slate-800 border border-slate-600 px-3 py-2
                            text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                  />
-                  <div class="relative w-28">
-                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">€</span>
-                    <input
-                      type="number"
-                      [(ngModel)]="debt.amount"
-                      [name]="'debtAmount_' + i"
-                      step="0.01"
-                      min="0"
-                      placeholder="0.00"
+                            />
+                          <div class="relative w-28">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">€</span>
+                            <input
+                              type="number"
+                              [(ngModel)]="debt.amount"
+                              [name]="'debtAmount_' + i"
+                              step="0.01"
+                              min="0"
+                              placeholder="0.00"
                       class="w-full pl-7 rounded-lg bg-slate-800 border border-slate-600 px-3 py-2
                              text-slate-200 text-right text-sm
                              focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
+                              />
+                          </div>
+                          <button
+                            type="button"
+                            (click)="removeDebt(i)"
+                            class="text-slate-500 hover:text-red-400 transition-colors text-lg leading-none"
+                            title="Eliminar"
+                          >✕</button>
+                        </div>
+                      }
+                    </div>
+                    <button
+                      type="button"
+                      (click)="addDebt()"
+                      class="mt-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+                      >
+                      + Añadir persona
+                    </button>
                   </div>
+                  <!-- Acciones -->
                   <button
                     type="button"
-                    (click)="removeDebt(i)"
-                    class="text-slate-500 hover:text-red-400 transition-colors text-lg leading-none"
-                    title="Eliminar"
-                  >✕</button>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                (click)="addDebt()"
-                class="mt-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
-              >
-                + Añadir persona
-              </button>
-            </div>
-
-            <!-- Acciones -->
-            <button
-              type="button"
-              (click)="splitEqually()"
-              [disabled]="sharedDebts.length === 0"
+                    (click)="splitEqually()"
+                    [disabled]="sharedDebts.length === 0"
               class="w-full py-2 rounded-lg border border-slate-600 text-sm text-slate-300
                      hover:bg-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              ⚖️ Dividir equitativamente
-            </button>
-
-            <!-- Preview / validación -->
-            <div
-              class="rounded-lg px-4 py-3 text-sm flex items-center justify-between"
+                    >
+                    ⚖️ Dividir equitativamente
+                  </button>
+                  <!-- Preview / validación -->
+                  <div
+                    class="rounded-lg px-4 py-3 text-sm flex items-center justify-between"
               [ngClass]="getRemainder() === 0
                 ? 'bg-green-500/10 border border-green-500/30 text-green-400'
                 : 'bg-amber-500/10 border border-amber-500/30 text-amber-400'"
-            >
-              <span>
-                {{ getRemainder() === 0
-                  ? '✅ Los importes cuadran'
-                  : (getRemainder() > 0
+                    >
+                    <span>
+                      {{ getRemainder() === 0
+                      ? '✅ Los importes cuadran'
+                      : (getRemainder() > 0
                       ? '⚠️ Faltan ' + getRemainder().toFixed(2) + ' €'
                       : '⚠️ Te pasas ' + (getRemainder() * -1).toFixed(2) + ' €') }}
-              </span>
-              <span class="font-semibold">
-                {{ (personalAmount ?? 0) + getDebtsTotal() | number:'1.2-2' }} / {{ newTransaction.amount | number:'1.2-2' }} €
-              </span>
+                    </span>
+                    <span class="font-semibold">
+                      {{ (personalAmount ?? 0) + getDebtsTotal() | number:'1.2-2' }} / {{ newTransaction.amount | number:'1.2-2' }} €
+                    </span>
+                  </div>
+                </div>
+              }
             </div>
-
-          </div>
-        </div>
-
-        <!-- Fecha -->
-        <div>
-          <label class="block text-sm text-slate-400 mb-1">
-            Fecha
-          </label>
-          <input
-            type="date"
-            [(ngModel)]="newTransaction.date"
-            name="date"
-            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
-                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <p class="text-xs text-slate-500 mt-1">
-            Si no eliges fecha, se usará la actual
-          </p>
-        </div>
-
-        <!-- Recurrencia -->
-        <div>
-          <label class="block text-sm text-slate-400 mb-1">
-            Recurrencia
-          </label>
-          <select
-            [(ngModel)]="newTransaction.recurrence"
-            name="recurrence"
-            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
-                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="NONE">Sin recurrencia</option>
-            <option value="DAILY">Diaria</option>
-            <option value="WEEKLY">Semanal</option>
-            <option value="MONTHLY">Mensual</option>
-            <option value="YEARLY">Anual</option>
-          </select>
-        </div>
-
-        <!-- Descripción -->
-        <div class="md:col-span-2">
-          <label class="block text-sm text-slate-400 mb-1">
-            Descripción
-          </label>
-          <textarea
-            [(ngModel)]="newTransaction.description"
-            name="description"
-            rows="3"
-            maxlength="100"
-            placeholder="Descripción opcional"
-            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
-                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          ></textarea>
-          <p class="text-xs text-slate-500 mt-1">
-            Máximo 100 caracteres
-          </p>
-        </div>
-
-        <!-- Imagen -->
-        <div class="md:col-span-2">
-          <label class="block text-sm text-slate-400 mb-2">
-            📷 Imagen (Opcional)
-          </label>
-
-          <!-- Input de archivo -->
-          <div class="mb-3">
+          }
+          <!-- Fecha -->
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">
+              Fecha
+            </label>
             <input
-              id="imageInput"
-              type="file"
-              accept="image/*"
-              (change)="onImageSelected($event)"
-              class="hidden"
-            />
-
-            <!-- Botón para seleccionar archivo -->
-            <button
-              type="button"
-              (click)="openFileSelector()"
-              class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600
-                     border border-slate-600 rounded-lg text-slate-200 transition-colors"
-            >
-              📎 Seleccionar imagen
-            </button>
-
-            <!-- Información del archivo -->
-            <p class="text-xs text-slate-500 mt-1">
-              Formatos: JPG, PNG, WebP. Tamaño máximo: 5MB
-            </p>
-          </div>
-
-          <!-- Error de imagen -->
-          <div *ngIf="imageError" class="mb-3">
-            <p class="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-2">
-              {{ imageError }}
-            </p>
-          </div>
-
-          <!-- Preview de imagen -->
-          <div *ngIf="imagePreview" class="mb-3">
-            <div class="relative inline-block">
-              <img
-                [src]="imagePreview"
-                alt="Vista previa"
-                class="max-w-xs max-h-32 rounded-lg border border-slate-600"
+              type="date"
+              [(ngModel)]="newTransaction.date"
+              name="date"
+            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
+                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
-              <!-- Botón para quitar imagen -->
+            <p class="text-xs text-slate-500 mt-1">
+              Si no eliges fecha, se usará la actual
+            </p>
+          </div>
+          <!-- Recurrencia -->
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">
+              Recurrencia
+            </label>
+            <select
+              [(ngModel)]="newTransaction.recurrence"
+              name="recurrence"
+            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
+                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+              <option value="NONE">Sin recurrencia</option>
+              <option value="DAILY">Diaria</option>
+              <option value="WEEKLY">Semanal</option>
+              <option value="MONTHLY">Mensual</option>
+              <option value="YEARLY">Anual</option>
+            </select>
+          </div>
+          <!-- Descripción -->
+          <div class="md:col-span-2">
+            <label class="block text-sm text-slate-400 mb-1">
+              Descripción
+            </label>
+            <textarea
+              [(ngModel)]="newTransaction.description"
+              name="description"
+              rows="3"
+              maxlength="100"
+              placeholder="Descripción opcional"
+            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
+                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            ></textarea>
+            <p class="text-xs text-slate-500 mt-1">
+              Máximo 100 caracteres
+            </p>
+          </div>
+          <!-- Imagen -->
+          <div class="md:col-span-2">
+            <label class="block text-sm text-slate-400 mb-2">
+              📷 Imagen (Opcional)
+            </label>
+            <!-- Input de archivo -->
+            <div class="mb-3">
+              <input
+                id="imageInput"
+                type="file"
+                accept="image/*"
+                (change)="onImageSelected($event)"
+                class="hidden"
+                />
+              <!-- Botón para seleccionar archivo -->
               <button
                 type="button"
-                (click)="clearImage()"
+                (click)="openFileSelector()"
+              class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600
+                     border border-slate-600 rounded-lg text-slate-200 transition-colors"
+                >
+                📎 Seleccionar imagen
+              </button>
+              <!-- Información del archivo -->
+              <p class="text-xs text-slate-500 mt-1">
+                Formatos: JPG, PNG, WebP. Tamaño máximo: 5MB
+              </p>
+            </div>
+            <!-- Error de imagen -->
+            @if (imageError) {
+              <div class="mb-3">
+                <p class="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-2">
+                  {{ imageError }}
+                </p>
+              </div>
+            }
+            <!-- Preview de imagen -->
+            @if (imagePreview) {
+              <div class="mb-3">
+                <div class="relative inline-block">
+                  <img
+                    [src]="imagePreview"
+                    alt="Vista previa"
+                    class="max-w-xs max-h-32 rounded-lg border border-slate-600"
+                    />
+                  <!-- Botón para quitar imagen -->
+                  <button
+                    type="button"
+                    (click)="clearImage()"
                 class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full
                        hover:bg-red-600 transition-colors text-xs font-bold"
-              >
-                ✕
-              </button>
-            </div>
-            <p class="text-xs text-slate-400 mt-1">
-              {{ selectedImageFile?.name }}
-            </p>
+                    >
+                    ✕
+                  </button>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">
+                  {{ selectedImageFile?.name }}
+                </p>
+              </div>
+            }
           </div>
-        </div>
-
-      </form>
+        </form>
+      </div>
     </div>
   </div>
-</div>
+}

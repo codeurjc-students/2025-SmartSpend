@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -14,7 +14,7 @@ import { TransactionFiltersComponent } from '../transaction-filters/transaction-
 @Component({
   selector: 'app-all-transactions',
   standalone: true,
-  imports: [CommonModule, FormsModule, TransactionListComponent, TransactionFiltersComponent],
+  imports: [FormsModule, TransactionListComponent, TransactionFiltersComponent],
   templateUrl: './all-transactions.component.html',
   styleUrl: './all-transactions.component.css'
 })

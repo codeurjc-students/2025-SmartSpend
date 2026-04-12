@@ -1,66 +1,65 @@
 <div class="transaction-list-container">
-  
+
   <!-- Loading state -->
-  <div *ngIf="isLoading" class="text-center p-md">
-    <div class="spinner spinner-md"></div>
-    <p class="mt-sm">Cargando transacciones...</p>
-  </div>
+  @if (isLoading) {
+    <div class="text-center p-md">
+      <div class="spinner spinner-md"></div>
+      <p class="mt-sm">Cargando transacciones...</p>
+    </div>
+  }
 
   <!-- Empty state -->
-  <div *ngIf="!isLoading && (!transactions || transactions.length === 0)" class="text-center p-md">
-    <p class="text-muted mb-md">No hay transacciones en esta cuenta</p>
-  </div>
+  @if (!isLoading && (!transactions || transactions.length === 0)) {
+    <div class="text-center p-md">
+      <p class="text-muted mb-md">No hay transacciones en esta cuenta</p>
+    </div>
+  }
 
   <!-- Transaction list with improved architecture -->
-  <div *ngIf="!isLoading && transactions && transactions.length > 0" class="transactions-list-container">
-    
-    <!-- Individual transaction card -->
-    <div 
-      *ngFor="let transaction of transactions; let i = index"
-      (click)="onViewDetails(transaction.id)"
-      class="transaction-card-container">
-      
-      <!-- Transaction card content -->
-      <div class="transaction-card-content">
-        
-        <!-- Icon block -->
-        <div class="transaction-icon-block">
-          <div class="transaction-icon" 
-               [class.income]="transaction.type === 'INCOME'"
-               [class.expense]="transaction.type === 'EXPENSE'">
-            {{ transaction.category.icon }}
+  @if (!isLoading && transactions && transactions.length > 0) {
+    <div class="transactions-list-container">
+      <!-- Individual transaction card -->
+      @for (transaction of transactions; track transaction; let i = $index) {
+        <div
+          (click)="onViewDetails(transaction.id)"
+          class="transaction-card-container">
+          <!-- Transaction card content -->
+          <div class="transaction-card-content">
+            <!-- Icon block -->
+            <div class="transaction-icon-block">
+              <div class="transaction-icon"
+                [class.income]="transaction.type === 'INCOME'"
+                [class.expense]="transaction.type === 'EXPENSE'">
+                {{ transaction.category.icon }}
+              </div>
+            </div>
+            <!-- Details block -->
+            <div class="transaction-details-block">
+              <h4 class="transaction-title">{{ transaction.title }}</h4>
+              <p class="transaction-category-name">{{ transaction.category.name }}</p>
+            </div>
+            <!-- Amount and date block -->
+            <div class="transaction-amount-block">
+              <p class="transaction-amount"
+                [class.income]="transaction.type === 'INCOME'"
+                [class.expense]="transaction.type === 'EXPENSE'">
+                {{ transaction.type === 'INCOME' ? '+' : '-' }}{{ transaction.amount | number:'1.2-2' }} €
+              </p>
+              <p class="transaction-date">{{ transaction.date | date:'dd/M, HH:mm' }}</p>
+            </div>
           </div>
         </div>
-        
-        <!-- Details block -->
-        <div class="transaction-details-block">
-          <h4 class="transaction-title">{{ transaction.title }}</h4>
-          <p class="transaction-category-name">{{ transaction.category.name }}</p>
-        </div>
-        
-        <!-- Amount and date block -->
-        <div class="transaction-amount-block">
-          <p class="transaction-amount" 
-             [class.income]="transaction.type === 'INCOME'"
-             [class.expense]="transaction.type === 'EXPENSE'">
-            {{ transaction.type === 'INCOME' ? '+' : '-' }}{{ transaction.amount | number:'1.2-2' }} €
-          </p>
-          <p class="transaction-date">{{ transaction.date | date:'dd/M, HH:mm' }}</p>
-        </div>
-        
-        
-        
-      </div>
-      
+      }
     </div>
+  }
 
-  </div>
-  
   <!-- Show more button solo cuando hay transacciones -->
-  <div *ngIf="!isLoading && transactions && transactions.length > 0 && hasMoreTransactions && showMoreButton" class="mt-sm text-center">
-    <button class="btn btn-secondary btn-sm" (click)="onViewAllTransactions()">
-      Ver todas las transacciones
-    </button>
-  </div>
-  
+  @if (!isLoading && transactions && transactions.length > 0 && hasMoreTransactions && showMoreButton) {
+    <div class="mt-sm text-center">
+      <button class="btn btn-secondary btn-sm" (click)="onViewAllTransactions()">
+        Ver todas las transacciones
+      </button>
+    </div>
+  }
+
 </div>

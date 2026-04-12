@@ -1,7 +1,9 @@
 <div class="app-layout" [ngClass]="{'auth-layout': !showNavbar}">
   <!-- Navbar fijo en la parte superior (solo si no es auth) -->
-  <app-nav-bar *ngIf="showNavbar"></app-nav-bar>
-  
+  @if (showNavbar) {
+    <app-nav-bar></app-nav-bar>
+  }
+
   <!-- Contenido principal que se adapta al espacio restante -->
   <main class="main-content" [ngClass]="{'auth-content': !showNavbar}">
     <router-outlet></router-outlet>

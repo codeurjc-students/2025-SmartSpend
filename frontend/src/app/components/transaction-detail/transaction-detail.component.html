@@ -3,72 +3,67 @@
   <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-8">
 
     <!-- Loading -->
-    <div *ngIf="!transaction && !error"
-         class="flex items-center justify-center h-[60vh]">
-      <div class="text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
-        <p class="text-slate-400">Cargando transacción...</p>
+    @if (!transaction && !error) {
+      <div
+        class="flex items-center justify-center h-[60vh]">
+        <div class="text-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+          <p class="text-slate-400">Cargando transacción...</p>
+        </div>
       </div>
-    </div>
+    }
 
     <!-- Error -->
-    <div *ngIf="error"
-         class="flex items-center justify-center h-[60vh]">
-      <div class="text-center bg-red-500/10 border border-red-500/20 rounded-xl p-8">
-        <p class="text-red-400 text-lg font-semibold mb-2">Error</p>
-        <p class="text-slate-300">{{ error }}</p>
+    @if (error) {
+      <div
+        class="flex items-center justify-center h-[60vh]">
+        <div class="text-center bg-red-500/10 border border-red-500/20 rounded-xl p-8">
+          <p class="text-red-400 text-lg font-semibold mb-2">Error</p>
+          <p class="text-slate-300">{{ error }}</p>
+        </div>
       </div>
-    </div>
+    }
 
     <!-- CONTENT -->
-    <ng-container *ngIf="transaction">
-
+    @if (transaction) {
       <!-- GRID PRINCIPAL -->
       <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
         <!-- ================= TARJETA PRINCIPAL ================= -->
         <section class="md:col-span-2 bg-slate-700 rounded-3xl shadow-xl p-6 lg:p-8">
-
           <!-- HEADER -->
           <div class="flex flex-col items-center text-center">
-
             <div
               class="w-16 h-16 rounded-full flex items-center justify-center mb-2"
               [style.background-color]="transaction.category.color"
-            >
+              >
               <span class="text-white text-2xl">
                 {{ transaction.category.icon }}
               </span>
             </div>
-
             <p class="text-sm text-slate-300 mb-4">
               {{ transaction.category.name }}
             </p>
-
             <h1 class="text-2xl font-semibold text-slate-100">
               {{ transaction.title }}
             </h1>
-
             <p
               class="text-4xl font-bold mt-2"
               [ngClass]="{
                 'text-emerald-400': transaction.type === 'INCOME',
                 'text-red-400': transaction.type === 'EXPENSE'
               }"
-            >
+              >
               {{ transaction.type === 'EXPENSE' ? '-' : '+' }}
               {{ transaction.amount.toFixed(2) }} €
             </p>
-
-            <p
-              *ngIf="hasSharedDebts()"
-              class="mt-2 text-sm text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-3 py-1"
-            >
-              Impacto real para ti: {{ getEffectiveAmount().toFixed(2) }} €
-            </p>
-
+            @if (hasSharedDebts()) {
+              <p
+                class="mt-2 text-sm text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-3 py-1"
+                >
+                Impacto real para ti: {{ getEffectiveAmount().toFixed(2) }} €
+              </p>
+            }
           </div>
-
           <!-- INFO COMPACTA -->
           <div class="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-slate-400">
             <span>{{ transaction.date | date:'d MMM y' }}</span>
@@ -77,116 +72,110 @@
             <span>•</span>
             <span>{{ getRecurrenceText(transaction.recurrence) }}</span>
           </div>
-
           <!-- DESCRIPCIÓN -->
           <div class="mt-6 bg-slate-800/50 rounded-2xl px-5 py-4 text-center">
             <p class="text-sm text-slate-300">
               {{ transaction.description || 'Sin descripción' }}
             </p>
           </div>
-
           <div>
             <!-- IMAGEN ADJUNTA -->
-            <div *ngIf="transaction.hasImage"
-                 class="mt-6">
-              <h3 class="text-lg font-semibold mb-2 text-center">Imagen adjunta</h3>
-              <div class="flex justify-center">
-                <img [src]="'data:' + transaction.imageType + ';base64,' + transaction.imageBase64"
-                     class="max-h-56 rounded-xl border border-slate-600 shadow-lg"
-                />
+            @if (transaction.hasImage) {
+              <div
+                class="mt-6">
+                <h3 class="text-lg font-semibold mb-2 text-center">Imagen adjunta</h3>
+                <div class="flex justify-center">
+                  <img [src]="'data:' + transaction.imageType + ';base64,' + transaction.imageBase64"
+                    class="max-h-56 rounded-xl border border-slate-600 shadow-lg"
+                    />
+                </div>
               </div>
-            </div>
+            }
           </div>
-
           <!-- PARTICIPANTES INTEGRADOS -->
-          <div *ngIf="hasSharedDebts()" class="mt-6 rounded-2xl border border-slate-600 bg-slate-800/50 p-4">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-              <h3 class="text-lg font-semibold">Gasto compartido</h3>
-              <span class="text-xs text-slate-300 bg-slate-700 rounded-full px-3 py-1">
-                {{ getPaidDebtsCount() }}/{{ transaction.debts?.length }} pagadas
-              </span>
-            </div>
-
-            <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden mb-4">
-              <div
-                class="h-full bg-emerald-500 transition-all duration-300"
-                [style.width.%]="getDebtsProgress()"
-              ></div>
-            </div>
-
-            <div class="flex flex-col gap-2">
-              <div
-                *ngFor="let debt of transaction?.debts"
-                class="flex items-center justify-between bg-slate-900/60 border border-slate-600 rounded-lg px-3 py-2"
-              >
-                <label class="flex items-center gap-3 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="debt.isPaid"
-                    (ngModelChange)="onDebtPaidChange(debt.id, $event)"
-                    [disabled]="debt.isPaid || updatingDebtId === debt.id"
-                    class="h-4 w-4 rounded border-slate-500 bg-slate-700 text-indigo-500"
-                  />
-                  <span [ngClass]="debt.isPaid ? 'text-slate-400 line-through' : 'text-slate-100'">
-                    {{ debt.name }}
-                  </span>
-                </label>
-
-                <span class="font-semibold" [ngClass]="debt.isPaid ? 'text-emerald-400' : 'text-amber-300'">
-                  {{ debt.amount.toFixed(2) }} €
+          @if (hasSharedDebts()) {
+            <div class="mt-6 rounded-2xl border border-slate-600 bg-slate-800/50 p-4">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                <h3 class="text-lg font-semibold">Gasto compartido</h3>
+                <span class="text-xs text-slate-300 bg-slate-700 rounded-full px-3 py-1">
+                  {{ getPaidDebtsCount() }}/{{ transaction.debts?.length }} pagadas
                 </span>
               </div>
+              <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden mb-4">
+                <div
+                  class="h-full bg-emerald-500 transition-all duration-300"
+                  [style.width.%]="getDebtsProgress()"
+                ></div>
+              </div>
+              <div class="flex flex-col gap-2">
+                @for (debt of transaction?.debts; track debt) {
+                  <div
+                    class="flex items-center justify-between bg-slate-900/60 border border-slate-600 rounded-lg px-3 py-2"
+                    >
+                    <label class="flex items-center gap-3 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="debt.isPaid"
+                        (ngModelChange)="onDebtPaidChange(debt.id, $event)"
+                        [disabled]="debt.isPaid || updatingDebtId === debt.id"
+                        class="h-4 w-4 rounded border-slate-500 bg-slate-700 text-indigo-500"
+                        />
+                      <span [ngClass]="debt.isPaid ? 'text-slate-400 line-through' : 'text-slate-100'">
+                        {{ debt.name }}
+                      </span>
+                    </label>
+                    <span class="font-semibold" [ngClass]="debt.isPaid ? 'text-emerald-400' : 'text-amber-300'">
+                      {{ debt.amount.toFixed(2) }} €
+                    </span>
+                  </div>
+                }
+              </div>
             </div>
-          </div>
-
+          }
           <!-- ACCIONES -->
           <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
             <button class="px-6 py-2 rounded-xl bg-slate-600 hover:bg-slate-500 transition"
-            (click)="onEditTransaction()">
+              (click)="onEditTransaction()">
               ✏️ Editar
             </button>
             <button
               class="px-6 py-2 rounded-xl bg-red-500 hover:bg-red-600 transition"
               (click)="onDeleteTransaction()"
-            >
+              >
               🗑️ Eliminar
             </button>
           </div>
-
         </section>
-
         <!-- ================= TARJETA RESUMEN ================= -->
         <aside class="bg-slate-700 rounded-2xl p-6 shadow-lg">
           <h3 class="text-lg font-semibold mb-4">Resumen</h3>
-
           <div class="space-y-3 text-sm">
             <div class="flex items-center justify-between">
               <span class="text-slate-400">Total</span>
               <span class="font-semibold text-slate-100">{{ transaction.amount.toFixed(2) }} €</span>
             </div>
-
-            <div class="flex items-center justify-between" *ngIf="hasSharedDebts()">
-              <span class="text-slate-400">Tu parte real</span>
-              <span class="font-semibold text-amber-300">{{ getEffectiveAmount().toFixed(2) }} €</span>
-            </div>
-
-            <div class="flex items-center justify-between" *ngIf="hasSharedDebts()">
-              <span class="text-slate-400">Te deben</span>
-              <span class="font-semibold text-indigo-300">{{ getSharedAmount().toFixed(2) }} €</span>
-            </div>
-
+            @if (hasSharedDebts()) {
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Tu parte real</span>
+                <span class="font-semibold text-amber-300">{{ getEffectiveAmount().toFixed(2) }} €</span>
+              </div>
+            }
+            @if (hasSharedDebts()) {
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Te deben</span>
+                <span class="font-semibold text-indigo-300">{{ getSharedAmount().toFixed(2) }} €</span>
+              </div>
+            }
             <div class="flex items-center justify-between">
               <span class="text-slate-400">Recurrencia</span>
               <span class="font-semibold text-slate-100">{{ getRecurrenceText(transaction.recurrence) }}</span>
             </div>
           </div>
         </aside>
-
         <!-- ================= TARJETA ESTADO ================= -->
         <aside class="bg-slate-700 rounded-2xl p-6 shadow-lg">
           <h3 class="text-lg font-semibold mb-2">Estado del reparto</h3>
-
-          <ng-container *ngIf="hasSharedDebts(); else noSharedDebts">
+          @if (hasSharedDebts()) {
             <div class="grid grid-cols-2 gap-2 text-xs text-slate-300 mb-3">
               <div class="rounded-lg bg-emerald-500/10 border border-emerald-500/30 px-3 py-2 text-center">
                 Pagadas: {{ getPaidDebtsCount() }}
@@ -195,7 +184,6 @@
                 Pendientes: {{ getPendingDebtsCount() }}
               </div>
             </div>
-
             <div class="space-y-2 text-sm">
               <div class="flex items-center justify-between">
                 <span class="text-slate-400">Importe pagado</span>
@@ -206,100 +194,104 @@
                 <span class="text-amber-300 font-semibold">{{ getPendingDebtsAmount().toFixed(2) }} €</span>
               </div>
             </div>
-          </ng-container>
-
-          <ng-template #noSharedDebts>
+          } @else {
             <p class="text-sm text-slate-400">
               Esta transacción no es compartida.
             </p>
-          </ng-template>
+          }
         </aside>
-
       </section>
-
-    </ng-container>
+    }
 
     <!-- ================= MODAL CONFIRMACIÓN ================= -->
-    <div *ngIf="showConfirmModal"
-         class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div class="bg-slate-700 rounded-xl p-6 max-w-md mx-4 shadow-2xl">
-        <h3 class="text-lg font-semibold text-white mb-4">
-          ¿Eliminar transacción?
-        </h3>
-        <!-- Mensaje para cuando hay deudas pagadas -->
-        <div *ngIf="transaction && getPaidDebtsCount() > 0"
-             class="flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl mb-6">
-          <div class="p-2 rounded-lg bg-amber-500/20 text-amber-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div>
-            <p class="text-sm font-semibold text-amber-500">Aviso importante</p>
-            <p class="text-xs text-slate-300 leading-relaxed">
-              Hay <span class="font-bold">{{ getPaidDebtsCount() }}</span> deudas pagadas. Al eliminar este gasto, se borrarán también los ingresos de ajuste correspondientes y el saldo se recalculará.
+    @if (showConfirmModal) {
+      <div
+        class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+        <div class="bg-slate-700 rounded-xl p-6 max-w-md mx-4 shadow-2xl">
+          <h3 class="text-lg font-semibold text-white mb-4">
+            ¿Eliminar transacción?
+          </h3>
+          <!-- Mensaje para cuando hay deudas pagadas -->
+          @if (transaction && getPaidDebtsCount() > 0) {
+            <div
+              class="flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl mb-6">
+              <div class="p-2 rounded-lg bg-amber-500/20 text-amber-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-amber-500">Aviso importante</p>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                  Hay <span class="font-bold">{{ getPaidDebtsCount() }}</span> deudas pagadas. Al eliminar este gasto, se borrarán también los ingresos de ajuste correspondientes y el saldo se recalculará.
+                </p>
+              </div>
+            </div>
+          }
+          @if (!transaction || getPaidDebtsCount() === 0) {
+            <p class="text-slate-300 mb-6">
+              Esta acción no se puede deshacer. ¿Estás seguro?
             </p>
+          }
+          <div class="flex justify-end gap-3">
+            <button
+              (click)="cancelDelete()"
+              class="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg"
+              [disabled]="isDeleting"
+              >
+              Cancelar
+            </button>
+            <button
+              (click)="confirmDelete()"
+              class="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg flex items-center gap-2"
+              [disabled]="isDeleting"
+              >
+              @if (isDeleting) {
+                <span
+                class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+              }
+              {{ isDeleting ? 'Eliminando...' : 'Eliminar' }}
+            </button>
           </div>
-        </div>
-
-        <p class="text-slate-300 mb-6" *ngIf="!transaction || getPaidDebtsCount() === 0">
-          Esta acción no se puede deshacer. ¿Estás seguro?
-        </p>
-
-        <div class="flex justify-end gap-3">
-          <button
-            (click)="cancelDelete()"
-            class="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg"
-            [disabled]="isDeleting"
-          >
-            Cancelar
-          </button>
-          <button
-            (click)="confirmDelete()"
-            class="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg flex items-center gap-2"
-            [disabled]="isDeleting"
-          >
-            <span *ngIf="isDeleting"
-                  class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-            {{ isDeleting ? 'Eliminando...' : 'Eliminar' }}
-          </button>
         </div>
       </div>
-    </div>
+    }
 
     <!-- ================= MODAL ÉXITO ================= -->
-    <div *ngIf="showSuccessModal"
-         class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div class="bg-slate-700 rounded-xl p-6 max-w-md mx-4 shadow-2xl text-center">
-        <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M5 13l4 4L19 7" />
-          </svg>
+    @if (showSuccessModal) {
+      <div
+        class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+        <div class="bg-slate-700 rounded-xl p-6 max-w-md mx-4 shadow-2xl text-center">
+          <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">
+            ¡Transacción eliminada!
+          </h3>
+          <p class="text-slate-300 mb-6">
+            La transacción se ha eliminado correctamente.
+          </p>
+          <button
+            (click)="closeSuccessModal()"
+            class="px-6 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg"
+            >
+            Volver al Dashboard
+          </button>
         </div>
-        <h3 class="text-lg font-semibold text-white mb-2">
-          ¡Transacción eliminada!
-        </h3>
-        <p class="text-slate-300 mb-6">
-          La transacción se ha eliminado correctamente.
-        </p>
-        <button
-          (click)="closeSuccessModal()"
-          class="px-6 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg"
-        >
-          Volver al Dashboard
-        </button>
       </div>
-    </div>
+    }
 
-  <!-- Modal de Edición -->
-  <app-create-transaction-modal
-    [isVisible]="showEditModal"
-    [mode]="'edit'"
-    [transactionToEdit]="transaction || undefined"
-    (closeModal)="onCloseEditModal()"
-    (transactionUpdated)="onTransactionUpdated($event)">
-  </app-create-transaction-modal>
+    <!-- Modal de Edición -->
+    <app-create-transaction-modal
+      [isVisible]="showEditModal"
+      [mode]="'edit'"
+      [transactionToEdit]="transaction || undefined"
+      (closeModal)="onCloseEditModal()"
+      (transactionUpdated)="onTransactionUpdated($event)">
+    </app-create-transaction-modal>
 
   </div>
 
