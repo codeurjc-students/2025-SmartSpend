@@ -81,6 +81,14 @@
         {{ isLoading ? 'Registrando...' : 'Registrarse' }}
       </button>
 
+      <div class="social-divider">
+        <span>o continúa con</span>
+      </div>
+
+      <div class="google-btn-wrapper">
+        <div id="google-register-btn"></div>
+      </div>
+
       @if (errorMessage) {
         <div class="error-message">
           {{ errorMessage }}

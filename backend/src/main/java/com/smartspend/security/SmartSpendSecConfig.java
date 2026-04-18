@@ -63,7 +63,7 @@ public class SmartSpendSecConfig {
                 "/*.map",
                 "/static/**"
             ).permitAll()
-            .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register").permitAll()
+            .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/auth/google-login").permitAll()
             .anyRequest().authenticated()
         )
         .authenticationProvider(authenticationProvider())

@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
-
+import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
+import { environment } from '../../environments/environment';
+
+declare const window: any;
 
 @Component({
   selector: 'app-register',
@@ -11,7 +14,7 @@ import { AuthService } from '../../services/auth/auth.service';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   formData = {
     username: '',
     email: '',
@@ -21,11 +24,57 @@ export class RegisterComponent {
   isLoading = false;
   errorMessage = '';
   successMessage = '';
+  private isBrowser: boolean;
 
   constructor(
     private authService: AuthService,
-    private router: Router
-  ) {}
+    private router: Router,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
+
+  ngOnInit(): void {
+    if (!this.isBrowser) return;
+
+    const initGoogle = () => {
+      window.google.accounts.id.initialize({
+        client_id: environment.googleClientId,
+        callback: (response: any) => {
+          if (response?.credential) {
+            this.authService.loginWithGoogle(response.credential).subscribe({
+              next: () => this.router.navigate(['/dashboard']),
+              error: (err: any) => {
+                console.error(err);
+                this.errorMessage = 'Error al registrarse con Google';
+              }
+            });
+          }
+        }
+      });
+
+      const btnContainer = document.getElementById('google-register-btn');
+      if (btnContainer) {
+        window.google.accounts.id.renderButton(btnContainer, {
+          type: 'standard',
+          size: 'large',
+          theme: 'filled_blue',
+          text: 'signup_with',
+          shape: 'rectangular',
+          logo_alignment: 'left'
+        });
+      }
+    };
+
+    if (window.google?.accounts?.id) {
+      initGoogle();
+    } else {
+      const script = document.querySelector('script[src*="accounts.google.com/gsi/client"]');
+      if (script) {
+        script.addEventListener('load', initGoogle);
+      }
+    }
+  }
 
   onSubmit() {
     if (this.isLoading) return;
@@ -39,7 +88,7 @@ export class RegisterComponent {
         next: (response: any) => {
           console.log('Registro exitoso:', response);
           this.successMessage = '¡Cuenta creada exitosamente! Redirigiendo al login...';
-          
+
           // Redirigir al login después de 2 segundos
           setTimeout(() => {
             this.router.navigate(['/login']);

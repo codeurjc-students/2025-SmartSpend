@@ -3,7 +3,7 @@ import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { AuthResponse } from './auth-response.model';
-import { jwtDecode } from 'jwt-decode'; // Importa jwt-decode
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,7 @@ export class AuthService {
   private apiUrl = environment.apiUrl
 
   constructor(private http: HttpClient){}
-  
+
   login(email: string, password: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`/api/v1/auth/login`, { email, password })
       .pipe(
@@ -25,10 +25,10 @@ export class AuthService {
   }
 
   register(username: string, email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`/api/v1/auth/register`, { 
-      username, 
-      email, 
-      password 
+    return this.http.post<AuthResponse>(`/api/v1/auth/register`, {
+      username,
+      email,
+      password
     }).pipe(
       tap(response => {
         this.storeToken(response.token);
@@ -43,22 +43,22 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     const token = localStorage.getItem('authToken');
-    
+
     if (!token) {
-      return false; 
+      return false;
     }
 
     try {
       const decodedToken: any = jwtDecode(token); // Decodifica el token
       const currentTime = Date.now() / 1000; // Tiempo actual en segundos
 
-      
+
       if (decodedToken.exp < currentTime) {
-        console.log('AuthService: Token expirado. Cerrando sesión.'); 
-        this.logout(); 
+        console.log('AuthService: Token expirado. Cerrando sesión.');
+        this.logout();
         return false;
       }
-      
+
       console.log('AuthService: Token válido y no expirado. Usuario autenticado.'); // Mensaje de depuración
       return true; // El token existe y no ha expirado
     } catch (error) {
@@ -73,10 +73,19 @@ export class AuthService {
     console.log('AuthService: Token eliminado de localStorage. Sesión cerrada.'); // Mensaje de depuración
     // Opcional: redirigir al login después de cerrar sesión
     // const router = inject(Router); // Si quieres redirigir aquí, necesitarías inyectar Router
-    // router.navigate(['/login']); 
+    // router.navigate(['/login']);
   }
-  
+
   getToken(): string | null {
     return localStorage.getItem('authToken');
+  }
+
+  loginWithGoogle(idToken: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('/api/v1/auth/google-login', { token: idToken })
+      .pipe(
+        tap(response => {
+          this.storeToken(response.token);
+        })
+      );
   }
 }

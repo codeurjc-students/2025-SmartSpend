@@ -1,5 +1,7 @@
 package com.smartspend.auth;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import org.springframework.beans.factory.annotation.Value;
 import com.smartspend.auth.dtos.AuthResponseDto;
+import com.smartspend.auth.dtos.GoogleTokenDto;
 import com.smartspend.auth.dtos.LoginRequestDto;
 import com.smartspend.auth.dtos.RegisterRequestDto;
 import com.smartspend.user.User;
@@ -30,6 +38,9 @@ public class AuthService {
 
     @Autowired 
     AuthenticationManager authenticationManager;
+
+    @Value("${google.client.id}")
+    private String googleClientId;
 
     public AuthResponseDto register(RegisterRequestDto req) {
 
@@ -104,6 +115,43 @@ public class AuthService {
     }
   }
 
+  public AuthResponseDto googleLogin(GoogleTokenDto googleLoginRequest) {
+    try {
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+            .setAudience(Collections.singletonList(googleClientId))
+            .build();
+
+        GoogleIdToken idToken = verifier.verify(googleLoginRequest.token());
+
+        if (idToken != null) {
+            GoogleIdToken.Payload payload = idToken.getPayload();
+            String email = payload.getEmail();
+            String name = (String) payload.get("name"); 
+            
+            
+            User user = userRepository.findByUserEmail(email).orElseGet(() -> {
+                User newUser = new User();
+                newUser.setUserEmail(email);
+                newUser.setUserName(name);
+                newUser.setUserHashedPassword(passwordEncoder.encode("google-oauth2-user")); // Placeholder password
+                return userRepository.save(newUser);
+            });
+
+            String token = jwtService.generateToken(user.getUserId(), user.getUserEmail());
+            return new AuthResponseDto(
+                user.getUserId(),
+                token,
+                user.getUserName(),
+                user.getUserEmail()
+            );
+        } else {
+            throw new IllegalArgumentException("Invalid Google token");
+        } 
+    } catch (Exception e) {
+        throw new RuntimeException("Error al verificar la identidad con Google: " + e.getMessage());
+    }
+
+  }
 
 
 
