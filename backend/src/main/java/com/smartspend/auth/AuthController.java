@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smartspend.auth.dtos.AuthResponseDto;
+import com.smartspend.auth.dtos.GoogleTokenDto;
 import com.smartspend.auth.dtos.LoginRequestDto;
 import com.smartspend.auth.dtos.RegisterRequestDto;
 
@@ -32,6 +33,12 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody RegisterRequestDto registerRequest) {
         AuthResponseDto response = authService.register(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/google-login")
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleTokenDto googleLoginRequest) {
+        AuthResponseDto token = authService.googleLogin(googleLoginRequest);
+        return ResponseEntity.ok(token);
     }
 
 }

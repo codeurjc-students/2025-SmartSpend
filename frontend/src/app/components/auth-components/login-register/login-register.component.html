@@ -34,7 +34,15 @@
 
       <div style="height: 80px; width: 100%;"></div>
 
-      <button class="btn btn-secondary" type="submit">Iniciar Sesión</button> <!-- Clase de botón consistente -->
+      <button class="btn btn-secondary" type="submit">Iniciar Sesión</button>
+
+      <div class="social-divider">
+        <span>o continúa con</span>
+      </div>
+
+      <div class="google-btn-wrapper">
+        <div id="google-signin-btn"></div>
+      </div>
 
       @if (errorMessage) {
         <div class="error-message"> <!-- Clase de error consistente -->
