@@ -92,6 +92,10 @@ public class DataLoader implements CommandLineRunner {
 
         System.out.println("📊 Creando transacciones de prueba...");
 
+            LocalDate now = LocalDate.now();
+            LocalDate firstDayCurrentMonth = now.withDayOfMonth(1);
+            LocalDate firstDayLastMonth = now.minusMonths(1).withDayOfMonth(1);
+
             // ========== INGRESOS DE LOS ÚLTIMOS MESES ==========
             
             // Enero 2026
@@ -436,6 +440,181 @@ public class DataLoader implements CommandLineRunner {
                 .nextRecurrenceDate(null)
                 .build());
             System.out.println("✅ Guardada: Curso online - 49.99€");
+
+            // ========== DATOS DINAMICOS MES ACTUAL Y ANTERIOR ==========
+
+            // Ingresos mes anterior
+            transactionRepository.save(Transaction.builder()
+                .title("Nomina mes anterior")
+                .description("Ingreso principal del mes anterior")
+                .amount(new BigDecimal("2680.00"))
+                .date(firstDayLastMonth.withDayOfMonth(5))
+                .type(TransactionType.INCOME)
+                .recurrence(com.smartspend.transaction.Recurrence.NONE)
+                .category(nomina)
+                .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
+                .build());
+
+            transactionRepository.save(Transaction.builder()
+                .title("Proyecto freelance")
+                .description("Entrega de desarrollo web")
+                .amount(new BigDecimal("620.00"))
+                .date(firstDayLastMonth.withDayOfMonth(17))
+                .type(TransactionType.INCOME)
+                .recurrence(com.smartspend.transaction.Recurrence.NONE)
+                .category(freelance)
+                .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
+                .build());
+
+            // Gastos mes anterior
+            transactionRepository.save(Transaction.builder()
+                .title("Alquiler mes anterior")
+                .description("Pago mensual de vivienda")
+                .amount(new BigDecimal("890.00"))
+                .date(firstDayLastMonth.withDayOfMonth(1))
+                .type(TransactionType.EXPENSE)
+                .recurrence(com.smartspend.transaction.Recurrence.MONTHLY)
+                .category(vivienda)
+                .account(demoAccount)
+                .isRecurringSeriesParent(true)
+                .nextRecurrenceDate(firstDayCurrentMonth.withDayOfMonth(1))
+                .build());
+
+            transactionRepository.save(Transaction.builder()
+                .title("Supermercado mes anterior")
+                .description("Compra grande quincenal")
+                .amount(new BigDecimal("184.20"))
+                .date(firstDayLastMonth.withDayOfMonth(11))
+                .type(TransactionType.EXPENSE)
+                .recurrence(com.smartspend.transaction.Recurrence.NONE)
+                .category(alimentacion)
+                .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
+                .build());
+
+            transactionRepository.save(Transaction.builder()
+                .title("Factura luz mes anterior")
+                .description("Consumo electrico")
+                .amount(new BigDecimal("96.40"))
+                .date(firstDayLastMonth.withDayOfMonth(14))
+                .type(TransactionType.EXPENSE)
+                .recurrence(com.smartspend.transaction.Recurrence.MONTHLY)
+                .category(facturas)
+                .account(demoAccount)
+                .isRecurringSeriesParent(true)
+                .nextRecurrenceDate(firstDayCurrentMonth.withDayOfMonth(14))
+                .build());
+
+            transactionRepository.save(Transaction.builder()
+                .title("Suscripciones streaming")
+                .description("Netflix y musica")
+                .amount(new BigDecimal("27.98"))
+                .date(firstDayLastMonth.withDayOfMonth(9))
+                .type(TransactionType.EXPENSE)
+                .recurrence(com.smartspend.transaction.Recurrence.MONTHLY)
+                .category(ocio)
+                .account(demoAccount)
+                .isRecurringSeriesParent(true)
+                .nextRecurrenceDate(firstDayCurrentMonth.withDayOfMonth(9))
+                .build());
+
+            // Ingresos mes actual (siempre <= hoy)
+            transactionRepository.save(Transaction.builder()
+                .title("Nomina mes actual")
+                .description("Ingreso principal del mes actual")
+                .amount(new BigDecimal("2730.00"))
+                .date(firstDayCurrentMonth.withDayOfMonth(Math.min(5, now.getDayOfMonth())))
+                .type(TransactionType.INCOME)
+                .recurrence(com.smartspend.transaction.Recurrence.NONE)
+                .category(nomina)
+                .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
+                .build());
+
+            transactionRepository.save(Transaction.builder()
+                .title("Venta marketplace")
+                .description("Venta de monitor")
+                .amount(new BigDecimal("210.00"))
+                .date(firstDayCurrentMonth.withDayOfMonth(Math.min(12, now.getDayOfMonth())))
+                .type(TransactionType.INCOME)
+                .recurrence(com.smartspend.transaction.Recurrence.NONE)
+                .category(venta)
+                .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
+                .build());
+
+            // Gastos mes actual (siempre <= hoy)
+            transactionRepository.save(Transaction.builder()
+                .title("Alquiler mes actual")
+                .description("Pago mensual de vivienda")
+                .amount(new BigDecimal("890.00"))
+                .date(firstDayCurrentMonth.withDayOfMonth(1))
+                .type(TransactionType.EXPENSE)
+                .recurrence(com.smartspend.transaction.Recurrence.MONTHLY)
+                .category(vivienda)
+                .account(demoAccount)
+                .isRecurringSeriesParent(true)
+                .nextRecurrenceDate(firstDayCurrentMonth.plusMonths(1).withDayOfMonth(1))
+                .build());
+
+            transactionRepository.save(Transaction.builder()
+                .title("Factura internet")
+                .description("Fibra y movil")
+                .amount(new BigDecimal("58.90"))
+                .date(firstDayCurrentMonth.withDayOfMonth(Math.min(10, now.getDayOfMonth())))
+                .type(TransactionType.EXPENSE)
+                .recurrence(com.smartspend.transaction.Recurrence.MONTHLY)
+                .category(facturas)
+                .account(demoAccount)
+                .isRecurringSeriesParent(true)
+                .nextRecurrenceDate(firstDayCurrentMonth.plusMonths(1).withDayOfMonth(10))
+                .build());
+
+            transactionRepository.save(Transaction.builder()
+                .title("Compra supermercado")
+                .description("Compra quincenal")
+                .amount(new BigDecimal("169.45"))
+                .date(firstDayCurrentMonth.withDayOfMonth(Math.min(8, now.getDayOfMonth())))
+                .type(TransactionType.EXPENSE)
+                .recurrence(com.smartspend.transaction.Recurrence.NONE)
+                .category(alimentacion)
+                .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
+                .build());
+
+            transactionRepository.save(Transaction.builder()
+                .title("Gasolina")
+                .description("Repostaje mensual")
+                .amount(new BigDecimal("74.30"))
+                .date(firstDayCurrentMonth.withDayOfMonth(Math.min(13, now.getDayOfMonth())))
+                .type(TransactionType.EXPENSE)
+                .recurrence(com.smartspend.transaction.Recurrence.NONE)
+                .category(transporte)
+                .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
+                .build());
+
+            transactionRepository.save(Transaction.builder()
+                .title("Comida fuera")
+                .description("Dos cenas y una comida")
+                .amount(new BigDecimal("86.20"))
+                .date(firstDayCurrentMonth.withDayOfMonth(Math.min(16, now.getDayOfMonth())))
+                .type(TransactionType.EXPENSE)
+                .recurrence(com.smartspend.transaction.Recurrence.NONE)
+                .category(ocio)
+                .account(demoAccount)
+                .isRecurringSeriesParent(false)
+                .nextRecurrenceDate(null)
+                .build());
 
             // ========== DICIEMBRE 2025 (PARA DATOS ANUALES) ==========
             

@@ -164,7 +164,7 @@ public class ChartsController {
     ){
         try {
             String userEmail = authentication.getName();
-            CategoryTrendDto categoryTrendDto = analysisService.getCategoryTrends(userEmail, accountId);
+            CategoryTrendDto categoryTrendDto = analysisService.getCategoryTrends(userEmail, accountId, TransactionType.EXPENSE);
             return ResponseEntity.ok(categoryTrendDto);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();

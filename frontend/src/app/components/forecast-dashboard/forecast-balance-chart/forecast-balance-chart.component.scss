@@ -1,0 +1,65 @@
+.panel {
+  background: var(--color-bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: var(--box-shadow-base);
+  min-height: 360px;
+}
+
+.panel-header {
+  margin-bottom: 0.8rem;
+
+  h2 {
+    margin: 0.15rem 0 0;
+    color: white;
+    font-size: 1.35rem;
+  }
+}
+
+.panel-kicker {
+  margin: 0;
+  color: var(--color-accent-teal);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.chart-wrapper {
+  height: 250px;
+}
+
+.empty-state {
+  color: var(--color-text);
+  padding: 1rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.legend-hint {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pill {
+  border-radius: 999px;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.6rem;
+
+  &.neutral {
+    background: rgba(255, 255, 255, 0.14);
+    color: var(--color-text);
+  }
+
+  &.positive {
+    background: rgba(56, 216, 144, 0.2);
+    color: var(--color-success);
+  }
+
+  &.projection {
+    background: rgba(240, 110, 122, 0.18);
+    color: var(--color-danger);
+  }
+}

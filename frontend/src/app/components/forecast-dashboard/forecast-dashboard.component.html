@@ -1,0 +1,42 @@
+<section class="forecast-page">
+  <header class="forecast-header">
+    <div>
+      <p class="kicker">Smart Forecast</p>
+      <h1>Previsión Financiera</h1>
+      <p class="subtitle">Proyección de movimiento mensual basada en tus patrones reales.</p>
+    </div>
+
+    <div class="header-side">
+      <span class="active-account">
+        Cuenta activa:
+        <strong>{{ activeAccount?.accountName || 'Sin cuenta' }}</strong>
+      </span>
+      <button type="button" (click)="reload()" [disabled]="isLoading || !activeAccount">
+        Actualizar
+      </button>
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <div class="loading-block">
+      <div class="spinner"></div>
+      <p>Cargando previsión...</p>
+    </div>
+  } @else if (errorMessage) {
+    <div class="error-block">
+      <p>{{ errorMessage }}</p>
+    </div>
+  } @else {
+    <div class="forecast-grid">
+      <app-fixed-expenses-card
+        [fixedExpenses]="fixedExpensesData?.fixedExpenses ?? []">
+      </app-fixed-expenses-card>
+
+      <app-forecast-balance-chart [forecast]="forecastBalanceData"></app-forecast-balance-chart>
+    </div>
+
+    <div class="trend-section">
+      <app-category-trends-list [categoryTrend]="categoryTrendData"></app-category-trends-list>
+    </div>
+  }
+</section>

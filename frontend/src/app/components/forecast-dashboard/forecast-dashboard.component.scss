@@ -1,0 +1,142 @@
+:host {
+  display: block;
+}
+
+.forecast-page {
+  min-height: calc(100vh - 80px);
+  padding: 1.2rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.forecast-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  h1 {
+    margin: 0.2rem 0;
+    font-size: clamp(1.5rem, 2.2vw, 2rem);
+  }
+}
+
+.kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-accent-teal);
+  font-size: 0.75rem;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--color-text);
+  opacity: 0.8;
+}
+
+.header-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+
+  .active-account {
+    color: var(--color-text);
+    font-size: 0.9rem;
+    opacity: 0.8;
+
+    strong {
+      color: white;
+      margin-left: 0.3rem;
+      opacity: 1;
+    }
+  }
+
+  button {
+    border: none;
+    border-radius: 10px;
+    padding: 0.45rem 0.85rem;
+    font-weight: 600;
+    background: var(--color-primary);
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+
+    &:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.forecast-grid > app-fixed-expenses-card,
+.forecast-grid > app-forecast-balance-chart {
+  display: block;
+  height: 100%;
+}
+
+.trend-section {
+  margin-top: 1rem;
+}
+
+.loading-block,
+.error-block {
+  margin-top: 1rem;
+  border-radius: 14px;
+  padding: 1.2rem;
+  background: var(--color-bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  p {
+    margin: 0;
+    color: var(--color-text);
+  }
+}
+
+.error-block {
+  border-color: var(--color-danger);
+}
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.18);
+  border-top-color: var(--color-primary);
+  animation: spin 1s linear infinite;
+  margin-bottom: 0.7rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 980px) {
+  .forecast-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-side {
+    align-items: flex-start;
+  }
+
+  .forecast-grid {
+    grid-template-columns: 1fr;
+  }
+}

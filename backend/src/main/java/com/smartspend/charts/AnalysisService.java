@@ -38,15 +38,6 @@ public class AnalysisService {
     TransactionRepository transactionRepository;
 
 
-    public CategoryTrendDto getCategoryTrends(String userEmail, Long accountId) {
-
-
-        
-
-        return null;
-       
-    }
-
     public BarLineChartDto getForecastBalance(String userEmail, Long accountId, TransactionType type) {
         
         BankAccount account = bankAccountRepository.findById(accountId)
@@ -87,7 +78,7 @@ public class AnalysisService {
         
         
         return new BarLineChartDto(
-            List.of("Last Month", "Current Month", "Forecast"),
+            List.of("Mes anterior", "Mes actual", "Previsión"),
             List.of(lastMonthTotal.floatValue(), currentMonthActual.floatValue(), prevision.floatValue())
         );
     }
