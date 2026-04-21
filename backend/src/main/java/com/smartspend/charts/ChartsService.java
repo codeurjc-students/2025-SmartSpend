@@ -39,7 +39,7 @@ public class ChartsService {
     @Autowired
     TransactionRepository transactionRepository;
     
-    public PieChartDto   getCategoryStadsByMonth(String userEmail, Long accountId, int year, int month, TransactionType transactionType){
+    public PieChartDto getCategoryStadsByMonth(String userEmail, Long accountId, int year, int month, TransactionType transactionType){
 
         User user = userRepository.findByUserEmail(userEmail).orElseThrow(() -> new RuntimeException("User not found"));
 
