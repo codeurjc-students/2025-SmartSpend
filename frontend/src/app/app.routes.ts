@@ -8,6 +8,7 @@ import { TransactionDetailComponent } from './components/transaction-detail/tran
 import { ProfileComponent } from './components/profile/profile.component';
 import { AllTransactionsComponent } from './components/all-transactions/all-transactions.component';
 import { ChartsComponent } from './components/charts/charts.component';
+import { ForecastDashboardComponent } from './components/forecast-dashboard/forecast-dashboard.component';
 
 export const routes: Routes = [
 
@@ -18,7 +19,8 @@ export const routes: Routes = [
     { path: 'all-transactions', canActivate: [authGuard], component: AllTransactionsComponent },
     { path: 'dashboard', canActivate: [authGuard], component: DashboardComponent },
     { path: 'charts', canActivate: [authGuard], component: ChartsComponent },
+    { path: 'forecast', canActivate: [authGuard], component: ForecastDashboardComponent },
     { path: 'transaction/:id', canActivate: [authGuard], component: TransactionDetailComponent},
     { path: 'profile', canActivate: [authGuard], component: ProfileComponent }
-    
+
 ];

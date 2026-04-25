@@ -28,6 +28,21 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
            "FROM Transaction t WHERE t.account.id = :accountId AND t.date <= :endDate")
     BigDecimal findBalanceUpToDate(@Param("accountId") Long accountId, @Param("endDate") LocalDate endDate);
 
+       @Query("SELECT t FROM Transaction t WHERE t.account.id = :accountId " +
+                 "AND t.date BETWEEN :dateFrom AND :dateTo " +
+                 "AND (t.recurrence <> com.smartspend.transaction.Recurrence.NONE OR t.isRecurringSeriesParent = true) " +
+                 "ORDER BY t.date DESC, t.id DESC")
+       List<Transaction> findRecurringOrFixedByAccountAndDateRange(
+              @Param("accountId") Long accountId,
+              @Param("dateFrom") LocalDate dateFrom,
+              @Param("dateTo") LocalDate dateTo);
+
+       default List<Transaction> findRecurringOrFixedCurrentMonthByAccount(Long accountId) {
+              LocalDate firstDayOfMonth = LocalDate.now().withDayOfMonth(1);
+              LocalDate lastDayOfMonth = firstDayOfMonth.withDayOfMonth(firstDayOfMonth.lengthOfMonth());
+              return findRecurringOrFixedByAccountAndDateRange(accountId, firstDayOfMonth, lastDayOfMonth);
+       }
+
     // ✅ QUERIES OPTIMIZADAS PARA CHARTS  
     @Query("SELECT t FROM Transaction t WHERE t.account.id = :accountId " +
            "AND t.date BETWEEN :dateFrom AND :dateTo " + 

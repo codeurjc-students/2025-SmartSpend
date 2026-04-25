@@ -6,6 +6,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.smartspend.charts.dtos.BarLineChartDto;
+import com.smartspend.charts.dtos.CategoryTrendDto;
+import com.smartspend.charts.dtos.FixedExpensesDto;
+import com.smartspend.charts.dtos.ForecastBalanceDto;
 import com.smartspend.charts.dtos.LineChartDto;
 import com.smartspend.charts.dtos.PieChartDto;
 import com.smartspend.transaction.TransactionType;
@@ -16,6 +19,9 @@ public class ChartsController {
     
     @Autowired
     private ChartsService chartsService;
+
+    @Autowired
+    private AnalysisService analysisService;
     
     /**
      * Obtiene estadísticas de categorías por mes para un gráfico de pastel
@@ -150,5 +156,51 @@ public class ChartsController {
         }
     }
 
+
+    @GetMapping("/category-trend")
+    public ResponseEntity<CategoryTrendDto> getCategoryTrends(
+        @RequestParam Long accountId,
+        Authentication authentication
+    ){
+        try {
+            String userEmail = authentication.getName();
+            CategoryTrendDto categoryTrendDto = analysisService.getCategoryTrends(userEmail, accountId, TransactionType.EXPENSE);
+            return ResponseEntity.ok(categoryTrendDto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/fixed-expenses")
+    public ResponseEntity<FixedExpensesDto> getFixedExpenses(
+        @RequestParam Long accountId,
+        Authentication authentication
+    ){
+        try {
+            String userEmail = authentication.getName();
+            FixedExpensesDto fixedExpensesDto = analysisService.getFixedExpenses(userEmail, accountId);
+            return ResponseEntity.ok(fixedExpensesDto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build(); 
+       }
+    }
+
+    @GetMapping("/forecast-balance")
+    public ResponseEntity<ForecastBalanceDto> getForecast(
+        @RequestParam Long accountId,
+        Authentication authentication
+    ){
+        try {
+            String userEmail = authentication.getName();
+            
+            BarLineChartDto barLineChartDtoIncome = analysisService.getForecastBalance(userEmail, accountId, TransactionType.INCOME);
+            BarLineChartDto barLineChartDtoExpense = analysisService.getForecastBalance(userEmail, accountId, TransactionType.EXPENSE);
+            ForecastBalanceDto forecastDto = new ForecastBalanceDto(barLineChartDtoIncome, barLineChartDtoExpense);
+
+            return ResponseEntity.ok(forecastDto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
 }

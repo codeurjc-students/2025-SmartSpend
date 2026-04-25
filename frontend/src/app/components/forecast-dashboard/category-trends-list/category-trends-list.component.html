@@ -1,0 +1,51 @@
+<section class="panel trends-panel">
+  <header class="panel-header">
+    <div>
+      <p class="panel-kicker">Tendencias por Categoría</p>
+      <h2>Variación y previsión</h2>
+    </div>
+  </header>
+
+  @if (categories.length === 0) {
+    <div class="empty-state">No hay datos de tendencias para mostrar.</div>
+  } @else {
+    <ul class="trend-list">
+      @for (item of categories; track item.categoryName) {
+        <li class="trend-item">
+          <div class="title-row">
+            <h3>{{ item.categoryName }}</h3>
+            <span class="variation" [class]="'variation ' + getVariationClass(item.metrics.trend)">
+              {{ getVariationIcon(item.metrics.trend) }} {{ item.metrics.variationPercentage | number:'1.0-2' }}%
+            </span>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric">
+              <span>Mes Anterior</span>
+              <strong>{{ item.metrics.lastMonthAmount | currency:'EUR':'symbol':'1.2-2' }}</strong>
+              <div class="bar-track">
+                <div class="bar neutral" [style.width.%]="calculateBarWidth(item.metrics.lastMonthAmount, item.metrics)"></div>
+              </div>
+            </div>
+
+            <div class="metric">
+              <span>Actual</span>
+              <strong>{{ item.metrics.currentMonthActual | currency:'EUR':'symbol':'1.2-2' }}</strong>
+              <div class="bar-track">
+                <div class="bar current" [style.width.%]="calculateBarWidth(item.metrics.currentMonthActual, item.metrics)"></div>
+              </div>
+            </div>
+
+            <div class="metric">
+              <span>Previsión</span>
+              <strong>{{ item.metrics.currentMonthForecast | currency:'EUR':'symbol':'1.2-2' }}</strong>
+              <div class="bar-track">
+                <div class="bar forecast" [style.width.%]="calculateBarWidth(item.metrics.currentMonthForecast, item.metrics)"></div>
+              </div>
+            </div>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>

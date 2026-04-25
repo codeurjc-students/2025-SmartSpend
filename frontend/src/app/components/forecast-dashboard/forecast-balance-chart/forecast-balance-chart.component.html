@@ -1,0 +1,22 @@
+<section class="panel chart-panel">
+  <header class="panel-header">
+    <div>
+      <p class="panel-kicker">Balance Proyectado</p>
+      <h2>Ingresos vs Gastos</h2>
+    </div>
+  </header>
+
+  <div class="chart-wrapper">
+    @if (chartData) {
+      <canvas baseChart [type]="'bar'" [data]="chartData" [options]="chartOptions"> </canvas>
+    } @else {
+      <div class="empty-state">No hay datos de previsión disponibles.</div>
+    }
+  </div>
+
+  <footer class="legend-hint">
+    <span class="pill neutral">Mes anterior</span>
+    <span class="pill positive">Actual real</span>
+    <span class="pill projection">Previsión</span>
+  </footer>
+</section>
