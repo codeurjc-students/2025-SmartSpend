@@ -1,51 +1,19 @@
 services:
-
-  db:
-    image: mysql:8.4
-    container_name: smartspend-db
-    restart: always
-
-    environment:
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-
-    volumes:
-      - db_data:/var/lib/mysql
-    
-    ports:
-      - "3306:3306"
-
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   app:
-    image: ${DOCKER_HUB_USERNAME}/smartspend:dev
+    image: ${DOCKER_HUB_USERNAME}/smartspend:dev 
     container_name: smartspend-app
     restart: always
-
-    depends_on:
-      db:
-        condition: service_healthy
-
     ports:
       - "443:443"
 
     environment:
       SPRING_PROFILES_ACTIVE: docker
 
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_NAME: ${DB_NAME}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-
+      # --- AIVEN ---
+      SPRING_DATASOURCE_URL: jdbc:mysql://smart-spend-db-service-smart-spend-db.a.aivencloud.com:11099/defaultdb?sslMode=REQUIRED&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${AIVEN_DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${AIVEN_DB_PASSWORD}
+      
+      # --- SEGURIDAD ---
       JWT_SECRET: ${JWT_SECRET}
       KEYSTORE_PASSWORD: ${KEYSTORE_PASSWORD}
-
-volumes:
-  db_data:

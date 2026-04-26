@@ -13,6 +13,16 @@ Además la aplicación incorpora la funcionalidad de añadir gastos compartidos 
 ---
 
 
+## API REST - Swagger UI
+
+Documentación interactiva de todos los endpoints disponible en:
+
+> **[https://localhost:8443/swagger-ui/index.html](https://localhost:8443/swagger-ui/index.html)**
+>
+> _(Requiere que el backend esté arrancado. Acepta la excepción de certificado autofirmado en el navegador.)_
+
+---
+
 ## Documentación 
 
 1. [Objetivos](Readmes/1.Objetivos.md)
@@ -107,7 +117,3 @@ En la siguiente fase de desarrollo, Smart Spend incorporará nuevas funcionalida
 
 
 ---
-
-
-
-
