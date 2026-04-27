@@ -39,18 +39,12 @@ public class DataLoader implements CommandLineRunner {
         this.bankAccountRepository = bankAccountRepository;
     }
 
-    
 
 
     @Override
     public void run(String... args) throws Exception {
 
-        // Limpiar datos existentes para empezar desde cero (orden importante por foreign keys)
-        System.out.println("🧹 Limpiando datos existentes...");
-        transactionRepository.deleteAll();  // 1. Primero transacciones (dependen de accounts y categories)
-        bankAccountRepository.deleteAll();  // 2. Luego bank accounts (dependen de users)  
-        categoryRepository.deleteAll();     // 3. Categorías (independientes)
-        userRepository.deleteAll();         // 4. Finalmente usuarios (tabla padre)
+        if (bankAccountRepository.count() == 0) {
         
 
         System.out.println("📦 Cargando categorías iniciales por defecto...");
@@ -71,7 +65,7 @@ public class DataLoader implements CommandLineRunner {
         Category salud = categoryRepository.save(new Category("Salud", "Médicos, medicinas, seguros", "#e67e22", TransactionType.EXPENSE, "🏥"));
         Category educacion = categoryRepository.save(new Category("Educación", "Cursos, libros, matrícula", "#2980b9", TransactionType.EXPENSE, "📚"));
         Category ropa = categoryRepository.save(new Category("Ropa", "Compras de vestimenta y accesorios", "#8e44ad", TransactionType.EXPENSE, "👕"));
-        Category mascotas = categoryRepository.save(new Category("Mascotas", "Comida, veterinario, accesorios", "#2c3e50", TransactionType.EXPENSE, "🐾"));
+        categoryRepository.save(new Category("Mascotas", "Comida, veterinario, accesorios", "#2c3e50", TransactionType.EXPENSE, "🐾"));
         Category viajes = categoryRepository.save(new Category("Viajes", "Vacaciones, billetes, alojamiento", "#16a085", TransactionType.EXPENSE, "✈️"));
         Category otros = categoryRepository.save(new Category("Otros", "Gastos no clasificados", "#7f8c8d", TransactionType.EXPENSE, "❓"));
 
@@ -666,4 +660,5 @@ public class DataLoader implements CommandLineRunner {
             System.out.println("🏦 Total cuentas: " + bankAccountRepository.count());
             System.out.println("👤 Total usuarios: " + userRepository.count());
         }
+    }
     }
