@@ -7,13 +7,8 @@ logging:
     console: "🐳 DOCKER 🐳 - %d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 server:
-  port: 443
-  ssl:
-    enabled: true
-    key-store: classpath:keystore.p12
-    key-store-password: ${KEYSTORE_PASSWORD}
-    key-alias: smartspend-ssl
-    key-store-type: PKCS12
+  port: 8080
+
 
 spring:
   datasource:
