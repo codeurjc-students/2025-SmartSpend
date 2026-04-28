@@ -2,10 +2,11 @@
 /* Componente reutilizable para filtros de transacciones */
 
 .transaction-filters-container {
-  background-color: rgb(51 65 85); /* slate-700 */
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.92) 0%, rgba(15, 23, 42, 0.92) 100%);
+  border: 1px solid rgba(71, 85, 105, 0.7);
   border-radius: 0.75rem; /* rounded-xl */
   padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
@@ -29,9 +30,9 @@
 
 .clear-button {
   padding: 0.5rem 1rem;
-  background-color: rgb(71 85 105); /* slate-600 */
+  background-color: rgb(30 41 59);
+  border: 1px solid rgba(100, 116, 139, 0.5);
   color: rgb(226 232 240);
-  border: none;
   border-radius: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
@@ -40,7 +41,7 @@
 }
 
 .clear-button:hover {
-  background-color: rgb(100 116 139); /* slate-500 */
+  background-color: rgb(51 65 85);
   transform: translateY(-1px);
 }
 
@@ -104,7 +105,7 @@
 .filter-select {
   width: 100%;
   border-radius: 0.5rem;
-  background-color: rgb(30 41 59); /* slate-800 */
+  background-color: rgb(15 23 42);
   border: 1px solid rgb(71 85 105); /* slate-600 */
   padding: 0.75rem 1rem;
   color: rgb(226 232 240); /* slate-200 */
@@ -115,8 +116,8 @@
 .filter-input:focus,
 .filter-select:focus {
   outline: none;
-  border-color: rgb(99 102 241); /* indigo-500 */
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  border-color: rgb(34 211 238);
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.18);
   transform: translateY(-1px);
 }
 
@@ -164,8 +165,8 @@
 }
 
 .pending-toggle-input:checked + .pending-toggle-switch {
-  background: linear-gradient(135deg, rgb(99 102 241) 0%, rgb(79 70 229) 100%);
-  border-color: rgb(99 102 241);
+  background: linear-gradient(135deg, rgb(34 211 238) 0%, rgb(14 165 233) 100%);
+  border-color: rgb(34 211 238);
 }
 
 .pending-toggle-input:checked + .pending-toggle-switch::after {
@@ -186,7 +187,7 @@
 /* Botón de aplicar */
 .apply-button {
   width: 100%;
-  background: linear-gradient(135deg, rgb(99 102 241) 0%, rgb(79 70 229) 100%);
+  background: linear-gradient(135deg, rgb(8 145 178) 0%, rgb(14 165 233) 100%);
   color: white;
   border: none;
   border-radius: 0.65rem;
@@ -195,19 +196,19 @@
   font-size: 1rem;
   letter-spacing: 0.01em;
   cursor: pointer;
-  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.28);
+  box-shadow: 0 8px 18px rgba(14, 165, 233, 0.24);
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, filter 0.2s ease-in-out;
 }
 
 .apply-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.34);
+  box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3);
   filter: brightness(1.05);
 }
 
 .apply-button:active {
   transform: translateY(0);
-  box-shadow: 0 5px 12px rgba(79, 70, 229, 0.24);
+  box-shadow: 0 5px 12px rgba(14, 165, 233, 0.22);
 }
 
 .apply-button:focus-visible {

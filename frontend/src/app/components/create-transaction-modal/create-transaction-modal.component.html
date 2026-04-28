@@ -70,11 +70,9 @@
           >
           <!-- Cuenta (readonly) -->
           <div class="md:col-span-2">
-            <label class="block text-sm text-slate-400 mb-1">
-              Cuenta
-            </label>
-            <div class="px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-slate-300 opacity-80">
-              {{ currentAccount?.accountName || 'Sin cuenta seleccionada' }}
+            <div class="account-display" aria-readonly="true">
+              <span class="account-display__label">Cuenta activa</span>
+              <span class="account-display__name">{{ currentAccount?.accountName || 'Sin cuenta seleccionada' }}</span>
             </div>
           </div>
           <!-- Título -->

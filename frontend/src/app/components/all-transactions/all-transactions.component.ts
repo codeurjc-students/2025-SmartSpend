@@ -27,8 +27,9 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
   currentPage = 0;
   pageSize = 10;
   isLoading = false;
-  hasMorePages = true;
   totalElements = 0;
+  totalPages = 0;
+  filtersExpanded = false;
 
   // Subject para el debounce de búsqueda
   private searchSubject = new Subject<string>();
@@ -75,19 +76,13 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
           isPending: shouldApplyPending
         };
 
-        this.loadTransactions(true);
+        this.filtersExpanded = shouldApplyPending;
+
+        this.loadTransactions(0);
       });
   }
 
-  loadTransactions(reset = false) {
-    if (reset) {
-      this.transactions = [];
-      this.currentPage = 0;
-      this.hasMorePages = true;
-    }
-
-    if (!this.hasMorePages && !reset) return;
-
+  loadTransactions(page: number = this.currentPage) {
     const accountId = this.activeAccountService.getActiveAccountValue()?.id;
     if (!accountId) {
       console.warn('No active account found');
@@ -99,22 +94,15 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
     // Llamada al backend con filtros y paginación
     this.transactionService.getTransactionsPaginated(
       accountId,
-      this.currentPage,
+      page,
       this.pageSize,
       this.filters
     ).subscribe({
       next: (response: PaginatedResponse<Transaction>) => {
-        if (this.currentPage === 0) {
-          // Nueva búsqueda o filtros aplicados
-          this.transactions = response.content;
-        } else {
-          // "Mostrar más" - agregar a la lista existente
-          this.transactions.push(...response.content);
-        }
-
-        this.hasMorePages = !response.last;
+        this.transactions = response.content;
         this.totalElements = response.totalElements;
-        this.currentPage++;
+        this.totalPages = response.totalPages;
+        this.currentPage = response.number;
         this.isLoading = false;
       },
       error: (err) => {
@@ -125,12 +113,11 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
   }
 
   loadMore() {
-    this.loadTransactions();
+    this.nextPage();
   }
 
   applyFilters() {
-    // Resetear paginación y cargar con nuevos filtros
-    this.loadTransactions(true);
+    this.loadTransactions(0);
   }
 
   clearFilters() {
@@ -144,14 +131,13 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
       categoryId: '',
       isPending: false
     };
-    this.loadTransactions(true);
+    this.loadTransactions(0);
   }
 
   // Método para manejar cambios en los filtros desde el componente hijo
   onFiltersChange(newFilters: TransactionFilters) {
     this.filters = { ...newFilters };
-    this.currentPage = 0; // Reset a primera página
-    this.loadTransactions(true);
+    this.loadTransactions(0);
   }
 
   // Método para manejar cambios en búsqueda con debounce
@@ -171,15 +157,13 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
       categoryId: '',
       isPending: false
     };
-    this.currentPage = 0;
-    this.loadTransactions(true);
+    this.loadTransactions(0);
   }
 
   // Método para aplicar filtros
   onApplyFilters(filters: TransactionFilters) {
     this.filters = { ...filters };
-    this.currentPage = 0;
-    this.loadTransactions(true);
+    this.loadTransactions(0);
   }
 
   onViewDetails(transactionId: number) {
@@ -215,16 +199,40 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
 
   previousPage() {
     if (this.currentPage > 0) {
-      this.currentPage--;
-      this.loadTransactions(false);
+      this.loadTransactions(this.currentPage - 1);
     }
   }
 
   nextPage() {
-    if ((this.currentPage + 1) * this.pageSize < this.totalElements) {
-      this.currentPage++;
-      this.loadTransactions(false);
+    if (this.currentPage + 1 < this.totalPages) {
+      this.loadTransactions(this.currentPage + 1);
     }
+  }
+
+  toggleFiltersPanel() {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(
+      this.filters.search ||
+      this.filters.type ||
+      this.filters.dateFrom ||
+      this.filters.dateTo ||
+      this.filters.minAmount !== undefined ||
+      this.filters.maxAmount !== undefined ||
+      this.filters.categoryId ||
+      this.filters.isPending
+    );
+  }
+
+  getCurrentRangeStart(): number {
+    if (this.totalElements === 0) return 0;
+    return this.currentPage * this.pageSize + 1;
+  }
+
+  getCurrentRangeEnd(): number {
+    return Math.min((this.currentPage + 1) * this.pageSize, this.totalElements);
   }
 
   ngOnDestroy() {

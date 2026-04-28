@@ -1,0 +1,26 @@
+.account-display {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.55rem;
+	padding: 0.1rem 0 0.15rem;
+}
+
+.account-display__label {
+	font-size: 0.82rem;
+	line-height: 1.2;
+	color: rgb(148 163 184);
+	font-weight: 500;
+}
+
+.account-display__name {
+	margin: 0;
+	font-size: 0.92rem;
+	line-height: 1.3;
+	color: rgb(226 232 240);
+	font-weight: 600;
+	padding: 0.28rem 0.7rem;
+	border-radius: 999px;
+	background: rgba(30, 41, 59, 0.9);
+	border: 1px solid rgba(71, 85, 105, 0.7);
+}
