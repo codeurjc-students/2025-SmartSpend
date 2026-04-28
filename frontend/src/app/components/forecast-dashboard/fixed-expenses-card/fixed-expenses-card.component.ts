@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { Router } from '@angular/router';
 
 import type { Transaction } from '../../../interfaces/transaction.interface';
 
@@ -12,6 +13,8 @@ import type { Transaction } from '../../../interfaces/transaction.interface';
 })
 export class FixedExpensesCardComponent {
   @Input({ required: true }) fixedExpenses: Transaction[] = [];
+
+  constructor(private readonly router: Router) {}
 
   get totalFixedExpenses(): number {
     return this.fixedExpenses.reduce((total, tx) => total + Number(tx.amount ?? 0), 0);
@@ -30,5 +33,9 @@ export class FixedExpensesCardComponent {
 
   trackByTransactionId(index: number, tx: Transaction): number {
     return tx.id ?? index;
+  }
+
+  openTransactionDetail(transactionId: number): void {
+    this.router.navigate(['/transaction', transactionId]);
   }
 }

@@ -23,7 +23,9 @@
     <!-- Filtros usando el componente reutilizable -->
     <app-transaction-filters
       [initialFilters]="filters"
-
+      (filtersChange)="onFiltersChange($event)"
+      (searchChange)="onSearchChange($event)"
+      (clearFilters)="onClearFilters()"
       (applyFilters)="onApplyFilters($event)">
     </app-transaction-filters>
 

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TransactionFilters } from '../../interfaces/pagination.interface';
@@ -13,29 +13,30 @@ import { Subject, takeUntil } from 'rxjs';
   templateUrl: './transaction-filters.component.html',
   styleUrl: './transaction-filters.component.css'
 })
-export class TransactionFiltersComponent implements OnInit, OnDestroy {
-  
+export class TransactionFiltersComponent implements OnInit, OnChanges, OnDestroy {
+
   private destroy$ = new Subject<void>();
-  
+
   // Propiedades para categorías
   categories: Category[] = [];
   loadingCategories = false;
-  
+
   // Inputs para configurar el comportamiento del componente
   @Input() title: string = 'Filtros de Búsqueda';
   @Input() showTitle: boolean = true;
   @Input() showClearButton: boolean = true;
   @Input() initialFilters: TransactionFilters | null = null;
   @Input() debounceTime: number = 300; // ms para debounce de búsqueda
-  
+
   // Configuración de campos visibles
   @Input() showSearch: boolean = true;
   @Input() showType: boolean = true;
   @Input() showDateRange: boolean = true;
   @Input() showAmountRange: boolean = true;
   @Input() showCategory: boolean = true;
+  @Input() showPendingToggle: boolean = true;
   @Input() showApplyButton: boolean = true;
-  
+
   // Labels personalizables
   @Input() searchLabel: string = '🔎 Buscar';
   @Input() typeLabel: string = '💰 Tipo';
@@ -44,13 +45,14 @@ export class TransactionFiltersComponent implements OnInit, OnDestroy {
   @Input() minAmountLabel: string = '💵 Mínimo €';
   @Input() maxAmountLabel: string = '💵 Máximo €';
   @Input() categoryLabel: string = '🏷️ Categoría';
-  
+  @Input() pendingLabel: string = '⏳ Pendientes';
+
   // Outputs para comunicar cambios al componente padre
   @Output() filtersChange = new EventEmitter<TransactionFilters>();
   @Output() searchChange = new EventEmitter<string>();
   @Output() clearFilters = new EventEmitter<void>();
   @Output() applyFilters = new EventEmitter<TransactionFilters>();
-  
+
   // Estado interno de los filtros
   filters: TransactionFilters = {
     search: '',
@@ -59,7 +61,8 @@ export class TransactionFiltersComponent implements OnInit, OnDestroy {
     minAmount: undefined,
     maxAmount: undefined,
     type: null,
-    categoryId: ''
+    categoryId: '',
+    isPending: false
   };
 
   constructor(private categoryService: CategoryService) {}
@@ -71,10 +74,15 @@ export class TransactionFiltersComponent implements OnInit, OnDestroy {
     }
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['initialFilters'] && this.initialFilters) {
+      this.updateFilters(this.initialFilters);
+    }
+  }
+
   // Método cuando cambia la búsqueda (con debounce manejado por el padre)
   onSearchChange() {
     this.searchChange.emit(this.filters.search);
-    this.emitFiltersChange();
   }
 
   // Método cuando cambian otros filtros
@@ -122,7 +130,8 @@ export class TransactionFiltersComponent implements OnInit, OnDestroy {
       minAmount: undefined,
       maxAmount: undefined,
       type: null,
-      categoryId: ''
+      categoryId: '',
+      isPending: false
     };
     this.clearFilters.emit();
     this.emitFiltersChange();

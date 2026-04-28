@@ -15,7 +15,13 @@
   } @else {
     <ul class="expense-list">
       @for (expense of fixedExpenses; track trackByTransactionId($index, expense)) {
-        <li class="expense-item">
+        <li
+          class="expense-item"
+          role="button"
+          tabindex="0"
+          (click)="openTransactionDetail(expense.id)"
+          (keydown.enter)="openTransactionDetail(expense.id)"
+          (keydown.space)="openTransactionDetail(expense.id)">
           <div class="expense-main">
             <p class="title">{{ expense.title }}</p>
             <p class="meta">{{ expense.category.name }} · {{ expense.date | date:'d MMM' }}</p>

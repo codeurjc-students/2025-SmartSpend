@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { TransactionService } from '../../services/transaction/transaction.service';
@@ -19,21 +19,21 @@ import { TransactionFiltersComponent } from '../transaction-filters/transaction-
   styleUrl: './all-transactions.component.css'
 })
 export class AllTransactionsComponent implements OnInit, OnDestroy {
-  
+
   // Exponer Math para el template
   Math = Math;
-  
+
   transactions: Transaction[] = [];
   currentPage = 0;
   pageSize = 10;
   isLoading = false;
   hasMorePages = true;
   totalElements = 0;
-  
+
   // Subject para el debounce de búsqueda
   private searchSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
-  
+
   // Filtros
   filters: TransactionFilters = {
     type: null,
@@ -42,12 +42,14 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
     dateTo: '',
     minAmount: undefined,
     maxAmount: undefined,
-    categoryId: ''
+    categoryId: '',
+    isPending: false
   };
 
   constructor(
     private transactionService: TransactionService,
     private activeAccountService: ActiveAccountService,
+    private route: ActivatedRoute,
     private router: Router
   ) {}
 
@@ -62,7 +64,19 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
         this.applyFilters();
       });
 
-    this.loadTransactions();
+    this.route.queryParamMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        const filter = params.get('filter');
+        const shouldApplyPending = filter === 'pending-debts';
+
+        this.filters = {
+          ...this.filters,
+          isPending: shouldApplyPending
+        };
+
+        this.loadTransactions(true);
+      });
   }
 
   loadTransactions(reset = false) {
@@ -81,7 +95,7 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    
+
     // Llamada al backend con filtros y paginación
     this.transactionService.getTransactionsPaginated(
       accountId,
@@ -97,7 +111,7 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
           // "Mostrar más" - agregar a la lista existente
           this.transactions.push(...response.content);
         }
-        
+
         this.hasMorePages = !response.last;
         this.totalElements = response.totalElements;
         this.currentPage++;
@@ -127,7 +141,8 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
       dateTo: '',
       minAmount: undefined,
       maxAmount: undefined,
-      categoryId: ''
+      categoryId: '',
+      isPending: false
     };
     this.loadTransactions(true);
   }
@@ -153,7 +168,8 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
       dateTo: '',
       minAmount: undefined,
       maxAmount: undefined,
-      categoryId: ''
+      categoryId: '',
+      isPending: false
     };
     this.currentPage = 0;
     this.loadTransactions(true);

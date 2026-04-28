@@ -18,12 +18,12 @@
 /* -------------------------------------------------------------------------- */
 /* Define variables CSS para colores, fuentes, etc. para fácil mantenimiento */
 :root {
- 
+
   /* Brand */
   --color-primary: #4B4DF7;
   --color-primary-dark: #3537C9;
   --color-primary-deep: #25277A;
-  
+
   --color-secondary: #4A556B;
 
 
@@ -64,7 +64,7 @@ html {
   font-size: 16px; /* Tamaño de fuente base para el elemento raíz. 1rem = 16px */
   margin: 0;
   padding: 0;
- 
+
 }
 
 body {
@@ -78,6 +78,40 @@ body {
   padding: 0;
   min-height: 100vh; /* Altura mínima de la ventana, permitir crecimiento */
   /* Permitir scroll cuando sea necesario */
+}
+
+/* Unified scrollbar style across the app */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) rgba(15, 23, 42, 0.25);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.22);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(148, 163, 184, 0.7) 0%,
+    rgba(100, 116, 139, 0.72) 100%
+  );
+  border-radius: 999px;
+  border: 1px solid rgba(30, 41, 59, 0.38);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(186, 203, 228, 0.82) 0%,
+    rgba(120, 140, 168, 0.86) 100%
+  );
 }
 
 
@@ -196,11 +230,10 @@ a:hover {
     .container {
         padding: 0 16px;
     }
-    
+
     .sm-hidden { display: none !important; }
     .sm-block { display: block !important; }
     .sm-flex { display: flex !important; }
     .sm-text-center { text-align: center !important; }
     .sm-w-full { width: 100% !important; }
 }
-

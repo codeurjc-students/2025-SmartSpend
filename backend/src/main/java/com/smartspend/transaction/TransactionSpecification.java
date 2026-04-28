@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 
 public class TransactionSpecification {
@@ -19,7 +21,8 @@ public class TransactionSpecification {
         LocalDate dateTo,
         BigDecimal minAmount,
         BigDecimal maxAmount,
-        Long categoryId) {
+        Long categoryId,
+        Boolean isPending) {
 
 
         return (root, query, criteriaBuilder) -> {
@@ -63,6 +66,12 @@ public class TransactionSpecification {
 
             if (categoryId != null) {
                 predicates.add(criteriaBuilder.equal(root.get("category").get("id"), categoryId));
+            }
+
+            if (Boolean.TRUE.equals(isPending)) {
+                Join<Transaction, Debt> debtJoin = root.join("sharedDebts", JoinType.INNER);
+                predicates.add(criteriaBuilder.isFalse(debtJoin.get("isPaid")));
+                query.distinct(true);
             }
             
             query.orderBy(criteriaBuilder.desc(root.get("date")));
