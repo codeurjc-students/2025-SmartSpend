@@ -124,7 +124,7 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
         
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            1L, "Salary Payment", "Monthly salary", transactionAmount, null,
+            1L, "Salary Payment", "Monthly salary", transactionAmount, null, null,
             LocalDate.now(), TransactionType.INCOME, Recurrence.NONE,
             1L, "Test Account", testCategory, false, null, false, null, null, null
         );
@@ -187,7 +187,7 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
 
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            1L, "Grocery Shopping", "Weekly groceries", transactionAmount, null,
+            1L, "Grocery Shopping", "Weekly groceries", transactionAmount, null, null,
             LocalDate.now(), TransactionType.EXPENSE, Recurrence.NONE,
             1L, "Test Account", testCategory, false, null, false, null, null, null
         );
@@ -557,7 +557,7 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
         
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            1L, "Test Transaction", "Test description", new BigDecimal("100.00"), null,
+            1L, "Test Transaction", "Test description", new BigDecimal("100.00"), null, null,
             today, TransactionType.EXPENSE, Recurrence.NONE,
             1L, "Test Account", testCategory, false, null, false, null, null, null
         );
@@ -739,7 +739,7 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(originalTransaction);
         
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            1L, "Updated Income", "Updated description", new BigDecimal("80"), null,
+            1L, "Updated Income", "Updated description", new BigDecimal("80"), null, null,
             LocalDate.now().plusDays(1), TransactionType.INCOME, Recurrence.MONTHLY,
             1L, "Test Account", testCategory, false, null, false, null, null, null
         );
@@ -799,7 +799,7 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(originalTransaction);
         
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            2L, "Updated Expense", "Updated expense description", new BigDecimal("10"), null,
+            2L, "Updated Expense", "Updated expense description", new BigDecimal("10"), null, null,
             LocalDate.now(), TransactionType.EXPENSE, Recurrence.WEEKLY,
             1L, "Test Account", testCategory, false, null, false, null, null, null
         );
@@ -858,7 +858,7 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(originalTransaction);
         
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            3L, "Now Expense", "Changed to expense", new BigDecimal("30"), null,
+            3L, "Now Expense", "Changed to expense", new BigDecimal("30"), null, null,
             LocalDate.now(), TransactionType.EXPENSE, Recurrence.NONE,
             1L, "Test Account", testCategory, false, null, false, null, null, null
         );
@@ -905,7 +905,7 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(originalTransaction);
         
         TransactionResponseDto responseDto = new TransactionResponseDto(
-            4L, "Now Income", "Changed to income", new BigDecimal("60"), null,
+            4L, "Now Income", "Changed to income", new BigDecimal("60"), null, null,
             LocalDate.now(), TransactionType.INCOME, Recurrence.NONE,
             1L, "Test Account", testCategory, false, null, false, null, null, null
         );
@@ -1031,7 +1031,7 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(
             new TransactionResponseDto(1L, "Monthly Salary", "Recurring salary payment",
-            new BigDecimal("2000.00"), null, LocalDate.now(), TransactionType.INCOME, Recurrence.MONTHLY,
+            new BigDecimal("2000.00"), null, null, LocalDate.now(), TransactionType.INCOME, Recurrence.MONTHLY,
             1L, "Test Account", testCategory, false, null, true, null, null, null)
         );
 
@@ -1070,7 +1070,7 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(
             new TransactionResponseDto(1L, "One-time expense", "Single payment",
-            new BigDecimal("50.00"), null, LocalDate.now(), TransactionType.EXPENSE, Recurrence.NONE,
+            new BigDecimal("50.00"), null, null, LocalDate.now(), TransactionType.EXPENSE, Recurrence.NONE,
             1L, "Test Account", testCategory, false, null, false, null, null, null)
         );
 
@@ -1125,7 +1125,7 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(
             new TransactionResponseDto(1L, "Recurring Transaction", "Test recurrence",
-            new BigDecimal("100.00"), null, transactionDate, TransactionType.INCOME, recurrence,
+            new BigDecimal("100.00"), null, null, transactionDate, TransactionType.INCOME, recurrence,
             1L, "Test Account", testCategory, false, null, true, null, null, null)
         );
 

@@ -45,6 +45,9 @@
                 [class.expense]="transaction.type === 'EXPENSE'">
                 {{ transaction.type === 'INCOME' ? '+' : '-' }}{{ transaction.amount | number:'1.2-2' }} €
               </p>
+              @if (transaction.beforeBalance !== undefined && transaction.beforeBalance !== null) {
+                <p class="transaction-date">Saldo previo: {{ transaction.beforeBalance | number:'1.2-2' }} €</p>
+              }
               <p class="transaction-date">{{ transaction.date | date:'dd/M, HH:mm' }}</p>
             </div>
           </div>

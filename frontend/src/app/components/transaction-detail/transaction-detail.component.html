@@ -71,6 +71,10 @@
             <span>{{ transaction.type === 'EXPENSE' ? 'Gasto' : 'Ingreso' }}</span>
             <span>•</span>
             <span>{{ getRecurrenceText(transaction.recurrence) }}</span>
+            @if (transaction.beforeBalance !== undefined && transaction.beforeBalance !== null) {
+              <span>•</span>
+              <span>Saldo previo: {{ transaction.beforeBalance | number:'1.2-2' }} €</span>
+            }
           </div>
           <!-- DESCRIPCIÓN -->
           <div class="mt-6 bg-slate-800/50 rounded-2xl px-5 py-4 text-center">
@@ -170,6 +174,12 @@
               <span class="text-slate-400">Recurrencia</span>
               <span class="font-semibold text-slate-100">{{ getRecurrenceText(transaction.recurrence) }}</span>
             </div>
+            @if (transaction.beforeBalance !== undefined && transaction.beforeBalance !== null) {
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Saldo previo</span>
+                <span class="font-semibold text-slate-100">{{ transaction.beforeBalance.toFixed(2) }} €</span>
+              </div>
+            }
           </div>
         </aside>
         <!-- ================= TARJETA ESTADO ================= -->
