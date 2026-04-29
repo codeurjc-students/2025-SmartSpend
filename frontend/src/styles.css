@@ -19,30 +19,38 @@
 /* Define variables CSS para colores, fuentes, etc. para fácil mantenimiento */
 :root {
 
-  /* Brand */
-  --color-primary: #4B4DF7;
-  --color-primary-dark: #3537C9;
-  --color-primary-deep: #25277A;
+  --app-surface-gradient:
+    radial-gradient(circle at top left, rgba(103, 232, 249, 0.1), transparent 26%),
+    radial-gradient(circle at 85% 12%, rgba(45, 212, 191, 0.08), transparent 18%),
+    linear-gradient(180deg, rgb(11 18 32) 0%, rgb(15 23 42) 38%, rgb(16 24 39) 72%, rgb(11 18 32) 100%);
 
-  --color-secondary: #4A556B;
+  /* Brand */
+  --color-primary: #22d3ee;
+  --color-primary-dark: #0891b2;
+  --color-primary-deep: #164e63;
+
+  --color-secondary: #334155;
 
 
   /* Accents */
-  --color-accent-teal: #2BDACF;
-  --color-accent-teal-deep: #1FB9AF;
-  --color-accent-blue-teal: #3FBCE8;
+  --color-accent-teal: #2dd4bf;
+  --color-accent-teal-deep: #0f766e;
+  --color-accent-blue-teal: #67e8f9;
 
   /* Functional */
-  --color-success: #38D890;
-  --color-success-dark: #28B376;
-  --color-danger: #F06E7A;
-  --color-danger-dark: #D95360;
-  --color-warning: #EFB24A;
+  --color-success: #34d399;
+  --color-success-dark: #059669;
+  --color-danger: #fb7185;
+  --color-danger-dark: #e11d48;
+  --color-warning: #f59e0b;
 
   /* Backgrounds */
-  --color-bg: #2F3645;
-  --color-bg-card: #3A4357;
-  --color-text: #E0E0E0;
+  --color-bg: #0b1220;
+  --color-bg-card: #1e293b;
+  --color-text: #e2e8f0;
+  --surface-panel-bg: rgba(30, 41, 59, 0.7);
+  --surface-panel-border: rgba(51, 65, 85, 0.8);
+  --surface-panel-shadow: 0 14px 30px rgba(2, 8, 23, 0.26);
 
 
 
@@ -71,7 +79,9 @@ body {
   font-family: var(--font-family-base); /* Aplica la fuente definida en las variables */
   line-height: 1.6; /* Altura de línea para mejor legibilidad */
   color: var(--color-text); /* Color de texto por defecto */
-  background-color: var(--color-bg); /* Color de fondo general */
+  background: var(--app-surface-gradient);
+  background-color: var(--color-bg); /* Fallback de color de fondo general */
+  background-attachment: fixed;
   -webkit-font-smoothing: antialiased; /* Suavizado de fuentes para WebKit */
   -moz-osx-font-smoothing: grayscale; /* Suavizado de fuentes para Firefox */
   margin: 0;

@@ -63,7 +63,7 @@
                     {{ transaction.title }}
                   </h1>
                   <p class="text-sm text-slate-400 mt-1">
-                    {{ transaction.date | date:'EEEE, d MMMM y' }}
+                    {{ transaction.date | date:"EEEE, d 'de' MMMM 'de' y":'':'es' }}
                   </p>
                 </div>
               </div>
@@ -108,7 +108,7 @@
 
               <div class="mt-4 flex flex-wrap gap-2">
                 <span class="inline-flex items-center rounded-full border border-slate-600 bg-slate-800 px-3 py-1 text-xs text-slate-300">
-                  Fecha exacta: {{ transaction.date | date:'dd/MM/yyyy HH:mm' }}
+                  Fecha exacta: {{ transaction.date | date:'dd/MM/yyyy HH:mm':'':'es' }}
                 </span>
                 <span
                   class="inline-flex items-center rounded-full border px-3 py-1 text-xs"
@@ -250,8 +250,8 @@
     <!-- ================= MODAL CONFIRMACIÓN ================= -->
     @if (showConfirmModal) {
       <div
-        class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-        <div class="bg-slate-700 rounded-xl p-6 max-w-md mx-4 shadow-2xl">
+        class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-slate-900/95 border border-slate-700/80 rounded-xl p-6 max-w-md mx-4 shadow-2xl">
           <h3 class="text-lg font-semibold text-white mb-4">
             ¿Eliminar transacción?
           </h3>
@@ -304,8 +304,8 @@
     <!-- ================= MODAL ÉXITO ================= -->
     @if (showSuccessModal) {
       <div
-        class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-        <div class="bg-slate-700 rounded-xl p-6 max-w-md mx-4 shadow-2xl text-center">
+        class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-slate-900/95 border border-slate-700/80 rounded-xl p-6 max-w-md mx-4 shadow-2xl text-center">
           <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -320,9 +320,9 @@
           </p>
           <button
             (click)="closeSuccessModal()"
-            class="px-6 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg"
+            class="px-6 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold rounded-lg"
             >
-            Volver al Dashboard
+            Volver al inicio
           </button>
         </div>
       </div>

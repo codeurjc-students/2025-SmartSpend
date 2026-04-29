@@ -16,10 +16,10 @@ declare const window: any;
 })
 export class RegisterComponent implements OnInit {
   formData = {
-    username: '',
     email: '',
     password: ''
   };
+  showPassword = false;
 
   isLoading = false;
   errorMessage = '';
@@ -83,7 +83,7 @@ export class RegisterComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.authService.register(this.formData.username, this.formData.email, this.formData.password)
+    this.authService.register(this.formData.email, this.formData.password)
       .subscribe({
         next: (response: any) => {
           console.log('Registro exitoso:', response);
@@ -103,5 +103,9 @@ export class RegisterComponent implements OnInit {
           this.isLoading = false;
         }
       });
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 }

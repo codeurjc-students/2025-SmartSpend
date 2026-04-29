@@ -56,7 +56,7 @@ public class AuthServiceTest {
     void shouldRegisterUserSuccessfully() {
         // Given
         RegisterRequestDto registerRequest = new RegisterRequestDto(
-            "newuser", "new@example.com", "password123"
+            "new@example.com", "password123"
         );
         
         String hashedPassword = "hashedpassword123";
@@ -79,7 +79,7 @@ public class AuthServiceTest {
         assertNotNull(result);
         assertEquals(1L, result.id());
         assertEquals(token, result.token());
-        assertEquals("newuser", result.username());
+        assertEquals("new", result.username());
         assertEquals("new@example.com", result.email());
         
         verify(passwordEncoder).encode("password123");
@@ -91,7 +91,7 @@ public class AuthServiceTest {
     void shouldThrowExceptionWhenEmailAlreadyExists() {
         // Given
         RegisterRequestDto registerRequest = new RegisterRequestDto(
-            "testuser", "test@example.com", "password123"
+            "test@example.com", "password123"
         );
         
         // When - Email already exists
@@ -109,9 +109,9 @@ public class AuthServiceTest {
 
     @Test
     void shouldThrowExceptionForInvalidRegistrationData() {
-        // Given - Invalid data (empty username)
+        // Given - Invalid data (empty email)
         RegisterRequestDto registerRequest = new RegisterRequestDto(
-            "", "test@example.com", "password123"
+            "", "password123"
         );
         
         // Then - Should throw exception
@@ -128,7 +128,7 @@ public class AuthServiceTest {
     void shouldHashPasswordCorrectly() {
         // Given
         RegisterRequestDto registerRequest = new RegisterRequestDto(
-            "testuser", "new@example.com", "password123"
+            "new@example.com", "password123"
         );
         String hashedPassword = "hashedpassword123";
         
@@ -153,7 +153,7 @@ public class AuthServiceTest {
     void shouldGenerateJwtTokenOnRegistration() {
         // Given
         RegisterRequestDto registerRequest = new RegisterRequestDto(
-            "testuser", "new@example.com", "password123"
+            "new@example.com", "password123"
         );
         String expectedToken = "jwt.token.generated";
         
@@ -239,26 +239,10 @@ public class AuthServiceTest {
     }
 
     @Test
-    void shouldRejectEmptyUsername() {
-        // Given - Empty username
-        RegisterRequestDto registerRequest = new RegisterRequestDto(
-            "", "test@example.com", "password123"
-        );
-        
-        // Then - Should throw exception
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> authService.register(registerRequest)
-        );
-        
-        assertEquals("Invalid registration request", exception.getMessage());
-    }
-
-    @Test
     void shouldRejectEmptyEmail() {
         // Given - Empty email
         RegisterRequestDto registerRequest = new RegisterRequestDto(
-            "testuser", "", "password123"
+            "", "password123"
         );
         
         // Then - Should throw exception
@@ -274,7 +258,7 @@ public class AuthServiceTest {
     void shouldRejectEmptyPassword() {
         // Given - Empty password
         RegisterRequestDto registerRequest = new RegisterRequestDto(
-            "testuser", "test@example.com", ""
+            "test@example.com", ""
         );
         
         // Then - Should throw exception
@@ -284,5 +268,28 @@ public class AuthServiceTest {
         );
         
         assertEquals("Invalid registration request", exception.getMessage());
+    }
+
+    @Test
+    void shouldDeriveUsernameFromEmailOnRegistration() {
+        // Given
+        RegisterRequestDto registerRequest = new RegisterRequestDto(
+            "smart.user@example.com", "password123"
+        );
+
+        when(userRepository.findByUserEmail("smart.user@example.com")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("password123")).thenReturn("hashedpassword123");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            user.setUserId(1L);
+            return user;
+        });
+        when(jwtService.generateToken(1L, "smart.user@example.com")).thenReturn("token");
+        
+        // When
+        AuthResponseDto result = authService.register(registerRequest);
+
+        // Then
+        assertEquals("smart.user", result.username());
     }
 }

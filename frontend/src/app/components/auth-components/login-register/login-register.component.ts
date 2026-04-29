@@ -17,6 +17,7 @@ declare const window: any;
 export class LoginRegisterComponent implements OnInit {
   email: string = '';
   password: string = '';
+  showPassword = false;
   errorMessage: string | null = null;
   private isBrowser: boolean;
 
@@ -81,5 +82,9 @@ export class LoginRegisterComponent implements OnInit {
         this.errorMessage = 'Email o contraseña incorrectas';
       },
     });
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 }

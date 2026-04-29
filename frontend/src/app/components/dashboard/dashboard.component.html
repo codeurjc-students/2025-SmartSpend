@@ -51,9 +51,17 @@
             </div>
             <div class="form-group">
               <label for="initialBalance">Saldo inicial <span style="color: var(--color-danger);">*</span></label>
-              <input type="number" id="initialBalance" [(ngModel)]="initialBalance" name="initialBalance"
-                placeholder="0.00" [disabled]="isCreatingAccount" required step="0.01"
-                style="font-size: 1.2rem; font-weight: 600; text-align: right;">
+              <div style="position: relative;">
+                <input type="number" id="initialBalance" [(ngModel)]="initialBalance" name="initialBalance"
+                  placeholder="" [disabled]="isCreatingAccount" required step="0.01" (focus)="onInitialBalanceFocus()"
+                  style="width: 100%; font-size: 1.2rem; font-weight: 600; text-align: right; padding-right: 2rem;">
+                @if (initialBalance === undefined) {
+                  <span style="position: absolute; right: 32px; top: 50%; transform: translateY(-50%); color: #64748b; pointer-events: none; font-weight: 600;">
+                    0.00
+                  </span>
+                }
+                <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-weight: 600; pointer-events: none;">€</span>
+              </div>
             </div>
             <!-- Mensaje de error dentro del modal -->
             @if (errorMessage) {

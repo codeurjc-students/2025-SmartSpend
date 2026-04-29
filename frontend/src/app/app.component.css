@@ -3,12 +3,13 @@
   min-height: 100vh; /* Cambiar a min-height para permitir crecimiento */
   display: flex;
   flex-direction: column;
+  background: var(--app-surface-gradient);
   /* Permitir scroll cuando sea necesario */
 }
 
 /* Layout específico para páginas de autenticación */
 .app-layout.auth-layout {
-  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-card) 100%);
+  background: var(--app-surface-gradient);
   height: 100vh; /* Altura fija para auth */
   overflow: hidden; /* Sin scroll */
 }
@@ -85,7 +86,7 @@ html, body {
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
- 
+
 }
 
 /* Para contenido que necesita scroll INTERNO */

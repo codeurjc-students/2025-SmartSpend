@@ -1,9 +1,10 @@
 .panel {
-  background: var(--color-bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--surface-panel-bg);
+  border: 1px solid var(--surface-panel-border);
   border-radius: 16px;
   padding: 1.25rem;
-  box-shadow: var(--box-shadow-base);
+  box-shadow: var(--surface-panel-shadow);
+  backdrop-filter: blur(10px);
   min-height: 360px;
 }
 
@@ -17,6 +18,14 @@
   }
 }
 
+.panel-copy {
+  margin: 0.45rem 0 0;
+  color: var(--color-text);
+  opacity: 0.8;
+  max-width: 46ch;
+  line-height: 1.45;
+}
+
 .panel-kicker {
   margin: 0;
   color: var(--color-accent-teal);
@@ -27,6 +36,10 @@
 
 .chart-wrapper {
   height: 250px;
+  border-radius: 12px;
+  padding: 0.75rem;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.62), rgba(2, 6, 23, 0.38));
+  border: 1px solid rgba(125, 211, 252, 0.08);
 }
 
 .empty-state {
@@ -59,7 +72,14 @@
   }
 
   &.projection {
-    background: rgba(240, 110, 122, 0.18);
-    color: var(--color-danger);
+    background: rgba(251, 146, 60, 0.18);
+    color: #ffcc8a;
   }
+}
+
+.legend-copy {
+  margin: 0.65rem 0 0;
+  color: var(--color-text);
+  opacity: 0.72;
+  font-size: 0.82rem;
 }

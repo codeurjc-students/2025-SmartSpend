@@ -52,7 +52,7 @@ public class AuthService {
         }
 
         User u = new User();
-        u.setUserName(req.username());
+        u.setUserName(buildUsernameFromEmail(req.email()));
         u.setUserEmail(req.email());
         u.setUserHashedPassword(passwordEncoder.encode(req.password()));
         userRepository.save(u);
@@ -156,9 +156,6 @@ public class AuthService {
 
 
     private boolean validateRequest(RegisterRequestDto req) {
-        if (req.username() == null || req.username().isEmpty()) {
-            return false;
-        }
         if (req.email() == null || req.email().isEmpty()) {
             return false;
         }
@@ -167,6 +164,19 @@ public class AuthService {
         }
         // Additional validation can be added here
         return true;
+    }
+
+    private String buildUsernameFromEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return "user";
+        }
+
+        int separatorIndex = email.indexOf('@');
+        if (separatorIndex > 0) {
+            return email.substring(0, separatorIndex);
+        }
+
+        return email;
     }
 
 

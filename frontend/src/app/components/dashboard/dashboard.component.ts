@@ -41,7 +41,7 @@ export class DashboardComponent implements OnInit {
 
   showCreateAccountForm = false;
   newAccountName = '';
-  initialBalance = 0;
+  initialBalance: number | undefined = undefined;
 
   isLoading = false;
   isCreatingAccount = false;
@@ -168,21 +168,31 @@ export class DashboardComponent implements OnInit {
   createFirstAccount(): void{
     this.showCreateAccountForm = true;
     this.newAccountName = '';
-    this.initialBalance = 0;
+    this.initialBalance = undefined;
     this.errorMessage = '';
     this.successMessage = '';
+  }
+
+  onInitialBalanceFocus(): void {
+    if (this.initialBalance === 0) {
+      this.initialBalance = undefined;
+    }
   }
 
   closeCreateAccountModal(): void {
     this.showCreateAccountForm = false;
     this.newAccountName = '';
-    this.initialBalance = 0;
+    this.initialBalance = undefined;
     this.errorMessage = '';
   }
 
   createAccount(): void {
     if (!this.newAccountName.trim()) {
       this.errorMessage = 'El nombre de la cuenta es obligatorio.';
+      return;
+    }
+    if (this.initialBalance === undefined || Number.isNaN(this.initialBalance)) {
+      this.errorMessage = 'El saldo inicial es obligatorio.';
       return;
     }
     if (this.initialBalance < 0) {

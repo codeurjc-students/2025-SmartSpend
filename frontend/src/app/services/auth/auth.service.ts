@@ -24,9 +24,8 @@ export class AuthService {
       );
   }
 
-  register(username: string, email: string, password: string): Observable<AuthResponse> {
+  register(email: string, password: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`/api/v1/auth/register`, {
-      username,
       email,
       password
     }).pipe(

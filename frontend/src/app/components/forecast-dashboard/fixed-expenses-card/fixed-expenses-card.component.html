@@ -1,12 +1,13 @@
 <section class="panel fixed-expenses-panel">
   <header class="panel-header">
     <div>
-      <p class="panel-kicker">Smart Forecast</p>
+      <p class="panel-kicker">Prevision Inteligente</p>
       <h2>Gastos Fijos</h2>
+      <p class="panel-copy">Pagos recurrentes detectados para que veas rápido lo que todavía queda por cubrir este mes.</p>
     </div>
     <div class="total-badge">
       <span>Total</span>
-      <strong>{{ totalFixedExpenses | currency:'EUR':'symbol':'1.2-2' }}</strong>
+      <strong>{{ totalFixedExpenses | number:'1.2-2' }} €</strong>
     </div>
   </header>
 
@@ -24,16 +25,16 @@
           (keydown.space)="openTransactionDetail(expense.id)">
           <div class="expense-main">
             <p class="title">{{ expense.title }}</p>
-            <p class="meta">{{ expense.category.name }} · {{ expense.date | date:'d MMM' }}</p>
+            <p class="meta">{{ expense.category.name }} · {{ expense.date | date:"d 'de' MMMM":'':'es' }}</p>
           </div>
 
           <div class="expense-side">
-            <span class="amount">{{ expense.amount | currency:'EUR':'symbol':'1.2-2' }}</span>
+            <span class="amount">{{ expense.amount | number:'1.2-2' }} €</span>
             <span class="status" [class.paid]="isPaidThisMonth(expense.date)">
               @if (isPaidThisMonth(expense.date)) {
                 <span>Pagado este mes</span>
               } @else {
-                <span>Estimado {{ expense.date | date:'d MMM' }}</span>
+                <span>Estimado {{ expense.date | date:"d 'de' MMMM":'':'es' }}</span>
               }
             </span>
           </div>

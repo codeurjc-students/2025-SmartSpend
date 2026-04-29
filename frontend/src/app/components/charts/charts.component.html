@@ -1,4 +1,4 @@
-<div class="bg-slate-800 min-h-screen text-slate-200 p-6">
+<div class="min-h-screen text-slate-200 p-6">
   <div class="max-w-7xl mx-auto">
 
     <!-- Header -->
@@ -16,7 +16,7 @@
     @if (loadingPieIncomes || loadingPieExpenses || loadingBarChart || loadingTimelineChart) {
       <div class="flex items-center justify-center min-h-[400px]">
         <div class="text-center">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
           <p class="text-slate-400">Cargando gráficos...</p>
         </div>
       </div>
@@ -26,7 +26,7 @@
     @if (!loadingPieIncomes && !loadingPieExpenses && !loadingBarChart && !loadingTimelineChart) {
       <div>
         <!-- Controls -->
-        <div class="bg-slate-700 rounded-lg p-6 mb-8">
+        <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6 mb-8">
           <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <!-- Selector de período -->
             <div>
@@ -36,7 +36,7 @@
               <select
                 [(ngModel)]="viewType"
                 (ngModelChange)="onViewTypeChange()"
-                class="w-full p-2 bg-slate-600 border border-slate-500 rounded-lg text-slate-200 focus:ring-2 focus:ring-blue-500">
+                class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-cyan-400">
                 <option value="monthly">Mensual</option>
                 <option value="yearly">Anual</option>
               </select>
@@ -49,7 +49,7 @@
               <select
                 [(ngModel)]="selectedAccountId"
                 (ngModelChange)="onAccountChange()"
-                class="w-full p-2 bg-slate-600 border border-slate-500 rounded-lg text-slate-200 focus:ring-2 focus:ring-blue-500">
+                class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-cyan-400">
                 @for (account of bankAccounts; track account) {
                   <option [value]="account.id">
                     {{ account.accountName }} - €{{ account.currentBalance }}
@@ -65,7 +65,7 @@
               <select
                 [(ngModel)]="selectedYear"
                 (ngModelChange)="onDateChange()"
-                class="w-full p-2 bg-slate-600 border border-slate-500 rounded-lg text-slate-200 focus:ring-2 focus:ring-blue-500">
+                class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-cyan-400">
                 <option [value]="currentYear - 1">{{ currentYear - 1 }}</option>
                 <option [value]="currentYear">{{ currentYear }}</option>
                 <option [value]="currentYear + 1">{{ currentYear + 1 }}</option>
@@ -80,7 +80,7 @@
                 <select
                   [(ngModel)]="selectedMonth"
                   (ngModelChange)="onDateChange()"
-                  class="w-full p-2 bg-slate-600 border border-slate-500 rounded-lg text-slate-200 focus:ring-2 focus:ring-blue-500">
+                  class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-cyan-400">
                   @for (month of [1,2,3,4,5,6,7,8,9,10,11,12]; track month) {
                     <option [value]="month">
                       {{ getMonthName(month) }}
@@ -97,7 +97,7 @@
             <div class="flex items-end">
               <button
                 (click)="loadCharts()"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors mb-2">
+                class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold py-2 px-4 rounded-lg transition-colors mb-2">
                 Actualizar
               </button>
             </div>
@@ -127,7 +127,7 @@
         <!-- Charts Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <!-- Income Pie Chart -->
-          <div class="bg-slate-700 rounded-lg p-6">
+          <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg font-semibold text-slate-200">Ingresos por Categoría</h3>
               @if (pieIncomesData) {
@@ -154,7 +154,7 @@
             </div>
           </div>
           <!-- Expense Pie Chart -->
-          <div class="bg-slate-700 rounded-lg p-6">
+          <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg font-semibold text-slate-200">Gastos por Categoría</h3>
               @if (pieExpensesData) {
@@ -182,7 +182,7 @@
           </div>
         </div>
         <!-- Timeline Chart Full Width -->
-        <div class="bg-slate-700 rounded-lg p-6 mb-6">
+        <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6 mb-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-slate-200">
               Evolución Temporal del Balance
@@ -223,7 +223,7 @@
           </div>
         </div>
         <!-- Bar Chart Full Width -->
-        <div class="bg-slate-700 rounded-lg p-6">
+        <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-slate-200">Comparación Ingresos vs Gastos</h3>
             @if (barChartData) {

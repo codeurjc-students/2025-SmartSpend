@@ -26,11 +26,13 @@
 }
 
 .loading-card, .error-card, .empty-state-card, .welcome-state-card {
-  background-color: var(--color-bg-card);
+  background-color: var(--surface-panel-bg);
+  border: 1px solid var(--surface-panel-border);
+  backdrop-filter: blur(10px);
   text-align: center;
   padding: 30px;
   border-radius: 12px;
-  box-shadow: var(--box-shadow-base);
+  box-shadow: var(--surface-panel-shadow);
   max-width: 500px; /* Aumentado de 400px */
   width: 90%;
 }
@@ -110,9 +112,11 @@
    ======================================== */
 
 .grid-section {
-  background: var(--color-bg-card);
+  background: var(--surface-panel-bg);
+  border: 1px solid var(--surface-panel-border);
+  backdrop-filter: blur(10px);
   border-radius: 16px;
-  box-shadow: var(--box-shadow-base);
+  box-shadow: var(--surface-panel-shadow);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -221,13 +225,15 @@
 /* Grid Section Account Central - Como las otras secciones */
 .grid-section.account-central {
   position: relative;
-  background: var(--color-bg-card);
+  background: var(--surface-panel-bg);
+  border: 1px solid var(--surface-panel-border);
+  backdrop-filter: blur(10px);
   border-radius: 12px;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: var(--box-shadow-base);
+  box-shadow: var(--surface-panel-shadow);
 }
 
 /* Account Content Direct - Sin contenedor extra */
@@ -309,7 +315,7 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   position: sticky;
   bottom: 0;
-  background: var(--color-bg-card);
+  background: var(--surface-panel-bg);
   z-index: 3;
 }
 
@@ -578,10 +584,11 @@
 .indicators-container {
   display: flex;
   gap: 10px;
-  background: var(--color-bg-card);
+  background: var(--surface-panel-bg);
+  border: 1px solid var(--surface-panel-border);
   padding: 8px 16px;
   border-radius: 25px;
-  box-shadow: var(--box-shadow-elevated);
+  box-shadow: var(--surface-panel-shadow);
   backdrop-filter: blur(10px);
 }
 
@@ -629,9 +636,11 @@
   flex-direction: column;
   width: 600px;
   height: 700px;
-  background: var(--color-bg-card);
+  background: var(--surface-panel-bg);
+  border: 1px solid var(--surface-panel-border);
+  backdrop-filter: blur(10px);
   border-radius: 16px;
-  box-shadow: var(--box-shadow-elevated);
+  box-shadow: var(--surface-panel-shadow);
   overflow: hidden;
   padding: 24px;
   gap: 20px;
@@ -647,7 +656,7 @@
   justify-content: center;
   font-size: 1.2rem;
   border: 2px solid var(--color-primary);
-  background: var(--color-bg-card);
+  background: var(--surface-panel-bg);
   color: var(--color-primary);
   cursor: pointer;
   transition: all 0.3s ease;

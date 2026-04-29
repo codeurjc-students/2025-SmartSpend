@@ -9,8 +9,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(2px);
+    background-color: rgba(2, 6, 23, 0.72);
+    backdrop-filter: blur(6px);
     z-index: 9999;
     display: flex;
     align-items: center;
@@ -27,7 +27,8 @@
 
 /* Contenedor del modal */
 .modal {
-    background-color: var(--color-bg-card);
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(17, 24, 39, 0.95) 100%);
+    border: 1px solid rgba(71, 85, 105, 0.68);
     border-radius: 12px;
     box-shadow: var(--box-shadow-base);
     max-width: 90vw;
@@ -102,8 +103,8 @@
 }
 
 .modal-close:hover {
-    background-color: var(--color-danger);
-    color: white;
+    background-color: rgba(6, 182, 212, 0.2);
+    color: rgb(165 243 252);
     opacity: 1;
     transform: rotate(90deg);
 }
@@ -126,14 +127,14 @@
     display: flex;
     justify-content: flex-end;
     gap: 15px;
-    
+
 }
 
 @media (max-width: 480px) {
     .modal-footer {
         flex-direction: column;
     }
-    
+
     .modal-footer .btn {
         width: 100%;
     }
@@ -190,7 +191,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(var(--color-bg-card), 0.8);
+    background-color: rgba(15, 23, 42, 0.82);
     z-index: 10;
     display: flex;
     align-items: center;

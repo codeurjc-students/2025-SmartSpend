@@ -1,7 +1,10 @@
 /* NAVBAR GENERAL */
 .nav-bar {
   width: 100%;
-  background: #1c2238;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(11, 18, 32, 0.92) 100%);
+  border-bottom: 1px solid rgba(71, 85, 105, 0.55);
+  backdrop-filter: blur(8px);
   padding: 0.8rem 1.5rem;
   z-index: 999;
   height: 80px; /* altura fija para reservar espacio */
@@ -37,7 +40,7 @@
 }
 
 .nav-links a {
-  color: #e8e8f7;
+  color: #cbd5e1;
   text-decoration: none;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -46,8 +49,8 @@
 }
 
 .nav-links a:hover {
-  color: #2BDACF;
-  text-shadow: 0 0 8px rgba(43, 218, 207, 0.4);
+  color: #67e8f9;
+  text-shadow: 0 0 8px rgba(103, 232, 249, 0.35);
 }
 
 /* RESPONSIVE MOVIL */
