@@ -19,7 +19,7 @@
 
   h2 {
     margin: 0.15rem 0 0;
-    color: white;
+    color: var(--color-text);
     font-size: 1.35rem;
   }
 }
@@ -44,7 +44,7 @@
   text-align: right;
   padding: 0.55rem 0.8rem;
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.62), rgba(2, 6, 23, 0.38));
+  background: var(--item-surface-bg);
   border: 1px solid rgba(125, 211, 252, 0.08);
 
   span {
@@ -55,7 +55,7 @@
   }
 
   strong {
-    color: white;
+    color: var(--color-text);
     font-size: 1.2rem;
   }
 }
@@ -84,7 +84,7 @@
   gap: 0.75rem;
   padding: 0.8rem;
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.62), rgba(2, 6, 23, 0.38));
+  background: var(--item-surface-bg);
   border: 1px solid rgba(125, 211, 252, 0.08);
   cursor: pointer;
   transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
@@ -92,7 +92,7 @@
   &:hover {
     transform: translateY(-1px);
     border-color: rgba(56, 189, 248, 0.24);
-    background: linear-gradient(180deg, rgba(15, 23, 42, 0.78), rgba(2, 6, 23, 0.5));
+    background: var(--item-surface-bg-hover);
   }
 
   &:focus-visible {
@@ -103,7 +103,7 @@
 
 .title {
   margin: 0;
-  color: white;
+  color: var(--color-text);
   font-weight: 600;
 }
 

@@ -2,12 +2,13 @@
 /* Componente reutilizable para filtros de transacciones */
 
 .transaction-filters-container {
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.92) 0%, rgba(15, 23, 42, 0.92) 100%);
-  border: 1px solid rgba(71, 85, 105, 0.7);
-  border-radius: 0.75rem; /* rounded-xl */
+  background: var(--surface-panel-bg);
+  border: 1px solid var(--surface-panel-border);
+  border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 0;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
 }
 
 /* Header */
@@ -19,20 +20,20 @@
 }
 
 .filters-title {
-  font-size: 1.125rem; /* text-lg */
+  font-size: 1.125rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: rgb(226 232 240); /* slate-200 */
+  color: var(--color-text);
   margin: 0;
 }
 
 .clear-button {
   padding: 0.5rem 1rem;
-  background-color: rgb(30 41 59);
-  border: 1px solid rgba(100, 116, 139, 0.5);
-  color: rgb(226 232 240);
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--surface-panel-border);
+  color: var(--color-text);
   border-radius: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
@@ -41,7 +42,7 @@
 }
 
 .clear-button:hover {
-  background-color: rgb(51 65 85);
+  background-color: var(--color-secondary);
   transform: translateY(-1px);
 }
 
@@ -95,7 +96,8 @@
 .filter-label {
   display: block;
   font-size: 0.875rem;
-  color: rgb(148 163 184); /* slate-400 */
+  color: var(--color-text);
+  opacity: 0.75;
   margin-bottom: 0.5rem;
   font-weight: 500;
 }
@@ -105,10 +107,10 @@
 .filter-select {
   width: 100%;
   border-radius: 0.5rem;
-  background-color: rgb(15 23 42);
-  border: 1px solid rgb(71 85 105); /* slate-600 */
+  background-color: var(--color-bg);
+  border: 1px solid var(--border-color);
   padding: 0.75rem 1rem;
-  color: rgb(226 232 240); /* slate-200 */
+  color: var(--color-text);
   font-size: 1rem;
   transition: all 0.2s ease-in-out;
 }
@@ -122,7 +124,8 @@
 }
 
 .filter-input::placeholder {
-  color: rgb(100 116 139); /* slate-500 */
+  color: var(--color-text);
+  opacity: 0.45;
 }
 
 .pending-toggle {
@@ -146,8 +149,8 @@
   width: 44px;
   height: 24px;
   border-radius: 999px;
-  background: rgb(71 85 105);
-  border: 1px solid rgb(100 116 139);
+  background: var(--color-secondary);
+  border: 1px solid var(--border-color);
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -159,7 +162,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: rgb(226 232 240);
+  background: var(--color-text);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
   transition: transform 0.2s ease;
 }
@@ -180,7 +183,7 @@
 
 .pending-toggle-text {
   font-size: 0.9rem;
-  color: rgb(226 232 240);
+  color: var(--color-text);
   font-weight: 500;
 }
 

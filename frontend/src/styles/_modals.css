@@ -27,7 +27,7 @@
 
 /* Contenedor del modal */
 .modal {
-    background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(17, 24, 39, 0.95) 100%);
+    background: var(--modal-bg);
     border: 1px solid rgba(71, 85, 105, 0.68);
     border-radius: 12px;
     box-shadow: var(--box-shadow-base);
@@ -37,6 +37,7 @@
     transform: scale(0.8) translateY(-50px);
     transition: all 0.3s ease;
     position: relative;
+    color: var(--color-text);
 }
 
 .modal-overlay.show .modal {
@@ -191,7 +192,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(15, 23, 42, 0.82);
+    background-color: var(--modal-loading-bg);
     z-index: 10;
     display: flex;
     align-items: center;

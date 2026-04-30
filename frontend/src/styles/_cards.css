@@ -43,7 +43,7 @@
 .card-footer {
     padding: 16px 24px;
     border-top: 1px solid var(--border-color);
-    background-color: rgba(15, 23, 42, 0.55);
+    background-color: var(--card-footer-bg);
 }
 
 /* Tarjeta de cuenta principal */

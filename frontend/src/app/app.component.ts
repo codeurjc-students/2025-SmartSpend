@@ -5,6 +5,7 @@ import { LoginRegisterComponent } from './components/auth-components/login-regis
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
+import { ThemeService } from './services/theme/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -25,7 +26,9 @@ export class AppComponent implements OnInit {
   title = 'smartspend-frontend';
   showNavbar = false; // Iniciar en false para evitar flash del navbar
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private themeService: ThemeService) {
+    // Aplicar tema guardado lo antes posible para evitar flash
+    this.themeService.init();
     // Verificar ruta inicial inmediatamente en el constructor
     const authRoutes = ['/login', '/register'];
     this.showNavbar = !authRoutes.some(route => this.router.url.includes(route));
