@@ -134,12 +134,24 @@ html.light-theme .nav-bar {
 }
 
 html.light-theme .nav-links a {
-  color: #475569;
+  color: #475569 !important;
 }
 
 html.light-theme .nav-links a:hover {
-  color: #0891b2;
-  text-shadow: 0 0 8px rgba(8, 145, 178, 0.25);
+  color: #0891b2 !important;
+  text-shadow: 0 0 8px rgba(8, 145, 178, 0.25) !important;
+}
+
+html.light-theme .theme-toggle {
+  color: #64748b !important;
+  background: rgba(8, 145, 178, 0.07) !important;
+  border-color: rgba(8, 145, 178, 0.2) !important;
+}
+
+html.light-theme .theme-toggle:hover {
+  color: #0891b2 !important;
+  background: rgba(8, 145, 178, 0.13) !important;
+  border-color: rgba(8, 145, 178, 0.35) !important;
 }
 
 html.light-theme * {
@@ -149,6 +161,13 @@ html.light-theme * {
 html.light-theme body {
   background-color: var(--color-bg);
   color: var(--color-text);
+}
+
+/* Auth pages (login / register) always stay dark */
+html.light-theme .login-container,
+html.light-theme .register-container {
+  background: #0b1220 !important;
+  color: #e2e8f0 !important;
 }
 
 /* Modal en light */
@@ -286,6 +305,49 @@ html.light-theme .border-slate-700 {
 
 html.light-theme .border-slate-600 {
   border-color: #cbd5e1 !important;
+}
+
+/* ---- Overrides para transaction-detail y all-transactions en light ---- */
+
+html.light-theme .bg-slate-800\/80 {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+html.light-theme .bg-slate-800\/65 {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+}
+
+html.light-theme .bg-slate-900\/70 {
+  background-color: rgba(241, 245, 249, 0.9) !important;
+}
+
+html.light-theme .bg-slate-950\/40 {
+  background-color: rgba(226, 232, 240, 0.6) !important;
+}
+
+html.light-theme .text-white {
+  color: #0f172a !important;
+}
+
+/* Gradient header en transaction-detail */
+html.light-theme .from-slate-800 {
+  --tw-gradient-from: #f8fafc var(--tw-gradient-from-position, ) !important;
+}
+
+html.light-theme .via-slate-800 {
+  --tw-gradient-via: #f1f5f9 var(--tw-gradient-via-position, ) !important;
+}
+
+html.light-theme .to-slate-700\/70 {
+  --tw-gradient-to: rgba(241, 245, 249, 0.7) var(--tw-gradient-to-position, ) !important;
+}
+
+html.light-theme .hover\:bg-slate-700:hover {
+  background-color: #e2e8f0 !important;
+}
+
+html.light-theme .hover\:bg-slate-600:hover {
+  background-color: #cbd5e1 !important;
 }
 
 /* Textos en labels del modal */

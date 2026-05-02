@@ -13,6 +13,14 @@
   box-sizing: border-box; /* Incluye padding y borde en el tamaño total del elemento */
   width: 100%;
   overflow: hidden; /* Evita scroll innecesario */
+  /* Siempre oscuro — immune al tema claro */
+  background: #0b1220;
+  color: #e2e8f0;
+}
+
+:host {
+  display: block;
+  color-scheme: dark;
 }
 
 /* Tarjeta del formulario */
@@ -70,6 +78,11 @@
   background: rgba(15, 23, 42, 0.82);
   color: #e2e8f0;
   padding: 11px 13px;
+}
+
+.register-card .form-group input::placeholder {
+  color: #94a3b8;
+  opacity: 1;
 }
 
 .register-card .form-group input:focus {
@@ -183,4 +196,39 @@
   .register-card {
     max-width: 500px; /* Ancho máximo para escritorios */
   }
+}
+
+/* Textos de la tarjeta — siempre claros sobre fondo oscuro */
+.register-card .form-title {
+  color: #e2e8f0 !important;
+}
+
+.register-card .auth-subtitle {
+  color: rgba(148, 163, 184, 0.95) !important;
+}
+
+.register-card .social-divider span {
+  color: #94a3b8 !important;
+}
+
+.register-card .register-link p {
+  color: #94a3b8 !important;
+}
+
+.register-card .register-link a {
+  color: #22d3ee !important;
+}
+
+.register-card .btn,
+.register-card .auth-submit-btn {
+  color: #f8fafc !important;
+}
+
+.register-card .btn:disabled,
+.register-card .auth-submit-btn:disabled {
+  color: #cbd5e1 !important;
+}
+
+.register-card .error-message {
+  color: #fb7185 !important;
 }

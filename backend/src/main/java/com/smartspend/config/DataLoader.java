@@ -65,6 +65,7 @@ public class DataLoader implements CommandLineRunner {
         Category salud = categoryRepository.save(new Category("Salud", "Médicos, medicinas, seguros", "#e67e22", TransactionType.EXPENSE, "🏥"));
         Category educacion = categoryRepository.save(new Category("Educación", "Cursos, libros, matrícula", "#2980b9", TransactionType.EXPENSE, "📚"));
         Category ropa = categoryRepository.save(new Category("Ropa", "Compras de vestimenta y accesorios", "#8e44ad", TransactionType.EXPENSE, "👕"));
+        categoryRepository.save(new Category("Deportes", "Gimnasio, material y actividades deportivas", "#0ea5e9", TransactionType.EXPENSE, "🏃"));
         categoryRepository.save(new Category("Mascotas", "Comida, veterinario, accesorios", "#2c3e50", TransactionType.EXPENSE, "🐾"));
         Category viajes = categoryRepository.save(new Category("Viajes", "Vacaciones, billetes, alojamiento", "#16a085", TransactionType.EXPENSE, "✈️"));
         Category otros = categoryRepository.save(new Category("Otros", "Gastos no clasificados", "#7f8c8d", TransactionType.EXPENSE, "❓"));
@@ -659,6 +660,11 @@ public class DataLoader implements CommandLineRunner {
             System.out.println("💳 Total transacciones: " + transactionRepository.count());
             System.out.println("🏦 Total cuentas: " + bankAccountRepository.count());
             System.out.println("👤 Total usuarios: " + userRepository.count());
+        }
+
+        if (categoryRepository.findByName("Deportes") == null) {
+            categoryRepository.save(new Category("Deportes", "Gimnasio, material y actividades deportivas", "#0ea5e9", TransactionType.EXPENSE, "🏃"));
+            System.out.println("✅ Categoría añadida: Deportes");
         }
     }
     }

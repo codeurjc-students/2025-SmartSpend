@@ -37,7 +37,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     // 👈 Detectar la ruta inicial inmediatamente
     this.checkCurrentRoute();
-    
+
     // Escucha los cambios de ruta posteriores
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))

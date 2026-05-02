@@ -196,3 +196,43 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- Light theme overrides ---- */
+:host-context(html.light-theme) {
+  .summary-pill-expenses {
+    color: #9a3412;
+    background: rgba(249, 115, 22, 0.12);
+    border-color: rgba(234, 88, 12, 0.35);
+  }
+
+  .summary-pill-categories {
+    color: #065f46;
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(5, 150, 105, 0.3);
+  }
+
+  .summary-pill-reading {
+    color: #1e40af;
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(37, 99, 235, 0.3);
+  }
+
+  .header-side .active-account strong {
+    color: #0f172a;
+  }
+
+  .kicker {
+    color: var(--color-accent-teal);
+    opacity: 1;
+  }
+
+  .pill.neutral {
+    background: rgba(15, 23, 42, 0.08);
+    color: #334155;
+  }
+
+  .pill.projection {
+    background: rgba(251, 146, 60, 0.14);
+    color: #c2410c;
+  }
+}

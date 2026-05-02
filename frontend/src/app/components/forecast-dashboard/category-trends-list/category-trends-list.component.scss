@@ -142,3 +142,35 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- Light theme overrides ---- */
+:host-context(html.light-theme) {
+  .trend-item {
+    background: rgba(241, 245, 249, 0.8);
+    border-color: rgba(203, 213, 225, 0.6);
+  }
+
+  .variation.trend-up {
+    background: rgba(220, 38, 38, 0.1);
+    color: #b91c1c;
+  }
+
+  .variation.trend-down {
+    background: rgba(5, 150, 105, 0.12);
+    color: #065f46;
+  }
+
+  .variation.trend-stable {
+    background: rgba(15, 23, 42, 0.08);
+    color: #475569;
+  }
+
+  .metric span {
+    color: #64748b;
+    opacity: 1;
+  }
+
+  .metric strong {
+    color: #1e293b;
+  }
+}
