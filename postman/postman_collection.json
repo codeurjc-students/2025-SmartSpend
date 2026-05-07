@@ -15,6 +15,20 @@
           "name": "Register",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const suffix = Date.now().toString();",
+                  "pm.environment.set(\"testUsername\", `ci_user_${suffix}`);",
+                  "pm.environment.set(\"testEmail\", `ci_user_${suffix}@example.com`);",
+                  "pm.environment.set(\"testPassword\", \"password123\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
@@ -55,7 +69,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"username\": \"nuevo_usuario\",\n    \"email\": \"user@gmail.com\",\n    \"password\": \"password123\"\n}",
+              "raw": "{\n    \"username\": \"{{testUsername}}\",\n    \"email\": \"{{testEmail}}\",\n    \"password\": \"{{testPassword}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -127,7 +141,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"user@gmail.com\",\n    \"password\": \"password123\"\n}",
+              "raw": "{\n    \"email\": \"{{testEmail}}\",\n    \"password\": \"{{testPassword}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -381,6 +395,65 @@
       "name": "Transaction",
       "item": [
         {
+          "name": "000 - Get expense categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains expense categories\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an(\"array\");",
+                  "    pm.expect(jsonData.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "const categories = pm.response.json();",
+                  "const expenseCategory = categories.find(category => category.type === \"EXPENSE\") || categories[0];",
+                  "pm.environment.set(\"expenseCategoryId\", expenseCategory.id);",
+                  "console.log(\"Expense category ID saved to environment variable 'expenseCategoryId':\", expenseCategory.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories?type=EXPENSE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "EXPENSE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "001 - Create transaction",
           "event": [
             {
@@ -515,7 +588,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"title\": \"Supermarket purchase\",\r\n  \"description\": \"Weekly grocery shopping\",\r\n  \"amount\": 50,\r\n  \"type\": \"EXPENSE\",\r\n  \"date\": \"2026-01-28\",\r\n  \"recurrence\": \"NONE\",\r\n  \"accountId\": {{accountId}},\r\n  \"categoryId\": 5\r\n}",
+              "raw": "{\r\n  \"title\": \"Supermarket purchase\",\r\n  \"description\": \"Weekly grocery shopping\",\r\n  \"amount\": 50,\r\n  \"type\": \"EXPENSE\",\r\n  \"date\": \"2026-01-28\",\r\n  \"recurrence\": \"NONE\",\r\n  \"accountId\": {{accountId}},\r\n  \"categoryId\": {{expenseCategoryId}}\r\n}",
               "options": {
                 "raw": {
                   "language": "json"

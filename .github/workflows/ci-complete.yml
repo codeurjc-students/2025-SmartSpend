@@ -55,6 +55,12 @@ jobs:
     needs: [backend-complete]
     env:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+      AIVEN_DB_HOST: ${{ secrets.AIVEN_DB_HOST }}
+      AIVEN_DB_PORT: ${{ secrets.AIVEN_DB_PORT }}
+      AIVEN_DB_NAME: ${{ secrets.AIVEN_DB_NAME }}
+      AIVEN_DB_USERNAME: ${{ secrets.AIVEN_DB_USERNAME }}
+      AIVEN_DB_PASSWORD: ${{ secrets.AIVEN_DB_PASSWORD }}
+      AIVEN_DB_SSL_MODE: ${{ secrets.AIVEN_DB_SSL_MODE }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}

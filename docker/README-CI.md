@@ -6,8 +6,9 @@ Este docker-compose-ci.yml está configurado para ejecutar pruebas de integraci�
 
 1. **init-volume**: Inicializa volúmenes para los reportes
 2. **app-ci**: Aplicación SmartSpend (Backend + Frontend)
-3. **db-ci**: Base de datos MySQL para CI
-4. **newman**: Ejecutor de tests de Postman
+3. **newman**: Ejecutor de tests de Postman
+
+La base de datos de CI se consume directamente desde **Aiven** usando las variables `AIVEN_DB_*` definidas en `docker/.env`.
 
 ## Uso:
 
@@ -45,9 +46,10 @@ docker run --rm -v smartspend-ci_report-volume:/data -v $(pwd):/backup alpine cp
 
 ## Variables de entorno:
 
-El entorno de CI está configurado con valores seguros para testing:
-- Base de datos: `smartspend_ci`
-- Usuario DB: `smartspend`
+El entorno de CI está configurado para usar la base de datos remota de Aiven:
+- Host/puerto/base de datos: `AIVEN_DB_HOST`, `AIVEN_DB_PORT`, `AIVEN_DB_NAME`
+- Credenciales: `AIVEN_DB_USERNAME`, `AIVEN_DB_PASSWORD`
+- SSL MySQL: `AIVEN_DB_SSL_MODE`
 - Puerto aplicación: `8443` (mapeado desde 443 interno)
 - JWT Secret: Clave específica para testing
 - SSL verificación: Deshabilitada para self-signed certificates
@@ -57,7 +59,7 @@ El entorno de CI está configurado con valores seguros para testing:
 ### Si la aplicación no responde al healthcheck:
 1. Verifica que el puerto 8443 esté disponible
 2. Revisa logs: `docker-compose -f docker-compose-ci.yml logs app-ci`
-3. Verifica que la base de datos esté inicializada correctamente
+3. Verifica que las variables `AIVEN_DB_*` sean correctas y que la instancia remota permita conexiones
 
 ### Si Newman falla:
 1. Verifica que la aplicación esté respondiendo: `curl -k https://localhost:8443/actuator/health`
