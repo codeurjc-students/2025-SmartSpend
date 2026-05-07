@@ -1,0 +1,19 @@
+:host {
+	display: block;
+}
+
+.edit-profile-btn {
+	font-weight: 600;
+	letter-spacing: 0.01em;
+}
+
+:host-context(html.light-theme) .edit-profile-btn {
+	background: rgba(8, 145, 178, 0.14) !important;
+	border-color: rgba(14, 116, 144, 0.35) !important;
+	color: #0e7490 !important;
+}
+
+:host-context(html.light-theme) .edit-profile-btn:hover {
+	background: rgba(8, 145, 178, 0.2) !important;
+	color: #155e75 !important;
+}

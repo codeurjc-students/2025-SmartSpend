@@ -616,6 +616,38 @@
   transform: scale(1.1);
 }
 
+:host-context(html.light-theme) .pending-debt-item,
+:host-context(html.light-theme) .fixed-expense-item {
+  background: rgba(241, 245, 249, 0.84);
+  border-color: rgba(148, 163, 184, 0.5);
+}
+
+:host-context(html.light-theme) .pending-debt-item:hover,
+:host-context(html.light-theme) .fixed-expense-item:hover {
+  background: rgba(226, 232, 240, 0.95);
+  border-color: rgba(8, 145, 178, 0.38);
+}
+
+:host-context(html.light-theme) .expense-main .title {
+  color: #1e293b;
+}
+
+:host-context(html.light-theme) .expense-main .meta {
+  color: #64748b;
+}
+
+:host-context(html.light-theme) .expense-side .amount {
+  color: #0f172a;
+}
+
+:host-context(html.light-theme) .expense-side .status {
+  color: #b45309;
+}
+
+:host-context(html.light-theme) .expense-side .status.paid {
+  color: #15803d;
+}
+
 .indicator-btn:hover {
   border-color: var(--color-primary);
   transform: scale(1.05);

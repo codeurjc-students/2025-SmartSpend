@@ -3,6 +3,10 @@
     backdrop-filter: blur(8px);
 }
 
+.receipt-header {
+    background: linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 58%, rgba(51, 65, 85, 0.72) 100%);
+}
+
 .receipt-card::before,
 .receipt-card::after {
     content: "";
@@ -38,4 +42,16 @@
     .receipt-card::after {
         right: -7px;
     }
+}
+
+:host-context(html.light-theme) .receipt-header {
+    background: linear-gradient(90deg, rgba(248, 250, 252, 0.98) 0%, rgba(226, 232, 240, 0.86) 55%, rgba(241, 245, 249, 0.92) 100%) !important;
+}
+
+:host-context(html.light-theme) .receipt-header .text-white {
+    color: #0f172a !important;
+}
+
+:host-context(html.light-theme) .receipt-header .text-slate-400 {
+    color: #475569 !important;
 }

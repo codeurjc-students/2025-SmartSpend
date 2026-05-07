@@ -198,7 +198,7 @@
                 <button
                   type="button"
                   (click)="toggleSharedMode()"
-                  class="flex items-center gap-2 text-sm font-medium transition-colors"
+                  class="shared-toggle-btn flex items-center gap-2 text-sm font-medium transition-colors"
             [ngClass]="isSharedMode
               ? 'text-cyan-300 hover:text-cyan-200'
               : 'text-slate-400 hover:text-slate-300'"
@@ -234,7 +234,7 @@
               }
               <!-- Panel compartido -->
               @if (isSharedMode && mode === 'create') {
-                <div class="mt-4 rounded-xl border border-slate-600 bg-slate-900/60 p-4 flex flex-col gap-4">
+                <div class="shared-expense-panel mt-4 rounded-xl border border-slate-600 bg-slate-900/60 p-4 flex flex-col gap-4">
                   <!-- Tu parte -->
                   <div>
                     <label class="block text-sm text-slate-400 mb-1">
@@ -298,7 +298,7 @@
                     <button
                       type="button"
                       (click)="addDebt()"
-                      class="mt-2 text-sm text-cyan-300 hover:text-cyan-200 transition-colors"
+                      class="add-person-btn mt-2 text-sm text-cyan-300 hover:text-cyan-200 transition-colors"
                       >
                       + Añadir persona
                     </button>
@@ -308,14 +308,14 @@
                     type="button"
                     (click)="splitEqually()"
                     [disabled]="sharedDebts.length === 0"
-              class="w-full py-2 rounded-lg border border-slate-600 text-sm text-slate-300
+              class="split-equally-btn w-full py-2 rounded-lg border border-slate-600 text-sm text-slate-300
                      hover:bg-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                     ⚖️ Dividir equitativamente
                   </button>
                   <!-- Preview / validación -->
                   <div
-                    class="rounded-lg px-4 py-3 text-sm flex items-center justify-between"
+                    class="split-summary rounded-lg px-4 py-3 text-sm flex items-center justify-between"
               [ngClass]="getRemainder() === 0
                 ? 'bg-green-500/10 border border-green-500/30 text-green-400'
                 : 'bg-amber-500/10 border border-amber-500/30 text-amber-400'"

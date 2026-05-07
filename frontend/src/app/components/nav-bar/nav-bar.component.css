@@ -32,6 +32,10 @@
   display: block;  /* 👈 evita espacios fantasmas */
 }
 
+.navbar-logo-image {
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
 /* LINKS */
 .nav-links {
   display: flex;
@@ -94,4 +98,10 @@
   .navbar-logo img {
     height: 32px;
   }
+}
+
+:host-context(html.light-theme) .navbar-logo-image {
+  /* Ajuste suave para acercar el logo al tono de las links en light mode */
+  filter: brightness(0) saturate(100%) invert(25%) sepia(13%) saturate(1028%) hue-rotate(175deg) brightness(92%) contrast(90%);
+  opacity: 0.95;
 }
