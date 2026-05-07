@@ -1,9 +1,10 @@
 .panel {
-  background: var(--color-bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--surface-panel-bg);
+  border: 1px solid var(--surface-panel-border);
   border-radius: 16px;
   padding: 1.25rem;
-  box-shadow: var(--box-shadow-base);
+  box-shadow: var(--surface-panel-shadow);
+  backdrop-filter: blur(10px);
   min-height: 360px;
 }
 
@@ -12,9 +13,17 @@
 
   h2 {
     margin: 0.15rem 0 0;
-    color: white;
+    color: var(--color-text);
     font-size: 1.35rem;
   }
+}
+
+.panel-copy {
+  margin: 0.45rem 0 0;
+  color: var(--color-text);
+  opacity: 0.8;
+  max-width: 46ch;
+  line-height: 1.45;
 }
 
 .panel-kicker {
@@ -27,6 +36,10 @@
 
 .chart-wrapper {
   height: 250px;
+  border-radius: 12px;
+  padding: 0.75rem;
+  background: var(--item-surface-bg);
+  border: 1px solid rgba(125, 211, 252, 0.08);
 }
 
 .empty-state {
@@ -59,7 +72,37 @@
   }
 
   &.projection {
-    background: rgba(240, 110, 122, 0.18);
-    color: var(--color-danger);
+    background: rgba(251, 146, 60, 0.18);
+    color: #ffcc8a;
+  }
+}
+
+.legend-copy {
+  margin: 0.65rem 0 0;
+  color: var(--color-text);
+  opacity: 0.72;
+  font-size: 0.82rem;
+}
+
+/* ---- Light theme overrides ---- */
+:host-context(html.light-theme) {
+  .chart-wrapper {
+    background: rgba(241, 245, 249, 0.75);
+    border-color: rgba(203, 213, 225, 0.6);
+  }
+
+  .pill.neutral {
+    background: rgba(15, 23, 42, 0.08);
+    color: #334155;
+  }
+
+  .pill.positive {
+    background: rgba(5, 150, 105, 0.12);
+    color: #065f46;
+  }
+
+  .pill.projection {
+    background: rgba(234, 88, 12, 0.12);
+    color: #c2410c;
   }
 }

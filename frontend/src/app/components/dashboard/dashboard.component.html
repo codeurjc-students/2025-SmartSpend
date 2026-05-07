@@ -51,9 +51,17 @@
             </div>
             <div class="form-group">
               <label for="initialBalance">Saldo inicial <span style="color: var(--color-danger);">*</span></label>
-              <input type="number" id="initialBalance" [(ngModel)]="initialBalance" name="initialBalance"
-                placeholder="0.00" [disabled]="isCreatingAccount" required step="0.01"
-                style="font-size: 1.2rem; font-weight: 600; text-align: right;">
+              <div style="position: relative;">
+                <input type="number" id="initialBalance" [(ngModel)]="initialBalance" name="initialBalance"
+                  placeholder="" [disabled]="isCreatingAccount" required step="0.01" (focus)="onInitialBalanceFocus()"
+                  style="width: 100%; font-size: 1.2rem; font-weight: 600; text-align: right; padding-right: 2rem;">
+                @if (initialBalance === undefined) {
+                  <span style="position: absolute; right: 32px; top: 50%; transform: translateY(-50%); color: #64748b; pointer-events: none; font-weight: 600;">
+                    0.00
+                  </span>
+                }
+                <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-weight: 600; pointer-events: none;">€</span>
+              </div>
             </div>
             <!-- Mensaje de error dentro del modal -->
             @if (errorMessage) {
@@ -87,20 +95,89 @@
         <div class="section-header">
           <h3>💸 Deudas pendientes</h3>
         </div>
-        <div class="section-content scrollable-content">
-          <p>Coming soon...</p>
-          <small class="text-muted">Recurring expense management</small>
-        </div>
+        @if (isLoadingPendingDebts) {
+          <div class="section-content">
+            <div class="spinner spinner-md"></div>
+            <p>Cargando deudas pendientes...</p>
+          </div>
+        } @else if (pendingDebtsSummary.length === 0) {
+          <div class="section-content">
+            <p>No tienes deudas pendientes 🎉</p>
+          </div>
+        } @else {
+          <div class="section-content scrollable-content pending-debts-list-content">
+            <ul class="pending-debts-list">
+              @for (debt of pendingDebtsSummary; track debt.debtId) {
+                <li
+                  class="pending-debt-item"
+                  role="button"
+                  tabindex="0"
+                  (click)="openTransactionDetail(debt.transactionId)"
+                  (keydown.enter)="openTransactionDetail(debt.transactionId)"
+                  (keydown.space)="openTransactionDetail(debt.transactionId)">
+                  <div class="expense-main">
+                    <p class="title">{{ debt.transactionTitle }}</p>
+                    <p class="meta">{{ debt.debtorName }} · {{ debt.transactionDate | date:'d MMM' }}</p>
+                  </div>
+                  <div class="expense-side">
+                    <span class="amount">{{ debt.amount | currency:'EUR':'symbol':'1.2-2' }}</span>
+                    <span class="status">Pendiente</span>
+                  </div>
+                </li>
+              }
+            </ul>
+            <a class="btn btn-secondary btn-sm mt-sm pending-debts-view-all-btn"
+              [routerLink]="['/all-transactions']"
+              [queryParams]="{ filter: 'pending-debts' }">
+              Ver todas
+            </a>
+          </div>
+        }
       </div>
       <!-- Subscriptions -->
       <div class="grid-section subscriptions">
         <div class="section-header">
           <h3>💳 Gastos fijos</h3>
         </div>
-        <div class="section-content scrollable-content">
-          <p>Coming soon...</p>
-          <small class="text-muted">Gastos fijos mensuales</small>
-        </div>
+        @if (isLoadingFixedExpenses) {
+          <div class="section-content">
+            <div class="spinner spinner-md"></div>
+            <p>Cargando gastos fijos...</p>
+          </div>
+        } @else if (fixedExpenses.length === 0) {
+          <div class="section-content">
+            <p>No hay gastos recurrentes para el mes actual.</p>
+          </div>
+        } @else {
+          <div class="section-content scrollable-content fixed-expenses-list-content">
+            <ul class="fixed-expenses-list">
+              @for (expense of fixedExpenses; track trackByTransactionId($index, expense)) {
+                <li
+                  class="fixed-expense-item"
+                  role="button"
+                  tabindex="0"
+                  (click)="openTransactionDetail(expense.id)"
+                  (keydown.enter)="openTransactionDetail(expense.id)"
+                  (keydown.space)="openTransactionDetail(expense.id)">
+                  <div class="expense-main">
+                    <p class="title">{{ expense.title }}</p>
+                    <p class="meta">{{ expense.category.name }} · {{ expense.date | date:'d MMM' }}</p>
+                  </div>
+                  <div class="expense-side">
+                    <span class="amount">{{ expense.amount | currency:'EUR':'symbol':'1.2-2' }}</span>
+                    <span class="status" [class.paid]="isPaidThisMonth(expense.date)">
+                      @if (isPaidThisMonth(expense.date)) {
+                        <span>Pagado este mes</span>
+                      } @else {
+                        <span>Estimado {{ expense.date | date:'d MMM' }}</span>
+                      }
+                    </span>
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
+        }
       </div>
       <!-- Account Central (current dashboard content) -->
       <div class="grid-section account-central">
@@ -163,10 +240,21 @@
         <div class="section-header">
           <h3>💰 Balance de gastos/ingresos</h3>
         </div>
-        <div class="section-content scrollable-content">
-          <div class="balance-icon">📊</div>
-          <p>Coming soon...</p>
-          <small class="text-muted">Financial balance analysis</small>
+        <div class="section-content">
+          <small class="text-muted">Mes actual (hasta hoy)</small>
+
+          @if (isLoadingMonthlyBalance) {
+            <div class="chart-loading">
+              <div class="spinner spinner-md"></div>
+              <p>Cargando gráfico...</p>
+            </div>
+          } @else if (monthlyBalanceChartData) {
+            <div class="mini-balance-chart-wrapper">
+              <canvas baseChart [type]="'bar'" [data]="monthlyBalanceChartData" [options]="monthlyBalanceChartOptions"></canvas>
+            </div>
+          } @else {
+            <p>No hay datos disponibles para este mes.</p>
+          }
         </div>
       </div>
     </div>

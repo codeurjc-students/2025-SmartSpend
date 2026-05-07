@@ -1,21 +1,28 @@
-/* Estilos específicos para AllTransactionsComponent */
-/* Los filtros ahora se manejan en TransactionFiltersComponent */
-/* Las transacciones se manejan en TransactionListComponent */
-
-/* Contenedor principal con fondo oscuro */
-.bg-slate-800 {
-  background-color: rgb(30 41 59);
+.all-transactions-page {
+  background: var(--app-surface-gradient);
 }
 
-.text-slate-200 {
-  color: rgb(226 232 240);
+.all-transactions-shell {
+  position: relative;
 }
 
-.text-slate-400 {
-  color: rgb(148 163 184);
+.filters-panel,
+.transactions-board {
+  backdrop-filter: blur(10px);
 }
 
-/* Estilos para botones de paginación */
+.transactions-board {
+  position: relative;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.transactions-board::before {
+  display: none;
+}
+
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;

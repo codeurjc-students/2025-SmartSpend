@@ -24,6 +24,7 @@ public class TransactionMapper {
             transaction.getTitle(),
             transaction.getDescription(),
             transaction.getAmount(),
+            transaction.getBeforeBalance(),
             transaction.getEffectiveAmount(),
             transaction.getDate(),
             transaction.getType(),

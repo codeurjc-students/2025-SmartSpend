@@ -64,6 +64,33 @@ export class TransactionDetailComponent implements OnInit {
     return recurrenceMap[recurrence] || recurrence;
   }
 
+  getTransactionTypeText(): string {
+    return this.transaction?.type === 'EXPENSE' ? 'Gasto' : 'Ingreso';
+  }
+
+  getAccountImpactAmount(): number {
+    if (!this.transaction) return 0;
+    const effectiveAmount = this.getEffectiveAmount();
+    return this.transaction.type === 'EXPENSE' ? -effectiveAmount : effectiveAmount;
+  }
+
+  getAfterBalance(): number | null {
+    if (this.transaction?.beforeBalance === undefined || this.transaction?.beforeBalance === null) {
+      return null;
+    }
+
+    return this.transaction.beforeBalance + this.getAccountImpactAmount();
+  }
+
+  goBack(): void {
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+
+    this.router.navigate(['/dashboard']);
+  }
+
   onDeleteTransaction(): void {
     this.showConfirmModal = true;
   }

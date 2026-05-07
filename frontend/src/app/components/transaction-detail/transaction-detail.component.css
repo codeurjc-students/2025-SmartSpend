@@ -1,111 +1,235 @@
-/* CONTENEDOR GENERAL */
-.transaction-detail {
-    padding: 2rem;
-    display: flex;
-    justify-content: center;
+.receipt-card {
+    position: relative;
+    backdrop-filter: blur(8px);
 }
 
-/* TARJETA PRINCIPAL */
-.transaction-container {
-    background-color: var(--color-bg-card);
-    padding: 2rem;
-    border-radius: 14px;
-    box-shadow: var(--box-shadow-base);
-    width: 100%;
-    max-width: 900px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 2rem;
-    grid-template-areas: 
-        ". header ."
-        ". info ."
-        ". amount ."
-        ". date ."
-        "description description description";
+.receipt-header {
+    background: linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 58%, rgba(51, 65, 85, 0.72) 100%);
 }
 
-
-
-
-.transaction-amount {
-    grid-area: amount;
-    font-size: 1.8rem;
-    font-weight: 700;
-    display: flex;
-    justify-content: center;
+.receipt-card::before,
+.receipt-card::after {
+    content: "";
+    position: absolute;
+    top: 110px;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--color-bg);
+    border: 1px solid var(--surface-panel-border);
 }
 
-.transaction-date {
-    grid-area: date;
-    font-size: 0.9rem;
-    opacity: 0.8;
-    display: flex;
-    justify-content: center;
+.receipt-card::before {
+    left: -9px;
 }
 
-.transaction-description {
-    background-color: var(--color-bg-secondary);
-    padding: 1rem 1.4rem;
-    border-radius: 10px;
-    grid-area: description;
+.receipt-card::after {
+    right: -9px;
 }
 
+@media (max-width: 768px) {
+    .receipt-card::before,
+    .receipt-card::after {
+        top: 96px;
+        width: 14px;
+        height: 14px;
+    }
 
-.category-icon {
-    font-size: 2rem;
-    padding: 0.8rem;
-    background-color: var(--color-bg-secondary);
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    grid-area: header;
+    .receipt-card::before {
+        left: -7px;
+    }
+
+    .receipt-card::after {
+        right: -7px;
+    }
 }
 
-.category-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    grid-area: info;
+:host-context(html.light-theme) .receipt-header {
+    background: linear-gradient(90deg, rgba(248, 250, 252, 0.98) 0%, rgba(226, 232, 240, 0.86) 55%, rgba(241, 245, 249, 0.92) 100%) !important;
 }
 
-.transaction-title {
-    margin: 0;
-    font-size: 1.8rem;
-    color: #fff;
+:host-context(html.light-theme) .receipt-header .text-white {
+    color: #0f172a !important;
 }
 
-.category-name {
-    font-size: 0.95rem;
-    opacity: 0.7;
+:host-context(html.light-theme) .receipt-header .text-slate-400 {
+    color: #475569 !important;
 }
 
-/* DERECHA: IMPORTE + FECHA */
-.header-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.3rem;
+:host-context(html.light-theme) .transaction-detail-page {
+    color: #0f172a;
 }
 
-
-
-.transaction-amount.income {
-    color: #2BDACF;
+:host-context(html.light-theme) .detail-back-button,
+:host-context(html.light-theme) .detail-chip--category {
+    background: rgba(241, 245, 249, 0.96) !important;
+    border-color: rgba(148, 163, 184, 0.58) !important;
+    color: #334155 !important;
 }
 
-.transaction-amount.expense {
-    color: #FF6B6B;
+:host-context(html.light-theme) .detail-type-chip.bg-red-500\/10 {
+    background: rgba(254, 242, 242, 0.98) !important;
+    border-color: rgba(251, 146, 146, 0.42) !important;
+    color: #be445d !important;
 }
 
-
-
-/* DESCRIPCIÓN */
-
-.transaction-description h3 {
-    margin-bottom: 0.5rem;
+:host-context(html.light-theme) .detail-type-chip.bg-emerald-500\/10 {
+    background: rgba(220, 252, 231, 0.98) !important;
+    border-color: rgba(52, 211, 153, 0.48) !important;
+    color: #166534 !important;
 }
 
-.transaction-description p {
-    opacity: 0.85;
+:host-context(html.light-theme) .detail-back-button:hover {
+    background: rgba(226, 232, 240, 0.98) !important;
+    color: #0f172a !important;
+}
+
+:host-context(html.light-theme) .receipt-card,
+:host-context(html.light-theme) .debt-tracking-card {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border-color: rgba(148, 163, 184, 0.52) !important;
+    box-shadow: 0 22px 50px rgba(15, 23, 42, 0.12);
+}
+
+:host-context(html.light-theme) .detail-total-amount.text-rose-300 {
+    color: #d9465f !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+:host-context(html.light-theme) .detail-total-amount.text-emerald-300 {
+    color: #15803d !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+:host-context(html.light-theme) .detail-account-impact {
+    color: #b45309 !important;
+}
+
+:host-context(html.light-theme) .detail-delete-button {
+    background: rgba(254, 242, 242, 0.98) !important;
+    border-color: rgba(251, 146, 146, 0.38) !important;
+    color: #be445d !important;
+}
+
+:host-context(html.light-theme) .detail-delete-button:hover {
+    background: rgba(254, 226, 226, 0.98) !important;
+    border-color: rgba(244, 114, 128, 0.46) !important;
+    color: #a63a50 !important;
+}
+
+:host-context(html.light-theme) .detail-key-card,
+:host-context(html.light-theme) .detail-description-card,
+:host-context(html.light-theme) .detail-metric-card,
+:host-context(html.light-theme) .detail-attachment-card {
+    background: rgba(241, 245, 249, 0.92) !important;
+    border-color: rgba(148, 163, 184, 0.5) !important;
+}
+
+:host-context(html.light-theme) .detail-key-card .text-slate-100,
+:host-context(html.light-theme) .detail-description-card .text-slate-200,
+:host-context(html.light-theme) .detail-metric-card .text-slate-200,
+:host-context(html.light-theme) .detail-attachment-card h3 {
+    color: #0f172a !important;
+}
+
+:host-context(html.light-theme) .detail-key-card .text-slate-400,
+:host-context(html.light-theme) .detail-description-card .text-slate-400,
+:host-context(html.light-theme) .detail-metric-card .text-slate-400,
+:host-context(html.light-theme) .detail-attachment-card .text-slate-400,
+:host-context(html.light-theme) .detail-description-card .text-slate-300 {
+    color: #475569 !important;
+}
+
+:host-context(html.light-theme) .detail-description-card .bg-slate-800,
+:host-context(html.light-theme) .detail-description-card .border-slate-600 {
+    background: rgba(226, 232, 240, 0.92) !important;
+    border-color: rgba(148, 163, 184, 0.55) !important;
+}
+
+:host-context(html.light-theme) .detail-description-card .text-emerald-300 {
+    color: #166534 !important;
+}
+
+:host-context(html.light-theme) .detail-description-card .text-amber-300 {
+    color: #92400e !important;
+}
+
+:host-context(html.light-theme) .detail-metric-card .text-emerald-300 {
+    color: #166534 !important;
+}
+
+:host-context(html.light-theme) .detail-metric-card .text-rose-300 {
+    color: #c2415c !important;
+}
+
+:host-context(html.light-theme) .debt-tracking-card h3 {
+    color: #0f172a !important;
+}
+
+:host-context(html.light-theme) .debt-summary-chip {
+    background: rgba(241, 245, 249, 0.98) !important;
+    border-color: rgba(148, 163, 184, 0.58) !important;
+    color: #334155 !important;
+}
+
+:host-context(html.light-theme) .debt-progress-track {
+    background: rgba(203, 213, 225, 0.9) !important;
+}
+
+:host-context(html.light-theme) .debt-progress-stat--paid {
+    background: rgba(220, 252, 231, 0.95) !important;
+    border-color: rgba(34, 197, 94, 0.45) !important;
+    color: #166534 !important;
+}
+
+:host-context(html.light-theme) .debt-progress-stat--pending {
+    background: rgba(255, 237, 213, 0.96) !important;
+    border-color: rgba(245, 158, 11, 0.45) !important;
+    color: #92400e !important;
+}
+
+:host-context(html.light-theme) .debt-amount-row .text-slate-400 {
+    color: #475569 !important;
+}
+
+:host-context(html.light-theme) .debt-amount-row .text-emerald-300 {
+    color: #166534 !important;
+}
+
+:host-context(html.light-theme) .debt-amount-row .text-amber-300 {
+    color: #92400e !important;
+}
+
+:host-context(html.light-theme) .debt-row {
+    background: rgba(248, 250, 252, 0.98) !important;
+    border-color: rgba(148, 163, 184, 0.5) !important;
+}
+
+:host-context(html.light-theme) .debt-row:hover {
+    background: rgba(241, 245, 249, 1) !important;
+    border-color: rgba(8, 145, 178, 0.36) !important;
+}
+
+:host-context(html.light-theme) .debt-row .bg-slate-800 {
+    background: #ffffff !important;
+}
+
+:host-context(html.light-theme) .debt-row .border-slate-500 {
+    border-color: #94a3b8 !important;
+}
+
+:host-context(html.light-theme) .debt-row .text-slate-200 {
+    color: #0f172a !important;
+}
+
+:host-context(html.light-theme) .debt-row .text-slate-500 {
+    color: #64748b !important;
+}
+
+:host-context(html.light-theme) .debt-row .text-emerald-300 {
+    color: #166534 !important;
+}
+
+:host-context(html.light-theme) .debt-row .text-amber-300 {
+    color: #92400e !important;
 }

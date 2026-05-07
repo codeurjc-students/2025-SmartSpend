@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs';
 import { CreateTransactionDto } from '../../interfaces/create-transaction.interface';
 import { Transaction } from '../../interfaces/transaction.interface';
+import { PendingDebtSummary } from '../../interfaces/pending-debt-summary.interface';
 import { PaginatedResponse, TransactionFilters } from '../../interfaces/pagination.interface';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment';
@@ -21,6 +22,10 @@ export class TransactionService {
 
   getTransactions(): Observable<Transaction[]> {
     return this.http.get<Transaction[]>(`${this.apiUrl}/transactions`);   // get Transactions list
+  }
+
+  getPendingDebtsSummary(): Observable<PendingDebtSummary[]> {
+    return this.http.get<PendingDebtSummary[]>(`${this.apiUrl}/transactions/pending-summary`);
   }
 
   getTransactionById(transactionId: number): Observable<Transaction> {
@@ -117,6 +122,7 @@ export class TransactionService {
     if (filters.minAmount) params = params.set('minAmount', filters.minAmount.toString());
     if (filters.maxAmount) params = params.set('maxAmount', filters.maxAmount.toString());
     if (filters.categoryId) params = params.set('categoryId', filters.categoryId);
+    if (filters.isPending) params = params.set('isPending', 'true');
 
     return this.http.get<PaginatedResponse<Transaction>>(
       `${this.apiUrl}/transactions/account/${accountId}/paginated`,

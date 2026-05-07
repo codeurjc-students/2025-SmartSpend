@@ -1,12 +1,12 @@
 <!-- MODAL OVERLAY -->
 @if (showCreateAccountForm) {
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm"
     (click)="closeCreateAccountModal()"
     >
     <!-- MODAL -->
     <div
-      class="w-full max-w-md bg-slate-800 rounded-2xl shadow-xl"
+      class="w-full max-w-md bg-slate-900/95 border border-slate-700/80 rounded-2xl shadow-2xl"
       (click)="$event.stopPropagation()"
       >
       <!-- HEADER -->
@@ -37,8 +37,8 @@
               maxlength="50"
               [disabled]="isCreatingAccount"
               placeholder="Ej: Cuenta Principal, Ahorros..."
-            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-200
-                   focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+                 class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-200
+                   focus:outline-none focus:ring-2 focus:ring-cyan-400 disabled:opacity-60"
               />
           </div>
           <!-- Saldo inicial -->
@@ -46,18 +46,29 @@
             <label class="block text-sm text-slate-400 mb-1">
               Saldo inicial <span class="text-red-400">*</span>
             </label>
-            <input
-              type="number"
-              [(ngModel)]="initialBalance"
-              name="initialBalance"
-              required
-              step="0.01"
-              [disabled]="isCreatingAccount"
-              placeholder="0.00"
-            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-right
-                   text-lg font-semibold text-slate-200
-                   focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
-              />
+            <div class="relative">
+              <input
+                type="number"
+                [(ngModel)]="initialBalance"
+                name="initialBalance"
+                required
+                step="0.01"
+                [disabled]="isCreatingAccount"
+                placeholder=""
+                (focus)="onInitialBalanceFocus()"
+                   class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 pr-8 text-right
+                     text-lg font-semibold text-slate-200
+                     focus:outline-none focus:ring-2 focus:ring-cyan-400 disabled:opacity-60"
+                />
+              @if (initialBalance === undefined) {
+                <span class="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 text-slate-500 font-semibold">
+                  0.00
+                </span>
+              }
+              <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold">
+                €
+              </span>
+            </div>
           </div>
           <!-- ERROR -->
           @if (errorMessage) {
@@ -81,7 +92,7 @@
             <button
               type="submit"
               [disabled]="isCreatingAccount || !newAccountName.trim()"
-            class="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white font-medium
+                 class="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold
                    transition flex items-center gap-2 disabled:opacity-60"
               >
               <!-- Spinner -->

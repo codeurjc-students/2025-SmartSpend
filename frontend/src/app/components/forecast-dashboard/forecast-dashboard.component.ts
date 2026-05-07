@@ -71,6 +71,14 @@ export class ForecastDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  get fixedExpenseCount(): number {
+    return this.fixedExpensesData?.fixedExpenses.length ?? 0;
+  }
+
+  get categoryCount(): number {
+    return this.categoryTrendData ? Object.keys(this.categoryTrendData.categories).length : 0;
+  }
+
   private loadForecastData(accountId: number): void {
     this.isLoading = true;
     this.errorMessage = '';

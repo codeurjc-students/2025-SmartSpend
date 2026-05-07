@@ -1,9 +1,21 @@
 <section class="forecast-page">
   <header class="forecast-header">
-    <div>
-      <p class="kicker">Smart Forecast</p>
+    <div class="header-copy">
+      <p class="kicker">Previsión Inteligente</p>
       <h1>Previsión Financiera</h1>
       <p class="subtitle">Proyección de movimiento mensual basada en tus patrones reales.</p>
+
+      <div class="summary-strip">
+        <span class="summary-pill summary-pill-expenses">
+          {{ fixedExpenseCount }} gastos fijos detectados
+        </span>
+        <span class="summary-pill summary-pill-categories">
+          {{ categoryCount }} categorías con tendencia
+        </span>
+        <span class="summary-pill summary-pill-reading">
+          Lectura estimada para el cierre del mes
+        </span>
+      </div>
     </div>
 
     <div class="header-side">
@@ -36,6 +48,9 @@
     </div>
 
     <div class="trend-section">
+      <p class="trend-intro">
+        Aquí puedes comparar lo que gastaste el mes pasado, lo que llevas acumulado y el cierre estimado de cada categoría.
+      </p>
       <app-category-trends-list [categoryTrend]="categoryTrendData"></app-category-trends-list>
     </div>
   }

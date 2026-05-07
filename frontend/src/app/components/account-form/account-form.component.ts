@@ -11,17 +11,23 @@ import { BankAccountServiceService } from '../../services/bankAccount/bank-accou
   styleUrl: './account-form.component.css'
 })
 export class AccountFormComponent {
-  
+
   @Input() showCreateAccountForm = false;
   @Output() accountCreated = new EventEmitter<void>();
   @Output() modalClosed = new EventEmitter<void>();
 
   newAccountName = '';
-  initialBalance = 0;
+  initialBalance: number | undefined = undefined;
   isCreatingAccount = false;
   errorMessage = '';
 
   constructor(private bankAccountService: BankAccountServiceService) {}
+
+  onInitialBalanceFocus(): void {
+    if (this.initialBalance === 0) {
+      this.initialBalance = undefined;
+    }
+  }
 
   closeCreateAccountModal(): void {
     this.showCreateAccountForm = false;
@@ -32,6 +38,11 @@ export class AccountFormComponent {
   createAccount(): void {
     if (!this.newAccountName.trim()) {
       this.errorMessage = 'El nombre de la cuenta es requerido';
+      return;
+    }
+
+    if (this.initialBalance === undefined || Number.isNaN(this.initialBalance)) {
+      this.errorMessage = 'El saldo inicial es requerido';
       return;
     }
 
@@ -59,7 +70,7 @@ export class AccountFormComponent {
 
   private resetForm(): void {
     this.newAccountName = '';
-    this.initialBalance = 0;
+    this.initialBalance = undefined;
     this.errorMessage = '';
     this.isCreatingAccount = false;
   }

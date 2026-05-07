@@ -1,12 +1,12 @@
 <!-- MODAL BACKDROP -->
 @if (isVisible) {
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm"
     (click)="close()"
     >
     <!-- MODAL -->
     <div
-    class="w-full max-w-2xl bg-slate-800 rounded-2xl shadow-xl
+    class="w-full max-w-2xl bg-slate-900/95 border border-slate-700/80 rounded-2xl shadow-2xl
            max-h-[90vh] flex flex-col"
       (click)="$event.stopPropagation()"
       >
@@ -29,11 +29,11 @@
             form="transactionForm"
           class="px-4 py-2 rounded-lg text-sm font-medium transition-all
          flex items-center gap-2
-         bg-indigo-500 text-white
+         bg-cyan-500 text-slate-950
          disabled:bg-slate-600 disabled:text-slate-300
          disabled:cursor-not-allowed
-         enabled:hover:bg-indigo-600
-         enabled:shadow-md enabled:shadow-indigo-500/25"
+         enabled:hover:bg-cyan-400
+         enabled:shadow-md enabled:shadow-cyan-500/25"
             [disabled]="!isFormValid() || isLoading"
             >
             @if (isLoading) {
@@ -70,11 +70,9 @@
           >
           <!-- Cuenta (readonly) -->
           <div class="md:col-span-2">
-            <label class="block text-sm text-slate-400 mb-1">
-              Cuenta
-            </label>
-            <div class="px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-slate-300 opacity-80">
-              {{ currentAccount?.accountName || 'Sin cuenta seleccionada' }}
+            <div class="account-display" aria-readonly="true">
+              <span class="account-display__label">Cuenta activa</span>
+              <span class="account-display__name">{{ currentAccount?.accountName || 'Sin cuenta seleccionada' }}</span>
             </div>
           </div>
           <!-- Título -->
@@ -90,7 +88,7 @@
               maxlength="30"
               placeholder="Ej: Supermercado, Nómina..."
             class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
-                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
               />
           </div>
           <!-- Tipo -->
@@ -151,7 +149,7 @@
                 name="categoryId"
                 required
             class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
-                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                 >
                 @for (category of availableCategories; track category) {
                   <option
@@ -169,7 +167,7 @@
               Cantidad <span class="text-red-400">*</span>
             </label>
             <div class="relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold">
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold">
                 €
               </span>
               <input
@@ -182,9 +180,9 @@
                 (focus)="onAmountFocus()"
                 required
                 [readonly]="mode === 'edit' && transactionToEdit?.debts && transactionToEdit!.debts!.length > 0"
-              class="w-full pl-8 rounded-lg border px-3 py-2
+              class="w-full pr-8 rounded-lg border px-3 py-2
                      text-slate-200 text-right font-semibold
-                     focus:outline-none focus:ring-2 focus:ring-indigo-500
+                focus:outline-none focus:ring-2 focus:ring-cyan-400
                      disabled:cursor-not-allowed"
               [ngClass]="mode === 'edit' && transactionToEdit?.debts && transactionToEdit!.debts!.length > 0
                 ? 'bg-slate-800 border-slate-700 opacity-60'
@@ -200,14 +198,14 @@
                 <button
                   type="button"
                   (click)="toggleSharedMode()"
-                  class="flex items-center gap-2 text-sm font-medium transition-colors"
+                  class="shared-toggle-btn flex items-center gap-2 text-sm font-medium transition-colors"
             [ngClass]="isSharedMode
-              ? 'text-indigo-400 hover:text-indigo-300'
+              ? 'text-cyan-300 hover:text-cyan-200'
               : 'text-slate-400 hover:text-slate-300'"
                   >
                   <span
                     class="w-9 h-5 rounded-full flex items-center transition-colors relative"
-                    [ngClass]="isSharedMode ? 'bg-indigo-500' : 'bg-slate-600'"
+                    [ngClass]="isSharedMode ? 'bg-cyan-500' : 'bg-slate-600'"
                     >
                     <span
                       class="w-4 h-4 bg-white rounded-full absolute transition-transform shadow"
@@ -220,14 +218,14 @@
               <!-- Aviso en modo edición -->
               @if (mode === 'edit' && transactionToEdit?.debts && transactionToEdit!.debts!.length > 0) {
                 <div
-                  class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-start gap-3">
-                  <div class="p-2 rounded-lg bg-indigo-500/20 text-indigo-400">
+                  class="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-start gap-3">
+                  <div class="p-2 rounded-lg bg-cyan-500/20 text-cyan-300">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm font-semibold text-indigo-300 uppercase tracking-wider mb-0.5">Gasto compartido</p>
+                    <p class="text-sm font-semibold text-cyan-300 uppercase tracking-wider mb-0.5">Gasto compartido</p>
                     <p class="text-xs text-slate-400 leading-relaxed">
                       Para modificar el reparto de deudas, deberás eliminar la transacción y volver a crearla. Los importes se mantienen bloqueados por integridad.
                     </p>
@@ -236,14 +234,14 @@
               }
               <!-- Panel compartido -->
               @if (isSharedMode && mode === 'create') {
-                <div class="mt-4 rounded-xl border border-slate-600 bg-slate-900/60 p-4 flex flex-col gap-4">
+                <div class="shared-expense-panel mt-4 rounded-xl border border-slate-600 bg-slate-900/60 p-4 flex flex-col gap-4">
                   <!-- Tu parte -->
                   <div>
                     <label class="block text-sm text-slate-400 mb-1">
                       Tu parte <span class="text-red-400">*</span>
                     </label>
                     <div class="relative">
-                      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold">€</span>
+                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold">€</span>
                       <input
                         type="number"
                         [(ngModel)]="personalAmount"
@@ -251,9 +249,9 @@
                         step="0.01"
                         min="0"
                         placeholder="0.00"
-                  class="w-full pl-8 rounded-lg bg-slate-800 border border-slate-600 px-3 py-2
+                      class="w-full pr-8 rounded-lg bg-slate-800 border border-slate-600 px-3 py-2
                          text-slate-200 text-right font-semibold
-                         focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        focus:outline-none focus:ring-2 focus:ring-cyan-400"
                         />
                     </div>
                   </div>
@@ -272,10 +270,10 @@
                             placeholder="Nombre"
                             maxlength="30"
                     class="flex-1 rounded-lg bg-slate-800 border border-slate-600 px-3 py-2
-                           text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                            text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 text-sm"
                             />
                           <div class="relative w-28">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">€</span>
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">€</span>
                             <input
                               type="number"
                               [(ngModel)]="debt.amount"
@@ -283,9 +281,9 @@
                               step="0.01"
                               min="0"
                               placeholder="0.00"
-                      class="w-full pl-7 rounded-lg bg-slate-800 border border-slate-600 px-3 py-2
+                      class="w-full pr-7 rounded-lg bg-slate-800 border border-slate-600 px-3 py-2
                              text-slate-200 text-right text-sm
-                             focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                         focus:outline-none focus:ring-2 focus:ring-cyan-400"
                               />
                           </div>
                           <button
@@ -300,7 +298,7 @@
                     <button
                       type="button"
                       (click)="addDebt()"
-                      class="mt-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+                      class="add-person-btn mt-2 text-sm text-cyan-300 hover:text-cyan-200 transition-colors"
                       >
                       + Añadir persona
                     </button>
@@ -310,14 +308,14 @@
                     type="button"
                     (click)="splitEqually()"
                     [disabled]="sharedDebts.length === 0"
-              class="w-full py-2 rounded-lg border border-slate-600 text-sm text-slate-300
+              class="split-equally-btn w-full py-2 rounded-lg border border-slate-600 text-sm text-slate-300
                      hover:bg-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                     ⚖️ Dividir equitativamente
                   </button>
                   <!-- Preview / validación -->
                   <div
-                    class="rounded-lg px-4 py-3 text-sm flex items-center justify-between"
+                    class="split-summary rounded-lg px-4 py-3 text-sm flex items-center justify-between"
               [ngClass]="getRemainder() === 0
                 ? 'bg-green-500/10 border border-green-500/30 text-green-400'
                 : 'bg-amber-500/10 border border-amber-500/30 text-amber-400'"
@@ -347,7 +345,7 @@
               [(ngModel)]="newTransaction.date"
               name="date"
             class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
-                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
               />
             <p class="text-xs text-slate-500 mt-1">
               Si no eliges fecha, se usará la actual
@@ -362,7 +360,7 @@
               [(ngModel)]="newTransaction.recurrence"
               name="recurrence"
             class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
-                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
               >
               <option value="NONE">Sin recurrencia</option>
               <option value="DAILY">Diaria</option>
@@ -383,7 +381,7 @@
               maxlength="100"
               placeholder="Descripción opcional"
             class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
-                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             ></textarea>
             <p class="text-xs text-slate-500 mt-1">
               Máximo 100 caracteres

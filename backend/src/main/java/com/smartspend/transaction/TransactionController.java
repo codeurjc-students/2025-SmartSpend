@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.smartspend.transaction.dtos.CreateTransactionDto;
 import com.smartspend.transaction.dtos.CreateTransactionWithImageDto;
+import com.smartspend.transaction.dtos.PendingDebtSummaryDto;
 import com.smartspend.transaction.dtos.TransactionResponseDto;
 
 @RestController
@@ -69,11 +70,18 @@ public class TransactionController {
         @RequestParam(required = false) BigDecimal minAmount,
         @RequestParam(required = false) BigDecimal maxAmount,
         @RequestParam(required = false) Long categoryId,
+        @RequestParam(required = false) Boolean isPending,
         @PageableDefault(size = 5, sort = "date", direction = Sort.Direction.DESC) Pageable pageable, // ✅ Valores por defecto
         Authentication authentication) {
             String userEmail = authentication.getName();
-            Page<TransactionResponseDto> transactionsPage = transactionService.getTransactionsByAccount(accountId, userEmail, search, type, dateFrom, dateTo, minAmount, maxAmount, categoryId, pageable);
+            Page<TransactionResponseDto> transactionsPage = transactionService.getTransactionsByAccount(accountId, userEmail, search, type, dateFrom, dateTo, minAmount, maxAmount, categoryId, isPending, pageable);
             return ResponseEntity.ok(transactionsPage);
+    }
+
+    @GetMapping("/pending-summary")
+    public List<PendingDebtSummaryDto> getPendingDebtsSummary(Authentication authentication) {
+        String userEmail = authentication.getName();
+        return transactionService.getPendingDebtsSummary(userEmail, 5);
     }
 
     @GetMapping("/{transactionId}")

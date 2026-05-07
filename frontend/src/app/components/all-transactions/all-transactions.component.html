@@ -1,34 +1,71 @@
 <!-- Página para visualizar todos los movimientos con filtros -->
-<div class="bg-slate-800 min-h-screen text-slate-200">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="all-transactions-page min-h-screen text-slate-200">
+  <div class="all-transactions-shell max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
     <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
-      <div class="flex items-center space-x-4">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-8">
+      <div class="flex items-start gap-4">
         <button
           (click)="goBack()"
-          class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors">
+          class="mt-1 p-2 rounded-xl bg-slate-800/80 border border-slate-700 hover:bg-slate-700 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
           </svg>
         </button>
-        <h1 class="text-3xl font-bold">📊 Todos los Movimientos</h1>
+        <div>
+          <p class="text-xs uppercase tracking-[0.22em] text-cyan-300/80 mb-2">Historial financiero</p>
+          <h1 class="text-3xl font-bold text-white">Todos los movimientos</h1>
+          <p class="text-sm text-slate-400 mt-2">Consulta tus transacciones con una vista más limpia y filtros bajo demanda.</p>
+        </div>
       </div>
 
-      <div class="text-sm text-slate-400">
-        {{ transactions.length }} de {{ totalElements }} transacciones
+      <div class="rounded-2xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-sm text-slate-300 shadow-lg">
+        Mostrando {{ getCurrentRangeStart() }}-{{ getCurrentRangeEnd() }} de {{ totalElements }} transacciones
       </div>
     </div>
 
-    <!-- Filtros usando el componente reutilizable -->
-    <app-transaction-filters
-      [initialFilters]="filters"
+    <section class="filters-panel rounded-3xl border border-slate-700/80 bg-slate-800/70 shadow-xl mb-6 overflow-hidden">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-5 py-4 border-b border-slate-700/80">
+        <div>
+          <h2 class="text-lg font-semibold text-white">Filtros</h2>
+          <p class="text-sm text-slate-400">Ocúltalos cuando no los necesites y mantén el foco en la lista.</p>
+        </div>
 
-      (applyFilters)="onApplyFilters($event)">
-    </app-transaction-filters>
+        <div class="flex items-center gap-3">
+          @if (hasActiveFilters()) {
+            <span class="inline-flex items-center rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-200">
+              Filtros activos
+            </span>
+          }
 
-    <!-- ✅ AQUÍ REUTILIZAMOS EL COMPONENTE EXISTENTE -->
-    <div class="bg-slate-700 rounded-xl shadow-lg">
+          <button
+            type="button"
+            (click)="toggleFiltersPanel()"
+            class="inline-flex items-center gap-2 rounded-xl border border-slate-600 bg-slate-900/70 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-700 transition"
+            [attr.aria-expanded]="filtersExpanded"
+          >
+            {{ filtersExpanded ? 'Ocultar filtros' : 'Mostrar filtros' }}
+            <span class="text-base leading-none">{{ filtersExpanded ? '−' : '+' }}</span>
+          </button>
+        </div>
+      </div>
+
+      @if (filtersExpanded) {
+        <div class="px-3 pb-3 pt-2 sm:px-4 sm:pb-4">
+          <app-transaction-filters
+            [initialFilters]="filters"
+            [showTitle]="false"
+            [title]="'Filtros de movimientos'"
+            (filtersChange)="onFiltersChange($event)"
+            (searchChange)="onSearchChange($event)"
+            (clearFilters)="onClearFilters()"
+            (applyFilters)="onApplyFilters($event)">
+          </app-transaction-filters>
+        </div>
+      }
+    </section>
+
+    <div class="transactions-board">
       <app-transaction-list
         [advancedMode]="true"
         [externalTransactions]="transactions"
@@ -39,29 +76,29 @@
 
     <!-- Controles de paginación -->
     @if (!isLoading && transactions.length > 0) {
-      <div class="flex justify-between items-center mt-6">
-        <!-- Info de páginas -->
-        <div class="text-sm text-slate-400">
-          Página {{ currentPage + 1 }} de {{ Math.ceil(totalElements / pageSize) }}
-          ({{ totalElements }} transacciones en total)
+      <div class="mt-6 flex flex-col gap-4 rounded-2xl border border-slate-700/70 bg-slate-800/65 px-5 py-4 shadow-lg sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm font-medium text-slate-200">Página {{ currentPage + 1 }} de {{ totalPages || 1 }}</p>
+          <p class="text-sm text-slate-400">Resultados {{ getCurrentRangeStart() }}-{{ getCurrentRangeEnd() }} de {{ totalElements }}</p>
         </div>
-        <!-- Botones de paginación -->
-        <div class="flex space-x-2">
+
+        <div class="flex items-center gap-2 self-end sm:self-auto">
           <button
             (click)="previousPage()"
             [disabled]="currentPage === 0"
             [class.opacity-50]="currentPage === 0"
             [class.cursor-not-allowed]="currentPage === 0"
-            class="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors disabled:hover:bg-slate-600">
-            ⬅️ Anterior
+            class="px-4 py-2 rounded-xl border border-slate-600 bg-slate-700 hover:bg-slate-600 transition-colors disabled:hover:bg-slate-700">
+            Anterior
           </button>
+          <span class="px-3 py-2 text-sm text-slate-400">{{ currentPage + 1 }}/{{ totalPages || 1 }}</span>
           <button
             (click)="nextPage()"
-            [disabled]="(currentPage + 1) * pageSize >= totalElements"
-            [class.opacity-50]="(currentPage + 1) * pageSize >= totalElements"
-            [class.cursor-not-allowed]="(currentPage + 1) * pageSize >= totalElements"
-            class="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors disabled:hover:bg-slate-600">
-            Siguiente ➡️
+            [disabled]="currentPage + 1 >= totalPages"
+            [class.opacity-50]="currentPage + 1 >= totalPages"
+            [class.cursor-not-allowed]="currentPage + 1 >= totalPages"
+            class="px-4 py-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-500/20 transition-colors disabled:hover:bg-cyan-500/10">
+            Siguiente
           </button>
         </div>
       </div>

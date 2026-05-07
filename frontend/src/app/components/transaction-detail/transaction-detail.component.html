@@ -1,13 +1,11 @@
-<div class="bg-slate-800 min-h-dvh text-slate-200">
-
-  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-8">
+<div class="transaction-detail-page min-h-dvh bg-slate-900 text-slate-100">
+  <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
 
     <!-- Loading -->
     @if (!transaction && !error) {
-      <div
-        class="flex items-center justify-center h-[60vh]">
+      <div class="flex items-center justify-center h-[60vh]">
         <div class="text-center">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
           <p class="text-slate-400">Cargando transacción...</p>
         </div>
       </div>
@@ -15,199 +13,246 @@
 
     <!-- Error -->
     @if (error) {
-      <div
-        class="flex items-center justify-center h-[60vh]">
-        <div class="text-center bg-red-500/10 border border-red-500/20 rounded-xl p-8">
-          <p class="text-red-400 text-lg font-semibold mb-2">Error</p>
+      <div class="flex items-center justify-center h-[60vh]">
+        <div class="text-center bg-red-500/10 border border-red-500/30 rounded-2xl p-8 max-w-xl">
+          <p class="text-red-300 text-lg font-semibold mb-2">No se pudo cargar el detalle</p>
           <p class="text-slate-300">{{ error }}</p>
         </div>
       </div>
     }
 
-    <!-- CONTENT -->
     @if (transaction) {
-      <!-- GRID PRINCIPAL -->
-      <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- ================= TARJETA PRINCIPAL ================= -->
-        <section class="md:col-span-2 bg-slate-700 rounded-3xl shadow-xl p-6 lg:p-8">
-          <!-- HEADER -->
-          <div class="flex flex-col items-center text-center">
-            <div
-              class="w-16 h-16 rounded-full flex items-center justify-center mb-2"
-              [style.background-color]="transaction.category.color"
-              >
-              <span class="text-white text-2xl">
-                {{ transaction.category.icon }}
-              </span>
-            </div>
-            <p class="text-sm text-slate-300 mb-4">
-              {{ transaction.category.name }}
-            </p>
-            <h1 class="text-2xl font-semibold text-slate-100">
-              {{ transaction.title }}
-            </h1>
-            <p
-              class="text-4xl font-bold mt-2"
-              [ngClass]="{
-                'text-emerald-400': transaction.type === 'INCOME',
-                'text-red-400': transaction.type === 'EXPENSE'
-              }"
-              >
-              {{ transaction.type === 'EXPENSE' ? '-' : '+' }}
-              {{ transaction.amount.toFixed(2) }} €
-            </p>
-            @if (hasSharedDebts()) {
-              <p
-                class="mt-2 text-sm text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-full px-3 py-1"
+      <div class="mb-6 flex items-center justify-between gap-3 max-w-3xl mx-auto">
+        <button
+          type="button"
+          (click)="goBack()"
+          class="detail-back-button inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-700"
+        >
+          <span aria-hidden="true">←</span>
+          Volver
+        </button>
+
+        <div class="flex items-center gap-2 text-xs sm:text-sm">
+          <span
+            class="detail-chip detail-type-chip"
+            class="rounded-full px-3 py-1 font-semibold border"
+            [ngClass]="transaction.type === 'EXPENSE' ? 'bg-red-500/10 text-red-300 border-red-400/30' : 'bg-emerald-500/10 text-emerald-300 border-emerald-400/30'"
+          >
+            {{ getTransactionTypeText() }}
+          </span>
+          <span class="detail-chip detail-chip--category rounded-full px-3 py-1 bg-slate-800 border border-slate-700 text-slate-300">
+            {{ transaction.category.name }}
+          </span>
+        </div>
+      </div>
+
+      <section class="flex flex-col items-center gap-6">
+        <section class="receipt-card w-full max-w-3xl rounded-3xl border border-slate-700 bg-slate-800/80 shadow-2xl overflow-hidden">
+          <header class="receipt-header px-5 sm:px-7 lg:px-8 py-6 sm:py-7 border-b border-slate-700 bg-gradient-to-r from-slate-800 via-slate-800 to-slate-700/70">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5">
+              <div class="flex items-start gap-4">
+                <div
+                  class="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl flex items-center justify-center text-2xl shadow-lg"
+                  [style.background-color]="transaction.category.color"
                 >
-                Impacto real para ti: {{ getEffectiveAmount().toFixed(2) }} €
-              </p>
-            }
-          </div>
-          <!-- INFO COMPACTA -->
-          <div class="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-slate-400">
-            <span>{{ transaction.date | date:'d MMM y' }}</span>
-            <span>•</span>
-            <span>{{ transaction.type === 'EXPENSE' ? 'Gasto' : 'Ingreso' }}</span>
-            <span>•</span>
-            <span>{{ getRecurrenceText(transaction.recurrence) }}</span>
-          </div>
-          <!-- DESCRIPCIÓN -->
-          <div class="mt-6 bg-slate-800/50 rounded-2xl px-5 py-4 text-center">
-            <p class="text-sm text-slate-300">
-              {{ transaction.description || 'Sin descripción' }}
-            </p>
-          </div>
-          <div>
-            <!-- IMAGEN ADJUNTA -->
-            @if (transaction.hasImage) {
-              <div
-                class="mt-6">
-                <h3 class="text-lg font-semibold mb-2 text-center">Imagen adjunta</h3>
-                <div class="flex justify-center">
-                  <img [src]="'data:' + transaction.imageType + ';base64,' + transaction.imageBase64"
-                    class="max-h-56 rounded-xl border border-slate-600 shadow-lg"
-                    />
+                  {{ transaction.category.icon }}
+                </div>
+
+                <div>
+                  <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Detalle de transacción</p>
+                  <h1 class="text-2xl sm:text-3xl font-bold leading-tight text-white mt-1">
+                    {{ transaction.title }}
+                  </h1>
+                  <p class="text-sm text-slate-400 mt-1">
+                    {{ transaction.date | date:"EEEE, d 'de' MMMM 'de' y":'':'es' }}
+                  </p>
                 </div>
               </div>
-            }
-          </div>
-          <!-- PARTICIPANTES INTEGRADOS -->
-          @if (hasSharedDebts()) {
-            <div class="mt-6 rounded-2xl border border-slate-600 bg-slate-800/50 p-4">
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-                <h3 class="text-lg font-semibold">Gasto compartido</h3>
-                <span class="text-xs text-slate-300 bg-slate-700 rounded-full px-3 py-1">
-                  {{ getPaidDebtsCount() }}/{{ transaction.debts?.length }} pagadas
-                </span>
-              </div>
-              <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden mb-4">
-                <div
-                  class="h-full bg-emerald-500 transition-all duration-300"
-                  [style.width.%]="getDebtsProgress()"
-                ></div>
-              </div>
-              <div class="flex flex-col gap-2">
-                @for (debt of transaction.debts; track debt) {
-                  <div
-                    class="flex items-center justify-between bg-slate-900/60 border border-slate-600 rounded-lg px-3 py-2"
-                    >
-                    <label class="flex items-center gap-3 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        [(ngModel)]="debt.isPaid"
-                        (ngModelChange)="onDebtPaidChange(debt.id, $event)"
-                        [disabled]="debt.isPaid || updatingDebtId === debt.id"
-                        class="h-4 w-4 rounded border-slate-500 bg-slate-700 text-indigo-500"
-                        />
-                      <span [ngClass]="debt.isPaid ? 'text-slate-400 line-through' : 'text-slate-100'">
-                        {{ debt.name }}
-                      </span>
-                    </label>
-                    <span class="font-semibold" [ngClass]="debt.isPaid ? 'text-emerald-400' : 'text-amber-300'">
-                      {{ debt.amount.toFixed(2) }} €
-                    </span>
-                  </div>
+
+              <div class="text-left sm:text-right">
+                <p class="text-xs uppercase tracking-[0.15em] text-slate-400 mb-1">Importe total</p>
+                <p
+                  class="detail-total-amount text-3xl sm:text-4xl font-extrabold"
+                  [ngClass]="{
+                    'text-emerald-300': transaction.type === 'INCOME',
+                    'text-rose-300': transaction.type === 'EXPENSE'
+                  }"
+                >
+                  {{ transaction.type === 'EXPENSE' ? '-' : '+' }}{{ transaction.amount | number:'1.2-2' }} €
+                </p>
+                @if (hasSharedDebts()) {
+                  <p class="detail-account-impact text-sm text-amber-300 mt-1">
+                    Impacto real en tu cuenta: {{ getAccountImpactAmount() | number:'1.2-2' }} €
+                  </p>
                 }
               </div>
             </div>
-          }
-          <!-- ACCIONES -->
-          <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
-            <button class="px-6 py-2 rounded-xl bg-slate-600 hover:bg-slate-500 transition"
-              (click)="onEditTransaction()">
-              ✏️ Editar
-            </button>
-            <button
-              class="px-6 py-2 rounded-xl bg-red-500 hover:bg-red-600 transition"
-              (click)="onDeleteTransaction()"
+          </header>
+
+          <div class="px-5 sm:px-7 lg:px-8 py-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="detail-key-card rounded-2xl border border-slate-700 bg-slate-900/70 p-4">
+                <p class="text-xs uppercase tracking-[0.14em] text-slate-400">Cuenta</p>
+                <p class="text-base font-semibold text-slate-100 mt-1">{{ transaction.accountName }}</p>
+              </div>
+              <div class="detail-key-card rounded-2xl border border-slate-700 bg-slate-900/70 p-4">
+                <p class="text-xs uppercase tracking-[0.14em] text-slate-400">Recurrencia</p>
+                <p class="text-base font-semibold text-slate-100 mt-1">{{ getRecurrenceText(transaction.recurrence) }}</p>
+              </div>
+            </div>
+
+            <div class="detail-description-card rounded-2xl border border-slate-700 bg-slate-900/60 p-5">
+              <p class="text-xs uppercase tracking-[0.14em] text-slate-400 mb-2">Descripción</p>
+              <p class="text-sm sm:text-base text-slate-200 leading-relaxed">
+                {{ transaction.description || 'Sin descripción' }}
+              </p>
+
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="inline-flex items-center rounded-full border border-slate-600 bg-slate-800 px-3 py-1 text-xs text-slate-300">
+                  Fecha exacta: {{ transaction.date | date:'dd/MM/yyyy HH:mm':'':'es' }}
+                </span>
+                <span
+                  class="inline-flex items-center rounded-full border px-3 py-1 text-xs"
+                  [ngClass]="transaction.hasImage ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-slate-600 bg-slate-800 text-slate-400'"
+                >
+                  Adjunto: {{ transaction.hasImage ? 'Sí' : 'No' }}
+                </span>
+                <span
+                  class="inline-flex items-center rounded-full border px-3 py-1 text-xs"
+                  [ngClass]="transaction.excludeFromStats ? 'border-amber-500/30 bg-amber-500/10 text-amber-300' : 'border-slate-600 bg-slate-800 text-slate-300'"
+                >
+                  Estadísticas: {{ transaction.excludeFromStats ? 'Excluida' : 'Incluida' }}
+                </span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div class="detail-metric-card rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                <p class="text-xs text-slate-400">ID transacción</p>
+                <p class="text-sm font-semibold mt-1 text-slate-200">#{{ transaction.id }}</p>
+              </div>
+              <div class="detail-metric-card rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                <p class="text-xs text-slate-400">Saldo previo</p>
+                <p class="text-sm font-semibold mt-1 text-slate-200">
+                  {{ transaction.beforeBalance !== undefined && transaction.beforeBalance !== null ? (transaction.beforeBalance | number:'1.2-2') + ' €' : 'No disponible' }}
+                </p>
+              </div>
+              <div class="detail-metric-card rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                <p class="text-xs text-slate-400">Impacto en cuenta</p>
+                <p class="text-sm font-semibold mt-1" [ngClass]="getAccountImpactAmount() >= 0 ? 'text-emerald-300' : 'text-rose-300'">
+                  {{ getAccountImpactAmount() | number:'1.2-2' }} €
+                </p>
+              </div>
+              <div class="detail-metric-card rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                <p class="text-xs text-slate-400">Saldo estimado posterior</p>
+                <p class="text-sm font-semibold mt-1 text-slate-200">
+                  {{ getAfterBalance() !== null ? ((getAfterBalance() || 0) | number:'1.2-2') + ' €' : 'No disponible' }}
+                </p>
+              </div>
+            </div>
+
+            @if (transaction.hasImage) {
+              <div class="detail-attachment-card rounded-2xl border border-slate-700 bg-slate-900/60 p-5">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                  <h3 class="text-lg font-semibold">Comprobante adjunto</h3>
+                  <span class="text-xs text-slate-400">{{ transaction.imageName || 'archivo adjunto' }}</span>
+                </div>
+                <div class="rounded-xl border border-slate-700 overflow-hidden bg-slate-950/40">
+                  <img
+                    [src]="'data:' + transaction.imageType + ';base64,' + transaction.imageBase64"
+                    class="w-full max-h-[420px] object-contain"
+                    alt="Comprobante de la transacción"
+                  />
+                </div>
+              </div>
+            }
+
+            <div class="flex flex-col sm:flex-row sm:justify-end gap-3 pt-2">
+              <button
+                type="button"
+                class="px-5 py-2.5 rounded-xl border border-slate-600 bg-slate-700 text-slate-100 hover:bg-slate-600 transition"
+                (click)="onEditTransaction()"
               >
-              🗑️ Eliminar
-            </button>
+                Editar transacción
+              </button>
+              <button
+                type="button"
+                class="detail-delete-button px-5 py-2.5 rounded-xl border border-rose-500/30 bg-rose-500/15 text-rose-200 hover:bg-rose-500/25 transition"
+                (click)="onDeleteTransaction()"
+              >
+                Eliminar transacción
+              </button>
+            </div>
           </div>
         </section>
-        <!-- ================= TARJETA RESUMEN ================= -->
-        <aside class="bg-slate-700 rounded-2xl p-6 shadow-lg">
-          <h3 class="text-lg font-semibold mb-4">Resumen</h3>
-          <div class="space-y-3 text-sm">
-            <div class="flex items-center justify-between">
-              <span class="text-slate-400">Total</span>
-              <span class="font-semibold text-slate-100">{{ transaction.amount.toFixed(2) }} €</span>
+        @if (hasSharedDebts()) {
+          <section class="debt-tracking-card w-full max-w-3xl rounded-2xl border border-slate-700 bg-slate-800/80 p-5 shadow-xl">
+            <h3 class="text-lg font-semibold mb-3">Seguimiento de reparto</h3>
+
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+              <span class="debt-summary-chip text-xs rounded-full px-3 py-1 border border-slate-600 bg-slate-800 text-slate-300 w-fit">
+                {{ getPaidDebtsCount() }}/{{ transaction.debts?.length }} pagadas
+              </span>
             </div>
-            @if (hasSharedDebts()) {
-              <div class="flex items-center justify-between">
-                <span class="text-slate-400">Tu parte real</span>
-                <span class="font-semibold text-amber-300">{{ getEffectiveAmount().toFixed(2) }} €</span>
-              </div>
-            }
-            @if (hasSharedDebts()) {
-              <div class="flex items-center justify-between">
-                <span class="text-slate-400">Te deben</span>
-                <span class="font-semibold text-indigo-300">{{ getSharedAmount().toFixed(2) }} €</span>
-              </div>
-            }
-            <div class="flex items-center justify-between">
-              <span class="text-slate-400">Recurrencia</span>
-              <span class="font-semibold text-slate-100">{{ getRecurrenceText(transaction.recurrence) }}</span>
+
+            <div class="debt-progress-track h-2 w-full rounded-full bg-slate-700 overflow-hidden mb-4">
+              <div
+                class="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-300"
+                [style.width.%]="getDebtsProgress()"
+              ></div>
             </div>
-          </div>
-        </aside>
-        <!-- ================= TARJETA ESTADO ================= -->
-        <aside class="bg-slate-700 rounded-2xl p-6 shadow-lg">
-          <h3 class="text-lg font-semibold mb-2">Estado del reparto</h3>
-          @if (hasSharedDebts()) {
-            <div class="grid grid-cols-2 gap-2 text-xs text-slate-300 mb-3">
-              <div class="rounded-lg bg-emerald-500/10 border border-emerald-500/30 px-3 py-2 text-center">
+
+            <div class="grid grid-cols-2 gap-2 mb-4 text-xs">
+              <div class="debt-progress-stat debt-progress-stat--paid rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3 py-2 text-center text-emerald-200">
                 Pagadas: {{ getPaidDebtsCount() }}
               </div>
-              <div class="rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-center">
+              <div class="debt-progress-stat debt-progress-stat--pending rounded-xl bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-center text-amber-200">
                 Pendientes: {{ getPendingDebtsCount() }}
               </div>
             </div>
-            <div class="space-y-2 text-sm">
-              <div class="flex items-center justify-between">
+
+            <div class="space-y-2 text-sm mb-4">
+              <div class="debt-amount-row flex items-center justify-between">
                 <span class="text-slate-400">Importe pagado</span>
-                <span class="text-emerald-400 font-semibold">{{ getPaidDebtsAmount().toFixed(2) }} €</span>
+                <span class="font-semibold text-emerald-300">{{ getPaidDebtsAmount() | number:'1.2-2' }} €</span>
               </div>
-              <div class="flex items-center justify-between">
+              <div class="debt-amount-row flex items-center justify-between">
                 <span class="text-slate-400">Importe pendiente</span>
-                <span class="text-amber-300 font-semibold">{{ getPendingDebtsAmount().toFixed(2) }} €</span>
+                <span class="font-semibold text-amber-300">{{ getPendingDebtsAmount() | number:'1.2-2' }} €</span>
               </div>
             </div>
-          } @else {
-            <p class="text-sm text-slate-400">
-              Esta transacción no es compartida.
-            </p>
-          }
-        </aside>
+
+            <div class="space-y-2">
+              @for (debt of transaction.debts; track debt) {
+                <label class="debt-row flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-950/40 px-4 py-3 cursor-pointer">
+                  <span class="flex items-center gap-3 min-w-0">
+                    <input
+                      type="checkbox"
+                      [(ngModel)]="debt.isPaid"
+                      (ngModelChange)="onDebtPaidChange(debt.id, $event)"
+                      [disabled]="debt.isPaid || updatingDebtId === debt.id"
+                      class="h-4 w-4 rounded border-slate-500 bg-slate-800 text-cyan-400"
+                    />
+                    <span class="truncate" [ngClass]="debt.isPaid ? 'line-through text-slate-500' : 'text-slate-200'">
+                      {{ debt.name }}
+                    </span>
+                  </span>
+                  <span class="font-semibold shrink-0" [ngClass]="debt.isPaid ? 'text-emerald-300' : 'text-amber-300'">
+                    {{ debt.amount | number:'1.2-2' }} €
+                  </span>
+                </label>
+              }
+            </div>
+          </section>
+        }
       </section>
     }
 
     <!-- ================= MODAL CONFIRMACIÓN ================= -->
     @if (showConfirmModal) {
       <div
-        class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-        <div class="bg-slate-700 rounded-xl p-6 max-w-md mx-4 shadow-2xl">
+        class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-slate-900/95 border border-slate-700/80 rounded-xl p-6 max-w-md mx-4 shadow-2xl">
           <h3 class="text-lg font-semibold text-white mb-4">
             ¿Eliminar transacción?
           </h3>
@@ -260,8 +305,8 @@
     <!-- ================= MODAL ÉXITO ================= -->
     @if (showSuccessModal) {
       <div
-        class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-        <div class="bg-slate-700 rounded-xl p-6 max-w-md mx-4 shadow-2xl text-center">
+        class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-slate-900/95 border border-slate-700/80 rounded-xl p-6 max-w-md mx-4 shadow-2xl text-center">
           <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -276,9 +321,9 @@
           </p>
           <button
             (click)="closeSuccessModal()"
-            class="px-6 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg"
+            class="px-6 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold rounded-lg"
             >
-            Volver al Dashboard
+            Volver al inicio
           </button>
         </div>
       </div>

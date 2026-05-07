@@ -3,6 +3,7 @@
     <div>
       <p class="panel-kicker">Tendencias por Categoría</p>
       <h2>Variación y previsión</h2>
+      <p class="panel-copy">Cada fila resume el ritmo de una categoría para que veas rápido si sube, baja o se mantiene estable.</p>
     </div>
   </header>
 
@@ -29,7 +30,7 @@
             </div>
 
             <div class="metric">
-              <span>Actual</span>
+              <span>Actual acumulado</span>
               <strong>{{ item.metrics.currentMonthActual | currency:'EUR':'symbol':'1.2-2' }}</strong>
               <div class="bar-track">
                 <div class="bar current" [style.width.%]="calculateBarWidth(item.metrics.currentMonthActual, item.metrics)"></div>
@@ -37,7 +38,7 @@
             </div>
 
             <div class="metric">
-              <span>Previsión</span>
+              <span>Cierre estimado</span>
               <strong>{{ item.metrics.currentMonthForecast | currency:'EUR':'symbol':'1.2-2' }}</strong>
               <div class="bar-track">
                 <div class="bar forecast" [style.width.%]="calculateBarWidth(item.metrics.currentMonthForecast, item.metrics)"></div>

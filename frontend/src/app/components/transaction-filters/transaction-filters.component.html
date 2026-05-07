@@ -50,6 +50,23 @@
       </div>
     }
 
+    <!-- Filtro de deudas pendientes -->
+    @if (showPendingToggle) {
+      <div class="filter-field">
+        <label class="filter-label">{{ pendingLabel }}</label>
+        <label class="pending-toggle" aria-label="Filtro de deudas pendientes">
+          <input
+            type="checkbox"
+            [(ngModel)]="filters.isPending"
+            (ngModelChange)="onFilterChange()"
+            class="pending-toggle-input"
+          />
+          <span class="pending-toggle-switch" aria-hidden="true"></span>
+          <span class="pending-toggle-text">Solo pendientes</span>
+        </label>
+      </div>
+    }
+
     <!-- Categoría (solo si hay tipo seleccionado) -->
     @if (showCategory && filters.type) {
       <div class="filter-field">
@@ -65,7 +82,7 @@
           }
           @for (category of categories; track category) {
             <option [value]="category.id.toString()">
-              {{ category.icon }} {{ category.name }} {{category.id}}
+              {{ category.icon }} {{ category.name }}
             </option>
           }
         </select>

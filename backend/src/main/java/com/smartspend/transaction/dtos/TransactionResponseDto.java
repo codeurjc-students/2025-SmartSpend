@@ -12,6 +12,7 @@ public record TransactionResponseDto(
     String title,
     String description,
     BigDecimal amount,
+    BigDecimal beforeBalance,
     BigDecimal effectiveAmount,
     LocalDate date,
     TransactionType type,

@@ -7,6 +7,7 @@ export interface TransactionFilters {
   type?: 'INCOME' | 'EXPENSE' | null;
   categoryId?: string;
   search?: string;
+  isPending?: boolean;
 }
 
 // Interfaz para respuesta paginada del backend

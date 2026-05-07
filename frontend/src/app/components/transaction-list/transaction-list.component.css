@@ -40,8 +40,8 @@
 .transactions-list-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding: 8px 0;
+    gap: 16px;
+    padding: 4px 0;
     /* Se adapta al contenido sin espacios extra */
     flex-grow: 0;
     flex-shrink: 0;
@@ -57,19 +57,22 @@
  * Proporciona la estructura base y efectos hover.
  */
 .transaction-card-container {
-    background-color: var(--color-bg-card);
-    border-radius: 12px;
-    box-shadow: var(--box-shadow-base);
-    border-left: 4px solid var(--color-accent-teal);
+    background: var(--surface-panel-bg);
+    border-radius: 16px;
+    box-shadow: var(--surface-panel-shadow);
+    border: 1px solid var(--surface-panel-border);
+    border-left: 3px solid rgba(103, 232, 249, 0.75);
     transition: all 0.3s ease;
     overflow: hidden;
     cursor: pointer;
+    backdrop-filter: blur(8px);
 }
 
 .transaction-card-container:hover {
     transform: translateY(-2px);
-    border-left-color: var(--color-primary);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    border-color: rgba(103, 232, 249, 0.28);
+    border-left-color: rgba(45, 212, 191, 0.95);
+    box-shadow: 0 16px 34px rgba(2, 8, 23, 0.3);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -86,7 +89,7 @@
     grid-template-areas: "icon details amount actions";
     grid-template-columns: 48px 1fr auto auto;
     align-items: center;
-    padding: 16px;
+    padding: 18px;
     gap: 16px;
 }
 
@@ -348,21 +351,21 @@
         gap: 10px;
         padding: 12px 0;
     }
-    
+
     .transaction-card-content {
         padding: 14px;
         gap: 14px;
     }
-    
+
     .transaction-icon-block {
         width: 44px;
         height: 44px;
     }
-    
+
     .transaction-icon {
         font-size: 1.2rem;
     }
-    
+
     .transaction-amount-block {
         min-width: 90px;
     }
@@ -374,48 +377,48 @@
         gap: 8px;
         padding: 8px 0;
     }
-    
+
     /* Grid layout más compacto para móviles */
     .transaction-card-content {
         grid-template-columns: 40px 1fr 80px;
         padding: 12px;
         gap: 10px;
     }
-    
+
     .transaction-icon-block {
         width: 40px;
         height: 40px;
     }
-    
+
     .transaction-icon {
         font-size: 1rem;
         border-width: 1px;
     }
-    
+
     .transaction-title {
         font-size: 0.9rem;
     }
-    
+
     .transaction-category-name {
         font-size: 0.8rem;
     }
-    
+
     .transaction-amount {
         font-size: 1rem;
     }
-    
+
     .transaction-date {
         font-size: 0.8rem;
     }
-    
+
     .transaction-amount-block {
         min-width: 70px;
     }
-    
+
     .transaction-actions-block {
         padding: 8px 12px;
     }
-    
+
     .transaction-actions-content .btn {
         padding: 4px 8px;
         font-size: 0.8rem;
@@ -426,7 +429,7 @@
 @media (max-width: 350px) {
     /* Cambiar a layout vertical en pantallas muy pequeñas */
     .transaction-card-content {
-        grid-template-areas: 
+        grid-template-areas:
             "icon details"
             "amount amount";
         grid-template-columns: 36px 1fr;
@@ -434,12 +437,12 @@
         gap: 8px;
         align-items: start;
     }
-    
+
     .transaction-icon-block {
         width: 36px;
         height: 36px;
     }
-    
+
     .transaction-amount-block {
         align-items: center;
         text-align: center;
@@ -447,7 +450,7 @@
         flex-direction: row;
         justify-content: space-between;
     }
-    
+
     .transaction-title,
     .transaction-category-name,
     .transaction-amount,

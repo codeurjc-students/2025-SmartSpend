@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +24,7 @@ import com.smartspend.config.ImageUtils;
 import com.smartspend.transaction.dtos.CreateTransactionDto;
 import com.smartspend.transaction.dtos.CreateTransactionWithImageDto;
 import com.smartspend.transaction.dtos.DebtDto;
+import com.smartspend.transaction.dtos.PendingDebtSummaryDto;
 import com.smartspend.transaction.dtos.TransactionResponseDto;
 import com.smartspend.user.User;
 import com.smartspend.user.UserRepository;
@@ -144,7 +145,7 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
-    public Page<TransactionResponseDto> getTransactionsByAccount(Long accountId, String userEmail, String search, String type, String dateFrom, String dateTo, BigDecimal minAmount, BigDecimal maxAmount, Long categoryId, Pageable pageable) {
+    public Page<TransactionResponseDto> getTransactionsByAccount(Long accountId, String userEmail, String search, String type, String dateFrom, String dateTo, BigDecimal minAmount, BigDecimal maxAmount, Long categoryId, Boolean isPending, Pageable pageable) {
         User user = userRepository.findByUserEmail(userEmail)
             .orElseThrow(() -> new RuntimeException("User not found"));
         
@@ -170,12 +171,32 @@ public class TransactionService {
         }
         
         Specification<Transaction> spec = TransactionSpecification.filterTransactions(
-            accountId, search, type, parsedDateFrom, parsedDateTo, minAmount, maxAmount, categoryId
+            accountId, search, type, parsedDateFrom, parsedDateTo, minAmount, maxAmount, categoryId, isPending
         );
 
         Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
         
         return transactions.map(transactionMapper::toResponseDto);
+    }
+
+    public List<PendingDebtSummaryDto> getPendingDebtsSummary(String userEmail, int limit) {
+        User user = userRepository.findByUserEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return debtRepository
+            .findPendingDebtsByUserId(user.getUserId(), PageRequest.of(0, limit))
+            .stream()
+            .map(debt -> new PendingDebtSummaryDto(
+                debt.getId(),
+                debt.getTransaction().getId(),
+                debt.getTransaction().getTitle(),
+                debt.getName(),
+                debt.getAmount(),
+                debt.getTransaction().getDate(),
+                debt.getTransaction().getAccount().getId(),
+                debt.getTransaction().getAccount().getAccountName()
+            ))
+            .collect(Collectors.toList());
     }
 
     @Transactional

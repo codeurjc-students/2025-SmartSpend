@@ -3,9 +3,11 @@
    ========================================================================== */
 
 .card {
-    background-color: var(--color-bg-card);
+    background: var(--surface-panel-bg);
+    border: 1px solid var(--surface-panel-border);
+    backdrop-filter: blur(10px);
     border-radius: 12px;
-    box-shadow: var(--box-shadow-base);
+    box-shadow: var(--surface-panel-shadow);
     overflow: hidden;
     transition: all 0.3s ease;
 }
@@ -41,7 +43,7 @@
 .card-footer {
     padding: 16px 24px;
     border-top: 1px solid var(--border-color);
-    background-color: var(--color-bg);
+    background-color: var(--card-footer-bg);
 }
 
 /* Tarjeta de cuenta principal */
@@ -81,7 +83,7 @@
     font-weight: 700;
     margin: 16px 0;
     color: var(--color-accent-teal)
-    
+
 }
 
 .account-card .btn {

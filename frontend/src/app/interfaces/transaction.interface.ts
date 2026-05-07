@@ -12,6 +12,7 @@ export interface Transaction {
   title: string;
   description?: string;
   amount: number;
+  beforeBalance?: number;
   effectiveAmount?: number;
   date: string;
   type: 'EXPENSE' | 'INCOME';
