@@ -539,3 +539,16 @@ a:hover {
     .sm-text-center { text-align: center !important; }
     .sm-w-full { width: 100% !important; }
 }
+
+/* ── Google Sign-In iframe: centrado defensivo (producción) ── */
+/* El iframe que inyecta el SDK de Google escapa a la encapsulación de Angular,
+   por eso estos estilos viven en el fichero global. */
+#google-signin-btn {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+#google-signin-btn > div {
+    margin: 0 auto !important;
+}

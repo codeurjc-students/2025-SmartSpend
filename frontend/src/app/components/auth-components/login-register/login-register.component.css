@@ -138,6 +138,16 @@
   margin: 0.9rem 0 0.55rem;
 }
 
+/* Wrapper defensivo del botón de Google — centra el iframe en producción */
+.register-card .google-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+
 .register-card .register-link {
   margin-top: 0.75rem;
 }
