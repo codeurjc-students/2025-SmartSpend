@@ -554,9 +554,16 @@ a:hover {
 #google-register-btn > div {
     margin: 0 auto !important;
   line-height: 0;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  overflow: hidden;
 }
 
 #google-signin-btn iframe,
 #google-register-btn iframe {
   display: block;
+  margin: 0 auto !important;
+  background: transparent !important;
+  border: 0 !important;
 }
