@@ -543,12 +543,20 @@ a:hover {
 /* ── Google Sign-In iframe: centrado defensivo (producción) ── */
 /* El iframe que inyecta el SDK de Google escapa a la encapsulación de Angular,
    por eso estos estilos viven en el fichero global. */
-#google-signin-btn {
+#google-signin-btn,
+#google-register-btn {
     display: flex;
     justify-content: center;
     width: 100%;
 }
 
-#google-signin-btn > div {
+#google-signin-btn > div,
+#google-register-btn > div {
     margin: 0 auto !important;
+  line-height: 0;
+}
+
+#google-signin-btn iframe,
+#google-register-btn iframe {
+  display: block;
 }

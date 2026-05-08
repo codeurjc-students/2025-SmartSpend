@@ -50,13 +50,17 @@ export class LoginRegisterComponent implements OnInit {
 
       const btnContainer = document.getElementById('google-signin-btn');
       if (btnContainer) {
+        const containerWidth = btnContainer.getBoundingClientRect().width;
+        const googleButtonWidth = Math.max(220, Math.min(300, Math.floor(containerWidth || 280)));
+
         window.google.accounts.id.renderButton(btnContainer, {
           type: 'standard',
           size: 'large',
           theme: 'filled_blue',
           text: 'signin_with',
           shape: 'rectangular',
-          logo_alignment: 'left'
+          logo_alignment: 'left',
+          width: googleButtonWidth
         });
       }
     };
