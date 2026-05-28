@@ -135,7 +135,6 @@ public class AnalysisService {
             
             float variation = 0.0f;
             if (lastMonthTotal.compareTo(BigDecimal.ZERO) > 0) {
-                // (Actual - Pasado) / Pasado * 100
                 variation = currentMonthActual.subtract(lastMonthTotal)
                     .divide(lastMonthTotal, 4, RoundingMode.HALF_UP)
                     .multiply(BigDecimal.valueOf(100)).floatValue();
