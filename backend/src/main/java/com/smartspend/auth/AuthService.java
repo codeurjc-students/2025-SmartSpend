@@ -99,7 +99,7 @@ public class AuthService {
 
         String token = jwtService.generateToken(u.getUserId(), u.getUserEmail());
 
-        //  System.out.println("🔑 Token generated: " + token);
+        
 
         AuthResponseDto res = new AuthResponseDto(
             u.getUserId(),

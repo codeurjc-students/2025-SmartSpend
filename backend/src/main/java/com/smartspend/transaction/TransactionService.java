@@ -255,6 +255,7 @@ public class TransactionService {
         System.out.println("DEBUG: Borrado completado con éxito");
     }
 
+    @Transactional
     public TransactionResponseDto saveTransaction(CreateTransactionDto transactionDto, String userEmail) {
 
         User user = userRepository.findByUserEmail(userEmail).orElseThrow(() -> new RuntimeException("User not found"));
@@ -308,6 +309,7 @@ public class TransactionService {
 
     }
 
+    @Transactional
     public Optional<TransactionResponseDto> updateTransaction(Long transactionId, CreateTransactionDto transactionDto, String userEmail) {
         User user = userRepository.findByUserEmail(userEmail)
             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -339,6 +341,7 @@ public class TransactionService {
     }
 
 
+    @Transactional
     public TransactionResponseDto saveTransactionWithImage(CreateTransactionWithImageDto transactionDto, String userEmail) {
 
     
