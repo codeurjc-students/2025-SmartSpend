@@ -14,7 +14,7 @@ public class AngularRoutingController {
      *
      * @return the forward view name to Angular's entry page.
      */
-    @RequestMapping({"/{path:[^\\.]*}", "/**/{path:[^\\.]*}"})
+    @RequestMapping({"/{path:[^\\.]*}", "/{path:[^\\.]*}/{subpath:[^\\.]*}"})
     public String forwardToAngularIndex() {
         return "forward:/index.html";
     }
