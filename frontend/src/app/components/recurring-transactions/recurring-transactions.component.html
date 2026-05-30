@@ -25,9 +25,12 @@
       @for (parent of recurringParents; track parent.id) {
         <details class="accordion-item">
           <summary class="accordion-header">
-            <div class="accordion-title-block">
-              <strong>{{ parent.title }}</strong>
-              <span class="pill">{{ getRecurrenceLabel(parent.recurrence) }}</span>
+            <div class="accordion-title-row">
+              <div class="accordion-title-block">
+                <strong>{{ parent.title }}</strong>
+                <span class="pill">{{ getRecurrenceLabel(parent.recurrence) }}</span>
+              </div>
+              <span class="accordion-chevron" aria-hidden="true">▸</span>
             </div>
             <div class="accordion-meta">
               <span>{{ parent.amount | number:'1.2-2' }} €</span>

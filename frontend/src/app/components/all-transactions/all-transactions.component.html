@@ -13,7 +13,7 @@
           </svg>
         </button>
         <div>
-          <p class="text-xs uppercase tracking-[0.22em] text-cyan-300/80 mb-2">Historial financiero</p>
+          <p class="all-transactions-kicker text-xs uppercase tracking-[0.22em] text-cyan-300/80 mb-2">Historial financiero</p>
           <h1 class="text-3xl font-bold text-white">Todos los movimientos</h1>
           <p class="text-sm text-slate-400 mt-2">Consulta tus transacciones con una vista más limpia y filtros bajo demanda.</p>
         </div>
@@ -33,7 +33,7 @@
 
         <div class="flex items-center gap-3">
           @if (hasActiveFilters()) {
-            <span class="inline-flex items-center rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-200">
+            <span class="filters-active-badge inline-flex items-center rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-200">
               Filtros activos
             </span>
           }
@@ -55,6 +55,7 @@
           <app-transaction-filters
             [initialFilters]="filters"
             [showTitle]="false"
+            [showApplyButton]="false"
             [title]="'Filtros de movimientos'"
             (filtersChange)="onFiltersChange($event)"
             (searchChange)="onSearchChange($event)"
@@ -97,7 +98,7 @@
             [disabled]="currentPage + 1 >= totalPages"
             [class.opacity-50]="currentPage + 1 >= totalPages"
             [class.cursor-not-allowed]="currentPage + 1 >= totalPages"
-            class="px-4 py-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-500/20 transition-colors disabled:hover:bg-cyan-500/10">
+            class="pagination-next-button px-4 py-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-500/20 transition-colors disabled:hover:bg-cyan-500/10">
             Siguiente
           </button>
         </div>

@@ -1,11 +1,11 @@
 <div class="login-container">
-  <div class="register-card">
+  <div class="register-card" [class.is-submitting]="isSubmitting">
 
     <img src="assets/images/logoBlanco.svg" alt="Logo" class="auth-logo">
     <h2 class="form-title">Iniciar sesión</h2>
     <p class="auth-subtitle">Accede para ver tus movimientos y previsiones.</p>
 
-    <form (submit)="onSubmit()" #loginForm="ngForm">
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
 
       <div class="form-group">
         <label for="email">Correo electrónico</label>
@@ -16,6 +16,7 @@
           name="email"
           class="form-email"
           placeholder="correo@ejemplo.com"
+          [disabled]="isSubmitting"
           required
           />
       </div>
@@ -30,12 +31,14 @@
             name="password"
             class="form-control"
             placeholder="Tu contraseña"
+            [disabled]="isSubmitting"
             required
             />
           <button
             type="button"
             class="password-toggle"
             (click)="togglePasswordVisibility()"
+            [disabled]="isSubmitting"
             [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
             [attr.title]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
             @if (!showPassword) {
@@ -55,7 +58,20 @@
         </div>
       </div>
 
-          <button class="btn btn-secondary auth-submit-btn" type="submit">Entrar</button>
+          <button class="btn btn-secondary auth-submit-btn" type="submit" [disabled]="isSubmitting || !loginForm.form.valid">
+            @if (isSubmitting) {
+              <span class="auth-submit-spinner" aria-hidden="true"></span>
+              <span>Iniciando sesión...</span>
+            } @else {
+              <span>Entrar</span>
+            }
+          </button>
+
+      @if (isSubmitting) {
+        <div class="auth-loading-hint" aria-live="polite">
+          Estamos comprobando tus credenciales...
+        </div>
+      }
 
       <div class="social-divider">
         <span>o continúa con</span>

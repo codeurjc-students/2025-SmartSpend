@@ -64,6 +64,26 @@
   gap: 10px;
 }
 
+.accordion-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.accordion-chevron {
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 0.2s ease, color 0.2s ease;
+  transform: rotate(0deg);
+}
+
+.accordion-item[open] .accordion-chevron {
+  transform: rotate(90deg);
+  color: var(--color-primary);
+}
+
 .pill {
   padding: 4px 10px;
   border-radius: 999px;
@@ -238,6 +258,14 @@
 
 :host-context(html.light-theme) .accordion-meta {
   color: #475569;
+}
+
+:host-context(html.light-theme) .accordion-chevron {
+  color: #64748b;
+}
+
+:host-context(html.light-theme) .accordion-item[open] .accordion-chevron {
+  color: #0e7490;
 }
 
 :host-context(html.light-theme) .children-table td.amount {

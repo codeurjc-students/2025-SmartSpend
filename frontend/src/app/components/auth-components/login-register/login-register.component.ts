@@ -18,6 +18,7 @@ export class LoginRegisterComponent implements OnInit {
   email: string = '';
   password: string = '';
   showPassword = false;
+  isSubmitting = false;
   errorMessage: string | null = null;
   private isBrowser: boolean;
 
@@ -36,11 +37,15 @@ export class LoginRegisterComponent implements OnInit {
       window.google.accounts.id.initialize({
         client_id: environment.googleClientId,
         callback: (response: any) => {
-          if (response?.credential) {
+          if (response?.credential && !this.isSubmitting) {
+            this.isSubmitting = true;
+            this.errorMessage = null;
+
             this.authService.loginWithGoogle(response.credential).subscribe({
               next: () => this.router.navigate(['/dashboard']),
               error: (err) => {
                 console.error(err);
+                this.isSubmitting = false;
                 this.errorMessage = 'Error al iniciar sesión con Google';
               }
             });
@@ -77,12 +82,20 @@ export class LoginRegisterComponent implements OnInit {
   }
 
   onSubmit() {
+    if (this.isSubmitting || !this.email.trim() || !this.password.trim()) {
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.errorMessage = null;
+
     this.authService.login(this.email, this.password).subscribe({
       next: () => {
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         console.error(err);
+        this.isSubmitting = false;
         this.errorMessage = 'Email o contraseña incorrectas';
       },
     });
