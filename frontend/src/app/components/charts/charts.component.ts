@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 
+import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
@@ -8,6 +10,7 @@ import { ChartsService } from '../../services/charts.service';
 import { ReportService } from '../../services/report.service';
 import { BankAccountServiceService, BankAccount } from '../../services/bankAccount/bank-account-service.service';
 import { PieChartDto, BarLineChartDto, TimelineChartDto, TransactionType } from '../../interfaces/chart.interface';
+import { ThemeService } from '../../services/theme/theme.service';
 
 // Registrar todos los componentes de Chart.js
 Chart.register(...registerables);
@@ -15,42 +18,44 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-charts',
   standalone: true,
-  imports: [FormsModule, BaseChartDirective],
+  imports: [FormsModule, BaseChartDirective, DecimalPipe],
   templateUrl: './charts.component.html',
   styleUrls: ['./charts.component.css']
 })
-export class ChartsComponent implements OnInit {
+export class ChartsComponent implements OnInit, OnDestroy {
   TransactionType = TransactionType;  // Para usar en el template
-  
+
   // Datos del usuario
   bankAccounts: BankAccount[] = [];
   selectedAccountId: number | null = null;
   currentYear = new Date().getFullYear();
   currentMonth = new Date().getMonth() + 1;
-  
+
   // Configuración de fechas
   selectedYear = this.currentYear;
   selectedMonth = this.currentMonth;
   viewType: 'monthly' | 'yearly' = 'monthly'; // Nuevo selector de período
-  
+
   // Estados de carga
   loadingPieIncomes = false;
   loadingPieExpenses = false;
   loadingBarChart = false;
   loadingTimelineChart = false;
   generatingPdf = false; // Nueva propiedad para el estado del PDF
-  
+
   // Datos para los gráficos
   pieIncomesData: ChartConfiguration<'pie'>['data'] | null = null;
   pieExpensesData: ChartConfiguration<'pie'>['data'] | null = null;
   barChartData: ChartConfiguration<'bar'>['data'] | null = null;
   timelineChartData: ChartConfiguration<'line'>['data'] | null = null;
-  
+  private timelineSourceData: TimelineChartDto | null = null;
+  private themeSub?: Subscription;
+
   // Totales calculados
   incomeTotal = 0;
   expenseTotal = 0;
   balance = 0;
-  
+
   // Configuraciones de Chart.js
   pieChartOptions: ChartConfiguration<'pie'>['options'] = {
     responsive: true,
@@ -63,8 +68,25 @@ export class ChartsComponent implements OnInit {
         callbacks: {
           label: (context) => {
             const label = context.label || '';
-            const value = context.formattedValue || '';
-            return `${label}: €${value}`;
+            const value = typeof context.raw === 'number' ? context.raw : Number(context.raw ?? 0);
+            const dataset = Array.isArray(context.dataset.data)
+              ? context.dataset.data as Array<number | null | undefined>
+              : [];
+            const total = dataset.reduce<number>(
+              (sum, item) => sum + (typeof item === 'number' ? item : Number(item ?? 0)),
+              0
+            );
+            const percentage = total > 0 ? (value / total) * 100 : 0;
+            const formattedAmount = new Intl.NumberFormat('es-ES', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }).format(value);
+            const formattedPercentage = new Intl.NumberFormat('es-ES', {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1
+            }).format(percentage);
+
+            return `${label}: €${formattedAmount} (${formattedPercentage}%)`;
           }
         }
       }
@@ -94,52 +116,30 @@ export class ChartsComponent implements OnInit {
     }
   };
 
-  lineChartOptions: ChartConfiguration<'line'>['options'] = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: true,
-        position: 'top'
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const label = context.dataset.label || '';
-            const value = context.formattedValue || '';
-            return `${label}: €${value}`;
-          }
-        }
-      }
-    },
-    scales: {
-      x: {
-        title: {
-          display: true,
-          text: 'Tiempo'
-        }
-      },
-      y: {
-        beginAtZero: false,
-        title: {
-          display: true,
-          text: 'Cantidad (€)'
-        }
-      }
-    },
-    interaction: {
-      intersect: false,
-      mode: 'index'
-    }
-  };
+  lineChartOptions: ChartConfiguration<'line'>['options'] = {};
 
   constructor(
     private chartsService: ChartsService,
     private bankAccountService: BankAccountServiceService,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private themeService: ThemeService
   ) {}
 
   ngOnInit() {
+    this.updateTimelineChartPresentation();
+    this.themeSub = this.themeService.theme$.subscribe(() => {
+      this.updateTimelineChartPresentation();
+    });
     this.loadBankAccounts();
+  }
+
+  ngOnDestroy() {
+    this.themeSub?.unsubscribe();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.updateTimelineChartPresentation();
   }
 
   private loadBankAccounts() {
@@ -167,7 +167,7 @@ export class ChartsComponent implements OnInit {
 
   loadCharts() {
     if (!this.selectedAccountId) return;
-    
+
     this.loadPieChart(TransactionType.INCOME);
     this.loadPieChart(TransactionType.EXPENSE);
     this.loadBarChart();
@@ -180,9 +180,9 @@ export class ChartsComponent implements OnInit {
 
   private loadPieChart(type: TransactionType) {
     if (!this.selectedAccountId) return;
-    
+
     const isIncomes = type === TransactionType.INCOME;
-    
+
     if (isIncomes) {
       this.loadingPieIncomes = true;
     } else {
@@ -209,7 +209,7 @@ export class ChartsComponent implements OnInit {
     chartObservable.subscribe({
       next: (data: PieChartDto) => {
         const chartData = this.createPieChartData(data, type);
-        
+
         if (isIncomes) {
           this.pieIncomesData = chartData;
           this.incomeTotal = data.totalAmount;
@@ -219,7 +219,7 @@ export class ChartsComponent implements OnInit {
           this.expenseTotal = data.totalAmount;
           this.loadingPieExpenses = false;
         }
-        
+
         // Calcular balance cuando tengamos ambos totales
         this.balance = this.incomeTotal - this.expenseTotal;
       },
@@ -241,9 +241,9 @@ export class ChartsComponent implements OnInit {
 
   private loadBarChart() {
     if (!this.selectedAccountId) return;
-    
+
     this.loadingBarChart = true;
-    
+
     // Elegir entre endpoint mensual o anual
     let chartObservable;
     if (this.viewType === 'monthly') {
@@ -258,7 +258,7 @@ export class ChartsComponent implements OnInit {
         this.selectedYear
       );
     }
-    
+
     chartObservable.subscribe({
       next: (data: BarLineChartDto) => {
         this.barChartData = this.createBarChartData(data);
@@ -288,7 +288,7 @@ export class ChartsComponent implements OnInit {
       '#14B8A6', // Teal
       '#F87171'  // Rojo claro
     ];
-    
+
     return {
       labels: data.labels,
       datasets: [{
@@ -313,7 +313,7 @@ export class ChartsComponent implements OnInit {
           borderWidth: 1
         },
         {
-          label: 'Gastos', 
+          label: 'Gastos',
           data: [0, data.data[1]], // Solo el segundo valor (gastos)
           backgroundColor: '#EF4444',
           borderColor: '#DC2626',
@@ -325,9 +325,9 @@ export class ChartsComponent implements OnInit {
 
   private loadTimelineChart() {
     if (!this.selectedAccountId) return;
-    
+
     this.loadingTimelineChart = true;
-    
+
     // Elegir entre endpoint mensual o anual
     let chartObservable;
     if (this.viewType === 'monthly') {
@@ -342,21 +342,25 @@ export class ChartsComponent implements OnInit {
         this.selectedYear
       );
     }
-    
+
     chartObservable.subscribe({
       next: (data: TimelineChartDto) => {
+        this.timelineSourceData = data;
         this.timelineChartData = this.createTimelineChartData(data);
         this.loadingTimelineChart = false;
       },
       error: (error: any) => {
         console.error('Error al cargar gráfico timeline:', error);
         this.loadingTimelineChart = false;
+        this.timelineSourceData = null;
         this.timelineChartData = null;
       }
     });
   }
 
   private createTimelineChartData(data: TimelineChartDto): ChartConfiguration<'line'>['data'] {
+    const isMobile = this.isMobileViewport();
+
     return {
       labels: data.labels,
       datasets: [
@@ -365,11 +369,11 @@ export class ChartsComponent implements OnInit {
           data: data.balanceData,
           borderColor: '#64B5F6',
           backgroundColor: 'rgba(100, 181, 246, 0.1)',
-          borderWidth: 3,
+          borderWidth: isMobile ? 2.5 : 3,
           fill: true,
-          tension: 0.4,
-          pointRadius: 4,
-          pointHoverRadius: 6,
+          tension: 0.35,
+          pointRadius: isMobile ? 0 : 4,
+          pointHoverRadius: isMobile ? 4 : 6,
           pointBackgroundColor: '#64B5F6'
         },
         {
@@ -379,9 +383,9 @@ export class ChartsComponent implements OnInit {
           backgroundColor: 'rgba(102, 187, 106, 0.1)',
           borderWidth: 2,
           fill: false,
-          tension: 0.4,
-          pointRadius: 3,
-          pointHoverRadius: 5,
+          tension: 0.35,
+          pointRadius: isMobile ? 0 : 3,
+          pointHoverRadius: isMobile ? 3 : 5,
           pointBackgroundColor: '#66BB6A'
         },
         {
@@ -391,13 +395,124 @@ export class ChartsComponent implements OnInit {
           backgroundColor: 'rgba(239, 125, 125, 0.1)',
           borderWidth: 2,
           fill: false,
-          tension: 0.4,
-          pointRadius: 3,
-          pointHoverRadius: 5,
+          tension: 0.35,
+          pointRadius: isMobile ? 0 : 3,
+          pointHoverRadius: isMobile ? 3 : 5,
           pointBackgroundColor: '#EF7D7D'
         }
       ]
     };
+  }
+
+  private updateTimelineChartPresentation() {
+    this.lineChartOptions = this.buildLineChartOptions();
+
+    if (this.timelineSourceData) {
+      this.timelineChartData = this.createTimelineChartData(this.timelineSourceData);
+    }
+  }
+
+  private buildLineChartOptions(): ChartConfiguration<'line'>['options'] {
+    const isMobile = this.isMobileViewport();
+    const isDark = this.themeService.isDark;
+    const tickColor = isDark ? '#94a3b8' : '#64748b';
+    const gridColor = isDark ? 'rgba(148, 163, 184, 0.14)' : 'rgba(148, 163, 184, 0.28)';
+    const tooltipBackground = isDark ? 'rgba(15, 23, 42, 0.96)' : 'rgba(255, 255, 255, 0.96)';
+    const tooltipTitle = isDark ? '#f8fafc' : '#0f172a';
+    const tooltipBody = isDark ? '#e2e8f0' : '#334155';
+    const tooltipBorder = isDark ? 'rgba(103, 232, 249, 0.2)' : 'rgba(148, 163, 184, 0.4)';
+
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: tooltipBackground,
+          titleColor: tooltipTitle,
+          bodyColor: tooltipBody,
+          borderColor: tooltipBorder,
+          borderWidth: 1,
+          callbacks: {
+            label: (context) => {
+              const label = context.dataset.label || '';
+              const value = context.parsed.y ?? 0;
+              return `${label}: ${this.formatCompactCurrency(value)}`;
+            }
+          }
+        }
+      },
+      layout: {
+        padding: {
+          top: 8,
+          right: isMobile ? 8 : 14,
+          bottom: 0,
+          left: isMobile ? 4 : 10
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false
+          },
+          border: {
+            display: false
+          },
+          ticks: {
+            color: tickColor,
+            autoSkip: true,
+            maxRotation: 0,
+            minRotation: 0,
+            maxTicksLimit: isMobile ? 5 : 8
+          },
+          title: {
+            display: !isMobile,
+            text: 'Tiempo',
+            color: tickColor
+          }
+        },
+        y: {
+          beginAtZero: false,
+          grid: {
+            color: gridColor
+          },
+          border: {
+            display: false
+          },
+          ticks: {
+            color: tickColor,
+            maxTicksLimit: isMobile ? 4 : 6,
+            callback: (tickValue) => this.formatCompactCurrency(Number(tickValue))
+          },
+          title: {
+            display: !isMobile,
+            text: 'Cantidad (€)',
+            color: tickColor
+          }
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      }
+    };
+  }
+
+  private isMobileViewport(): boolean {
+    return typeof window !== 'undefined' && window.innerWidth <= 768;
+  }
+
+  private formatCompactCurrency(value: number): string {
+    const formatter = new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: 'EUR',
+      notation: Math.abs(value) >= 1000 ? 'compact' : 'standard',
+      maximumFractionDigits: Math.abs(value) >= 1000 ? 1 : 0
+    });
+
+    return formatter.format(value);
   }
 
   generateMonthlyPdf() {
@@ -411,13 +526,13 @@ export class ChartsComponent implements OnInit {
     });
 
     this.generatingPdf = true;
-    
+
     // Primero obtenemos los datos del reporte
     this.reportService.getReportData(this.selectedAccountId, this.selectedYear, this.selectedMonth)
       .subscribe({
         next: async (reportData) => {
           console.log('Datos del reporte recibidos exitosamente:', reportData);
-          
+
           try {
             // Luego generamos el PDF con jsPDF (ahora async)
             await this.reportService.generateMonthlyPdf(reportData, this.selectedYear, this.selectedMonth);

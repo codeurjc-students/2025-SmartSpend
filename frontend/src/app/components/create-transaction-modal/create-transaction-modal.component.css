@@ -1,3 +1,14 @@
+.transaction-modal-overlay {
+	z-index: 2000 !important;
+	padding: 1rem;
+	isolation: isolate;
+}
+
+.transaction-modal-panel {
+	position: relative;
+	z-index: 2001;
+}
+
 .account-display {
 	display: flex;
 	flex-wrap: wrap;

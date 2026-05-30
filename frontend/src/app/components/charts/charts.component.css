@@ -3,3 +3,95 @@
   max-width: 100%;
   height: auto;
 }
+
+.timeline-chart-header {
+  gap: 1rem;
+}
+
+.timeline-chart-legend {
+  flex-wrap: wrap;
+  row-gap: 0.5rem;
+  justify-content: flex-end;
+  color: #cbd5e1;
+}
+
+.timeline-chart-area {
+  min-height: 24rem;
+}
+
+.timeline-chart-canvas {
+  min-width: 0;
+}
+
+:host-context(html.light-theme) .charts-page {
+  color: #334155;
+}
+
+:host-context(html.light-theme) .analysis-panel,
+:host-context(html.light-theme) .analysis-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(241, 245, 249, 0.88) 100%);
+  border-color: rgba(203, 213, 225, 0.95);
+  box-shadow: 0 16px 40px rgba(148, 163, 184, 0.16);
+}
+
+:host-context(html.light-theme) .charts-page h1,
+:host-context(html.light-theme) .analysis-card h3,
+:host-context(html.light-theme) .timeline-chart-header h3,
+:host-context(html.light-theme) .analysis-panel label {
+  color: #0f172a !important;
+}
+
+:host-context(html.light-theme) .charts-page .text-slate-400,
+:host-context(html.light-theme) .charts-page .text-slate-300,
+:host-context(html.light-theme) .timeline-chart-legend {
+  color: #64748b !important;
+}
+
+:host-context(html.light-theme) .analysis-panel select {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(148, 163, 184, 0.55);
+  color: #0f172a;
+}
+
+:host-context(html.light-theme) .analysis-panel select:focus {
+  border-color: rgba(8, 145, 178, 0.5);
+}
+
+:host-context(html.light-theme) .timeline-chart-card .timeline-chart-legend span,
+:host-context(html.light-theme) .analysis-card .text-slate-200 {
+  color: #334155 !important;
+}
+
+@media (max-width: 768px) {
+  .timeline-chart-card {
+    padding: 1rem;
+  }
+
+  .timeline-chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .timeline-chart-header h3 {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .timeline-chart-header h3 span {
+    display: block;
+    margin-left: 0;
+    margin-top: 0.2rem;
+  }
+
+  .timeline-chart-legend {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    font-size: 0.82rem;
+  }
+
+  .timeline-chart-area {
+    min-height: 18rem;
+    height: 18rem;
+  }
+}

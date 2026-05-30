@@ -142,6 +142,10 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
 
   // Método para manejar cambios en búsqueda con debounce
   onSearchChange(searchTerm: string) {
+    this.filters = {
+      ...this.filters,
+      search: searchTerm
+    };
     this.searchSubject.next(searchTerm);
   }
 

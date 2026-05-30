@@ -1,4 +1,4 @@
-<div class="min-h-screen text-slate-200 p-6">
+<div class="min-h-screen text-slate-200 p-6 charts-page">
   <div class="max-w-7xl mx-auto">
 
     <!-- Header -->
@@ -26,7 +26,7 @@
     @if (!loadingPieIncomes && !loadingPieExpenses && !loadingBarChart && !loadingTimelineChart) {
       <div>
         <!-- Controls -->
-        <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6 mb-8">
+        <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6 mb-8 analysis-panel">
           <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <!-- Selector de período -->
             <div>
@@ -52,7 +52,7 @@
                 class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-cyan-400">
                 @for (account of bankAccounts; track account) {
                   <option [value]="account.id">
-                    {{ account.accountName }} - €{{ account.currentBalance }}
+                    {{ account.accountName }} - €{{ account.currentBalance | number:'1.2-2' }}
                   </option>
                 }
               </select>
@@ -127,12 +127,12 @@
         <!-- Charts Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <!-- Income Pie Chart -->
-          <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6">
+          <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6 analysis-card">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg font-semibold text-slate-200">Ingresos por Categoría</h3>
               @if (pieIncomesData) {
                 <span class="bg-green-600 text-white px-3 py-1 rounded-full text-sm">
-                  Total: €{{ incomeTotal }}
+                  Total: €{{ incomeTotal | number:'1.2-2' }}
                 </span>
               }
             </div>
@@ -154,12 +154,12 @@
             </div>
           </div>
           <!-- Expense Pie Chart -->
-          <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6">
+          <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6 analysis-card">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg font-semibold text-slate-200">Gastos por Categoría</h3>
               @if (pieExpensesData) {
                 <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
-                  Total: €{{ expenseTotal }}
+                  Total: €{{ expenseTotal | number:'1.2-2' }}
                 </span>
               }
             </div>
@@ -182,15 +182,15 @@
           </div>
         </div>
         <!-- Timeline Chart Full Width -->
-        <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6 mb-6">
-          <div class="flex items-center justify-between mb-4">
+        <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6 mb-6 timeline-chart-card analysis-card">
+          <div class="flex items-center justify-between mb-4 timeline-chart-header">
             <h3 class="text-lg font-semibold text-slate-200">
               Evolución Temporal del Balance
               <span class="text-sm text-slate-400 font-normal ml-2">
                 ({{ viewType === 'monthly' ? 'Día a día' : 'Mes a mes' }})
               </span>
             </h3>
-            <div class="flex space-x-4 text-sm">
+            <div class="flex space-x-4 text-sm timeline-chart-legend">
               <span class="flex items-center">
                 <div class="w-3 h-3 bg-sky-400 rounded-full mr-1"></div>
                 Balance
@@ -205,9 +205,9 @@
               </span>
             </div>
           </div>
-          <div class="h-96 flex items-center justify-center">
+          <div class="h-96 flex items-center justify-center timeline-chart-area">
             @if (timelineChartData) {
-              <div class="w-full h-full">
+              <div class="w-full h-full timeline-chart-canvas">
                 <canvas baseChart
                   [data]="timelineChartData"
                   [type]="'line'"
@@ -223,7 +223,7 @@
           </div>
         </div>
         <!-- Bar Chart Full Width -->
-        <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6">
+        <div class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6 analysis-card">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-slate-200">Comparación Ingresos vs Gastos</h3>
             @if (barChartData) {
@@ -232,7 +232,7 @@
                 [class.bg-green-600]="balance >= 0"
                 [class.text-white]="balance >= 0"
                 [class.bg-red-600]="balance < 0">
-                Balance: €{{ balance }}
+                Balance: €{{ balance | number:'1.2-2' }}
               </span>
             }
           </div>

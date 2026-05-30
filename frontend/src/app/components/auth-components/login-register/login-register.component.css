@@ -43,6 +43,10 @@
   overflow-y: auto; /* Scroll interno si es necesario */
 }
 
+.register-card.is-submitting {
+  pointer-events: auto;
+}
+
 .auth-logo {
   width: min(78%, 320px);
   aspect-ratio: 85/16;
@@ -117,6 +121,11 @@
   padding: 0;
 }
 
+.password-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .password-toggle:hover {
   color: #e2e8f0;
   border-color: rgba(71, 85, 105, 0.8);
@@ -132,6 +141,27 @@
   border-radius: 12px;
   margin-top: 0.35rem;
   font-weight: 700;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.auth-submit-spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(248, 250, 252, 0.22);
+  border-top-color: #f8fafc;
+  animation: auth-spin 0.8s linear infinite;
+}
+
+.auth-loading-hint {
+  margin-top: 0.7rem;
+  color: #94a3b8;
+  font-size: 0.88rem;
+  text-align: center;
 }
 
 .register-card .social-divider {
@@ -184,6 +214,12 @@
 .register-card .btn:disabled,
 .register-card .auth-submit-btn:disabled {
   color: #cbd5e1 !important;
+}
+
+@keyframes auth-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Mensajes de error */

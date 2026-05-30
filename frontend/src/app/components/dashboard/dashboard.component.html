@@ -181,23 +181,24 @@
       </div>
       <!-- Account Central (current dashboard content) -->
       <div class="grid-section account-central">
-        <!-- Navigation Arrows - Smaller -->
-        @if (accounts.length > 1) {
-          <button class="nav-arrow nav-arrow-left" (click)="previousAccount()">
-            ←
-          </button>
-        }
-        @if (accounts.length > 1) {
-          <button class="nav-arrow nav-arrow-right" (click)="nextAccount()">
-            →
-          </button>
-        }
         <!-- Account Content Direct -->
         @if (currentAccount) {
           <div class="account-content-direct">
             <!-- Title at the very top -->
             <div class="account-title">
+              @if (accounts.length > 1) {
+                <button class="nav-arrow" (click)="previousAccount()" aria-label="Cuenta anterior">
+                  ←
+                </button>
+              }
+
               <h2>{{ currentAccount.accountName }}</h2>
+
+              @if (accounts.length > 1) {
+                <button class="nav-arrow" (click)="nextAccount()" aria-label="Siguiente cuenta">
+                  →
+                </button>
+              }
             </div>
             <!-- Balance -->
             <div class="account-balance">

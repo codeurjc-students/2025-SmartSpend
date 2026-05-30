@@ -6,6 +6,18 @@
   position: relative;
 }
 
+.all-transactions-kicker {
+  color: rgba(103, 232, 249, 0.8);
+}
+
+.filters-active-badge {
+  color: #cffafe;
+}
+
+.pagination-next-button {
+  color: #e0f2fe;
+}
+
 .filters-panel,
 .transactions-board {
   backdrop-filter: blur(10px);
@@ -30,4 +42,25 @@ button:disabled {
 
 button:disabled:hover {
   transform: none;
+}
+
+:host-context(html.light-theme) .all-transactions-kicker {
+  color: #0f766e !important;
+}
+
+:host-context(html.light-theme) .filters-active-badge {
+  color: #0f766e !important;
+  background: rgba(13, 148, 136, 0.12) !important;
+  border-color: rgba(13, 148, 136, 0.26) !important;
+}
+
+:host-context(html.light-theme) .pagination-next-button {
+  color: #0f172a !important;
+  background: rgba(34, 211, 238, 0.18) !important;
+  border-color: rgba(8, 145, 178, 0.32) !important;
+}
+
+:host-context(html.light-theme) .pagination-next-button:hover:not(:disabled) {
+  color: #0f172a !important;
+  background: rgba(34, 211, 238, 0.28) !important;
 }

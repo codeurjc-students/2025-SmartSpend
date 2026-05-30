@@ -1,12 +1,12 @@
 <!-- MODAL BACKDROP -->
 @if (isVisible) {
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm transaction-modal-overlay"
     (click)="close()"
     >
     <!-- MODAL -->
     <div
-    class="w-full max-w-2xl bg-slate-900/95 border border-slate-700/80 rounded-2xl shadow-2xl
+    class="w-full max-w-2xl bg-slate-900/95 border border-slate-700/80 rounded-2xl shadow-2xl transaction-modal-panel
            max-h-[90vh] flex flex-col"
       (click)="$event.stopPropagation()"
       >
