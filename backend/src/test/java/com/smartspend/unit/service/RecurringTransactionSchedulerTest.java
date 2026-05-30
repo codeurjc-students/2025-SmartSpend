@@ -1,6 +1,7 @@
 package com.smartspend.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -329,8 +330,61 @@ public class RecurringTransactionSchedulerTest {
         verify(transactionService).upadateAccountBalance(any(Transaction.class), any(BankAccount.class));
     }
 
+    @Test
+    @DisplayName("S-10: generateRecurringTransactions - Should generate catch-up child transactions until next date is in the future")
+    void shouldGenerateCatchUpChildTransactionsUntilNextDateIsInTheFuture() {
+        // Given
+        parentTransaction.setRecurrence(Recurrence.DAILY);
+        parentTransaction.setNextRecurrenceDate(LocalDate.now().minusDays(2));
+
+        when(transactionRepository.findPendingRecurringTransactions(any(LocalDate.class)))
+            .thenReturn(List.of(parentTransaction));
+        when(transactionRepository.save(any(Transaction.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        recurringTransactionScheduler.generateRecurringTransactions();
+
+        // Then
+        verify(transactionService, times(3)).upadateAccountBalance(any(Transaction.class), any(BankAccount.class));
+        verify(bankAccountRepository, times(3)).save(testAccount);
+        verify(transactionRepository, times(6)).save(any(Transaction.class));
+        assertEquals(LocalDate.now().plusDays(1), parentTransaction.getNextRecurrenceDate());
+
+        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository, times(6)).save(transactionCaptor.capture());
+        long childTransactions = transactionCaptor.getAllValues().stream()
+            .filter(transaction -> Boolean.FALSE.equals(transaction.getIsRecurringSeriesParent()))
+            .count();
+        assertEquals(3L, childTransactions);
+    }
+
+    @Test
+    @DisplayName("S-11: generateRecurringTransactions - Should cancel recurrence when end date has been exceeded")
+    void shouldCancelRecurrenceWhenEndDateHasBeenExceeded() {
+        // Given
+        parentTransaction.setNextRecurrenceDate(LocalDate.now());
+        parentTransaction.setRecurrenceEndDate(LocalDate.now().minusDays(1));
+
+        when(transactionRepository.findPendingRecurringTransactions(any(LocalDate.class)))
+            .thenReturn(List.of(parentTransaction));
+        when(transactionRepository.save(any(Transaction.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        recurringTransactionScheduler.generateRecurringTransactions();
+
+        // Then
+        verify(transactionService, never()).upadateAccountBalance(any(Transaction.class), any(BankAccount.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+        verify(transactionRepository, times(1)).save(parentTransaction);
+        assertFalse(parentTransaction.getIsRecurringSeriesParent());
+        assertEquals(Recurrence.NONE, parentTransaction.getRecurrence());
+        assertNull(parentTransaction.getNextRecurrenceDate());
+    }
+
     @Test 
-    @DisplayName("S-10: calculateNextRecurrenceDate - Should return null for NONE recurrence")
+    @DisplayName("S-12: calculateNextRecurrenceDate - Should return null for NONE recurrence")
     void shouldReturnNullForNoneRecurrence() throws Exception {
         // Given
         LocalDate currentDate = LocalDate.now();

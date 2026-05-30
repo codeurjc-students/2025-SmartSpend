@@ -5,6 +5,7 @@ import java.lang.annotation.Repeatable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ import com.smartspend.transaction.dtos.CreateTransactionDto;
 import com.smartspend.transaction.dtos.CreateTransactionWithImageDto;
 import com.smartspend.transaction.dtos.DebtDto;
 import com.smartspend.transaction.dtos.PendingDebtSummaryDto;
+import com.smartspend.transaction.dtos.RecurringTreeResponseDto;
 import com.smartspend.transaction.dtos.TransactionResponseDto;
 import com.smartspend.transaction.dtos.TransferRequestDto;
 import com.smartspend.transaction.dtos.TransferResponseDto;
@@ -149,6 +151,40 @@ public class TransactionService {
         return transactions.stream()
                 .map(transactionMapper::toResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    public List<RecurringTreeResponseDto> getRecurringTreeByAccount(Long accountId, String userEmail) {
+        User user = userRepository.findByUserEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        BankAccount account = bankAccountRepository.findById(accountId)
+            .orElseThrow(() -> new RuntimeException("Bank account not found"));
+
+        if (!account.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("Unauthorized to access this account");
+        }
+
+        List<Transaction> recurringParents = transactionRepository.findRecurringParentsWithChildrenByAccountId(accountId);
+
+        return recurringParents.stream()
+            .map(parent -> new RecurringTreeResponseDto(
+                parent.getId(),
+                parent.getTitle(),
+                parent.getAmount(),
+                parent.getRecurrence(),
+                parent.getNextRecurrenceDate(),
+                parent.getChildTransactions() == null
+                    ? List.of()
+                    : parent.getChildTransactions().stream()
+                        .sorted(Comparator.comparing(Transaction::getDate).reversed())
+                        .map(child -> new RecurringTreeResponseDto.ChildTransactionDto(
+                            child.getId(),
+                            child.getDate(),
+                            child.getAmount()
+                        ))
+                        .collect(Collectors.toList())
+            ))
+            .collect(Collectors.toList());
     }
 
     public Page<TransactionResponseDto> getTransactionsByAccount(Long accountId, String userEmail, String search, String type, String dateFrom, String dateTo, BigDecimal minAmount, BigDecimal maxAmount, Long categoryId, Boolean isPending, Pageable pageable) {
@@ -612,13 +648,32 @@ public class TransactionService {
             request.date() != null ? request.date() : LocalDate.now(),
             "Transferencia de cuenta " + originAccount.getAccountName() + " a " + destinationAccount.getAccountName() + " realizada con éxito"
         );
-
-
-
-
-
     }
 
+    @Transactional
+    public String cancelRecurrence(Long transactionId, String userEmail) {
+        User user = userRepository.findByUserEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
+        Transaction transaction = transactionRepository.findById(transactionId)
+            .orElseThrow(() -> new RuntimeException("Transaction not found"));
+
+        if (!transaction.getAccount().getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("Unauthorized to cancel this recurring transaction");
+        }
+
+        if (!Boolean.TRUE.equals(transaction.getIsRecurringSeriesParent())) {
+            throw new RuntimeException("This transaction is not a recurring series parent");
+        }
+
+        // Borrado lógico: quitar flags de recurrencia
+        transaction.setIsRecurringSeriesParent(false);
+        transaction.setRecurrence(Recurrence.NONE);
+        transaction.setNextRecurrenceDate(null);
+        
+        transactionRepository.save(transaction);
+
+        return "Suscripción cancelada exitosamente. No se generarán más cobros.";
+    }
 
 }

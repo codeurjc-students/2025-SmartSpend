@@ -1,0 +1,267 @@
+.recurring-tree-page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  color: var(--color-text);
+}
+
+.recurring-tree-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.recurring-tree-header p {
+  margin: 8px 0 0;
+  color: #94a3b8;
+}
+
+.recurring-tree-state {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--surface-panel-border);
+  background: var(--surface-panel-bg);
+  box-shadow: var(--surface-panel-shadow);
+}
+
+.recurring-tree-state--error {
+  border-color: #7f1d1d;
+  background: #450a0a;
+  color: #fecaca;
+}
+
+.accordion-list {
+  margin-top: 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.accordion-item {
+  border: 1px solid var(--surface-panel-border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface-panel-bg);
+  box-shadow: var(--surface-panel-shadow);
+}
+
+.accordion-header {
+  cursor: pointer;
+  list-style: none;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.accordion-header::-webkit-details-marker {
+  display: none;
+}
+
+.accordion-title-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(34, 211, 238, 0.14);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.accordion-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: color-mix(in srgb, var(--color-text) 75%, transparent);
+  font-size: 0.9rem;
+}
+
+.accordion-body {
+  border-top: 1px solid var(--surface-panel-border);
+  padding: 12px 16px 16px;
+}
+
+.empty-children {
+  color: #94a3b8;
+}
+
+.children-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.children-table th,
+.children-table td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--surface-panel-border) 80%, transparent);
+  vertical-align: middle;
+}
+
+.children-table th {
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.children-table th.status-column,
+.children-table td.status {
+  width: 132px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .accordion-meta {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+/* Nuevos estilos para cancelación e histórico */
+
+.cancel-error-banner {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #450a0a;
+  border: 1px solid #7f1d1d;
+  color: #fecaca;
+  font-size: 0.9rem;
+}
+
+.cancel-button-container {
+  margin-bottom: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.cancel-subscription-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #7f1d1d;
+  background: #7f1d1d;
+  color: #fecaca;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cancel-subscription-btn:hover:not(:disabled) {
+  background: #991b1b;
+  border-color: #b91c1c;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+.cancel-subscription-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #fecaca;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.history-section {
+  margin-top: 12px;
+}
+
+.history-title {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.children-table td.amount {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.children-table td.status {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.badge-completed {
+  display: inline-block;
+  min-width: 96px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(52, 211, 153, 0.14);
+  color: var(--color-success);
+  text-align: center;
+  line-height: 1;
+  white-space: nowrap;
+  font-size: 0.76rem;
+  font-weight: 600;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+
+:host-context(html.light-theme) .recurring-tree-header p,
+:host-context(html.light-theme) .empty-children,
+:host-context(html.light-theme) .children-table th {
+  color: #64748b;
+}
+
+:host-context(html.light-theme) .recurring-tree-state,
+:host-context(html.light-theme) .accordion-item {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+:host-context(html.light-theme) .pill {
+  background: rgba(8, 145, 178, 0.12);
+  color: #0e7490;
+}
+
+:host-context(html.light-theme) .accordion-meta {
+  color: #475569;
+}
+
+:host-context(html.light-theme) .children-table td.amount {
+  color: #0e7490;
+}
+
+:host-context(html.light-theme) .badge-completed {
+  background: rgba(5, 150, 105, 0.12);
+  color: #047857;
+}
+
+:host-context(html.light-theme) .cancel-subscription-btn {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #be123c;
+}
+
+:host-context(html.light-theme) .cancel-subscription-btn:hover:not(:disabled) {
+  background: #ffe4e6;
+  border-color: #fda4af;
+  box-shadow: 0 0 8px rgba(190, 24, 93, 0.12);
+}
+
+:host-context(html.light-theme) .spinner {
+  border-color: #be123c;
+  border-top-color: transparent;
+}

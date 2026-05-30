@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 import { CreateTransactionDto, CreateTransactionWithImageDto, TransferDto, TransferResponseDto } from '../../interfaces/create-transaction.interface';
+import { RecurringTreeParent } from '../../interfaces/recurring-tree.interface';
 import { Transaction } from '../../interfaces/transaction.interface';
 import { PendingDebtSummary } from '../../interfaces/pending-debt-summary.interface';
 import { PaginatedResponse, TransactionFilters } from '../../interfaces/pagination.interface';
@@ -25,6 +26,10 @@ export class TransactionService {
 
   getPendingDebtsSummary(): Observable<PendingDebtSummary[]> {
     return this.http.get<PendingDebtSummary[]>(`${this.apiUrl}/transactions/pending-summary`);
+  }
+
+  getRecurringTree(accountId: number): Observable<RecurringTreeParent[]> {
+    return this.http.get<RecurringTreeParent[]>(`${this.apiUrl}/transactions/recurring-tree/${accountId}`);
   }
 
   getTransactionById(transactionId: number): Observable<Transaction> {
@@ -55,6 +60,12 @@ export class TransactionService {
     formData.append('date', transactionData.date);
     formData.append('type', transactionData.type);
     formData.append('recurrence', transactionData.recurrence);
+            if (transactionData.recurrenceEndDate) {
+              formData.append('recurrenceEndDate', transactionData.recurrenceEndDate);
+            }
+        if (transactionData.recurrenceEndDate) {
+          formData.append('recurrenceEndDate', transactionData.recurrenceEndDate);
+        }
     formData.append('accountId', transactionData.accountId.toString());
 
     if (transactionData.categoryId) {
@@ -104,6 +115,13 @@ export class TransactionService {
 
   deleteTransaction(transactionId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/transactions/${transactionId}`);
+  }
+
+  cancelRecurrence(transactionId: number): Observable<{ message: string }> {
+    return this.http.patch<{ message: string }>(
+      `${this.apiUrl}/transactions/${transactionId}/cancel-recurrence`,
+      {}
+    );
   }
 
   // Método para obtener transacciones paginadas con filtros

@@ -40,6 +40,7 @@ export class CreateTransactionModalComponent implements OnInit, OnChanges, OnDes
     amount: [0, [Validators.required, Validators.min(0.01)]],
     type: ['EXPENSE' as TransactionFormType, Validators.required],
     recurrence: ['NONE' as TransactionRecurrence, Validators.required],
+    recurrenceEndDate: [null as string | null],
     categoryId: [null as string | null],
     date: [this.getTodayDate(), Validators.required],
     originAccountId: [null as number | null],
