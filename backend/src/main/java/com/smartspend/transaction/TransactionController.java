@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +28,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+
+import jakarta.validation.Valid;
 
 import com.smartspend.transaction.dtos.CreateTransactionDto;
 import com.smartspend.transaction.dtos.CreateTransactionWithImageDto;
 import com.smartspend.transaction.dtos.PendingDebtSummaryDto;
 import com.smartspend.transaction.dtos.TransactionResponseDto;
+import com.smartspend.transaction.dtos.TransferRequestDto;
+import com.smartspend.transaction.dtos.TransferResponseDto;
 
 @RestController
 @RequestMapping("/api/v1/transactions")
@@ -180,6 +186,36 @@ public class TransactionController {
         String userEmail = authentication.getName();
         TransactionResponseDto updatedTransaction = transactionService.markDebtAsPaid(transactionId, debtId, userEmail);
         return ResponseEntity.ok(updatedTransaction);
+    }
+
+    @PostMapping("/transfer")
+    public ResponseEntity<TransferResponseDto> resolveTransferBetweenAccounts(
+        @Valid @RequestBody TransferRequestDto request, Authentication authentication
+    ) {
+        String userEmail = authentication.getName();
+        TransferResponseDto response = transactionService.createTransfers(request, userEmail);
+        return ResponseEntity.ok(response);
+
+
+
+
+
+
+
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+            .findFirst()
+            .map(error -> error.getDefaultMessage())
+            .orElse("Invalid request");
+        return ResponseEntity.badRequest().body(Map.of("message", message));
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
     }
     
 }

@@ -16,7 +16,7 @@ export interface Transaction {
   effectiveAmount?: number;
   date: string;
   type: 'EXPENSE' | 'INCOME';
-  recurrence: 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY';
+  recurrence: 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
   accountId: number;
   accountName: string;
   category: Category;

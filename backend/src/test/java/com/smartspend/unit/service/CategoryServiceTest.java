@@ -215,4 +215,37 @@ public class CategoryServiceTest {
         assertEquals(userCategory1, result.get(2));
         assertEquals(userCategory2, result.get(3));
     }
+
+    @Test
+    void shouldHideInternalTransferCategoriesFromDropdown() {
+        // Given
+        Category transferExpense = new Category(
+            "Traspaso (Salida)",
+            "Internal transfer category",
+            "#6c757d",
+            TransactionType.EXPENSE,
+            "⇄"
+        );
+        Category normalExpense = new Category(
+            "Comida",
+            "Food category",
+            "#e74c3c",
+            TransactionType.EXPENSE,
+            "🛒"
+        );
+
+        List<Category> systemCategories = List.of(transferExpense, normalExpense);
+        List<Category> userCategories = new ArrayList<>();
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(categoryRepository.findByIsDefaultTrueAndType(TransactionType.EXPENSE)).thenReturn(systemCategories);
+        when(categoryRepository.findByUserUserIdAndType(1L, TransactionType.EXPENSE)).thenReturn(userCategories);
+
+        // When
+        List<Category> result = categoryService.getCategoriesForDropdown("test@example.com", TransactionType.EXPENSE);
+
+        // Then
+        assertEquals(1, result.size());
+        assertEquals("Comida", result.get(0).getName());
+    }
 }

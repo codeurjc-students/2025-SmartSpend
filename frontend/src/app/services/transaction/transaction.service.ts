@@ -1,12 +1,11 @@
 import { Observable } from 'rxjs';
-import { CreateTransactionDto } from '../../interfaces/create-transaction.interface';
+import { CreateTransactionDto, CreateTransactionWithImageDto, TransferDto, TransferResponseDto } from '../../interfaces/create-transaction.interface';
 import { Transaction } from '../../interfaces/transaction.interface';
 import { PendingDebtSummary } from '../../interfaces/pending-debt-summary.interface';
 import { PaginatedResponse, TransactionFilters } from '../../interfaces/pagination.interface';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
-import { CreateTransactionWithImageDto } from '../../interfaces/create-transaction-with-image.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +40,10 @@ export class TransactionService {
 
   createTransaction(transaction: CreateTransactionDto): Observable<Transaction> {
     return this.http.post<Transaction>(`${this.apiUrl}/transactions`, transaction);
+  }
+
+  createTransfer(transfer: TransferDto): Observable<TransferResponseDto> {
+    return this.http.post<TransferResponseDto>(`${this.apiUrl}/transactions/transfer`, transfer);
   }
 
   createTransactionWithImage(transactionData: CreateTransactionWithImageDto): Observable<Transaction> {

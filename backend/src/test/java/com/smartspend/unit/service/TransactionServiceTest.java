@@ -2,6 +2,7 @@ package com.smartspend.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -32,6 +33,8 @@ import com.smartspend.transaction.TransactionService;
 import com.smartspend.transaction.TransactionType;
 import com.smartspend.transaction.dtos.CreateTransactionDto;
 import com.smartspend.transaction.dtos.TransactionResponseDto;
+import com.smartspend.transaction.dtos.TransferRequestDto;
+import com.smartspend.transaction.dtos.TransferResponseDto;
 import com.smartspend.user.User;
 import com.smartspend.user.UserRepository;
 import com.smartspend.bankAccount.BankAccount;
@@ -67,6 +70,8 @@ public class TransactionServiceTest {
     private User testUser;
     private BankAccount testAccount;
     private Category testCategory;
+    private Category transferExpenseCategory;
+    private Category transferIncomeCategory;
 
     @BeforeEach
     void setUp() {
@@ -80,6 +85,19 @@ public class TransactionServiceTest {
         
         testCategory = new Category("Salary", "Income from work", "#27ae60", TransactionType.INCOME, null);
         testCategory.setId(1L);
+
+        transferExpenseCategory = new Category("Traspaso (Salida)", "Transfer out", "#6c757d", TransactionType.EXPENSE, "transfer");
+        transferExpenseCategory.setId(100L);
+
+        transferIncomeCategory = new Category("Traspaso (Entrada)", "Transfer in", "#6c757d", TransactionType.INCOME, "transfer");
+        transferIncomeCategory.setId(101L);
+    }
+
+    private void mockTransferDefaultCategories() {
+        when(categoryRepository.findByName("Traspaso (Salida)"))
+            .thenReturn(transferExpenseCategory);
+        when(categoryRepository.findByName("Traspaso (Entrada)"))
+            .thenReturn(transferIncomeCategory);
     }
 
     @Test
@@ -923,6 +941,236 @@ public class TransactionServiceTest {
         Transaction savedTransaction = transactionCaptor.getValue();
         assertEquals(TransactionType.INCOME, savedTransaction.getType());
         assertEquals("Now Income", savedTransaction.getTitle());
+    }
+
+    // ===============================================
+    // TESTS PARA FUNCIONALIDAD DE TRANSFERENCIAS
+    // ===============================================
+
+    @Test
+    @DisplayName("TR-1 - Should create both transfer transactions and update both balances")
+    void shouldCreateBothTransferTransactionsAndUpdateBothBalances() {
+        // Given
+        BankAccount destinationAccount = new BankAccount(testUser, "Savings", new BigDecimal("300.00"));
+        destinationAccount.setId(2L);
+
+        TransferRequestDto request = new TransferRequestDto(
+            1L,
+            2L,
+            new BigDecimal("125.50"),
+            "Rent reserve",
+            LocalDate.of(2026, 5, 28),
+            "Monthly reserve transfer",
+            Recurrence.MONTHLY
+        );
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(testAccount));
+        when(bankAccountRepository.findById(2L)).thenReturn(Optional.of(destinationAccount));
+        mockTransferDefaultCategories();
+        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> {
+            Transaction tx = invocation.getArgument(0);
+            if (tx.getId() == null) {
+                tx.setId(tx.getType() == TransactionType.EXPENSE ? 101L : 102L);
+            }
+            return tx;
+        });
+
+        // When
+        TransferResponseDto response = transactionService.createTransfers(request, "test@example.com");
+
+        // Then
+        assertNotNull(response);
+        assertEquals(101L, response.originTransactionId());
+        assertEquals(102L, response.destinationTransactionId());
+        assertEquals(0, new BigDecimal("125.50").compareTo(response.amount()));
+        assertEquals(LocalDate.of(2026, 5, 28), response.date());
+
+        assertEquals(0, new BigDecimal("874.50").compareTo(testAccount.getCurrentBalance()));
+        assertEquals(0, new BigDecimal("425.50").compareTo(destinationAccount.getCurrentBalance()));
+
+        verify(bankAccountRepository, org.mockito.Mockito.times(2)).save(any(BankAccount.class));
+
+        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository, org.mockito.Mockito.times(2)).save(transactionCaptor.capture());
+
+        List<Transaction> savedTransactions = transactionCaptor.getAllValues();
+        Transaction originTransaction = savedTransactions.get(0);
+        Transaction destinationTransaction = savedTransactions.get(1);
+
+        assertEquals(TransactionType.EXPENSE, originTransaction.getType());
+        assertEquals("Traspaso salida", originTransaction.getTitle());
+        assertEquals(true, originTransaction.getExcludeFromStats());
+        assertEquals(true, originTransaction.getIsRecurringSeriesParent());
+        assertEquals(LocalDate.of(2026, 6, 28), originTransaction.getNextRecurrenceDate());
+        assertEquals(transferExpenseCategory, originTransaction.getCategory());
+
+        assertEquals(TransactionType.INCOME, destinationTransaction.getType());
+        assertEquals("Traspaso entrada", destinationTransaction.getTitle());
+        assertEquals(true, destinationTransaction.getExcludeFromStats());
+        assertEquals(true, destinationTransaction.getIsRecurringSeriesParent());
+        assertEquals(LocalDate.of(2026, 6, 28), destinationTransaction.getNextRecurrenceDate());
+        assertEquals(transferIncomeCategory, destinationTransaction.getCategory());
+    }
+
+    @Test
+    @DisplayName("TR-2 - Should default date and recurrence for transfer when omitted")
+    void shouldDefaultDateAndRecurrenceForTransferWhenOmitted() {
+        // Given
+        BankAccount destinationAccount = new BankAccount(testUser, "Savings", new BigDecimal("300.00"));
+        destinationAccount.setId(2L);
+
+        TransferRequestDto request = new TransferRequestDto(
+            1L,
+            2L,
+            new BigDecimal("10.00"),
+            "Wallet top-up",
+            null,
+            "",
+            null
+        );
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(testAccount));
+        when(bankAccountRepository.findById(2L)).thenReturn(Optional.of(destinationAccount));
+        mockTransferDefaultCategories();
+        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        LocalDate executionDate = LocalDate.now();
+
+        // When
+        TransferResponseDto response = transactionService.createTransfers(request, "test@example.com");
+
+        // Then
+        assertEquals(executionDate, response.date());
+
+        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository, org.mockito.Mockito.times(2)).save(transactionCaptor.capture());
+
+        for (Transaction savedTransaction : transactionCaptor.getAllValues()) {
+            assertEquals(Recurrence.NONE, savedTransaction.getRecurrence());
+            assertEquals(false, savedTransaction.getIsRecurringSeriesParent());
+            assertEquals(null, savedTransaction.getNextRecurrenceDate());
+        }
+    }
+
+    @Test
+    @DisplayName("TR-3 - Should throw exception when transfer user does not exist")
+    void shouldThrowExceptionWhenTransferUserDoesNotExist() {
+        // Given
+        TransferRequestDto request = new TransferRequestDto(
+            1L,
+            2L,
+            new BigDecimal("10.00"),
+            "Transfer",
+            LocalDate.now(),
+            "",
+            Recurrence.NONE
+        );
+
+        when(userRepository.findByUserEmail("missing@example.com")).thenReturn(Optional.empty());
+
+        // When / Then
+        RuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            RuntimeException.class,
+            () -> transactionService.createTransfers(request, "missing@example.com")
+        );
+
+        assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("TR-4 - Should throw exception when origin account does not exist")
+    void shouldThrowExceptionWhenOriginAccountDoesNotExist() {
+        // Given
+        TransferRequestDto request = new TransferRequestDto(
+            999L,
+            2L,
+            new BigDecimal("10.00"),
+            "Transfer",
+            LocalDate.now(),
+            "",
+            Recurrence.NONE
+        );
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // When / Then
+        RuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            RuntimeException.class,
+            () -> transactionService.createTransfers(request, "test@example.com")
+        );
+
+        assertEquals("Origin account not found", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("TR-5 - Should throw exception when destination account does not exist")
+    void shouldThrowExceptionWhenDestinationAccountDoesNotExist() {
+        // Given
+        TransferRequestDto request = new TransferRequestDto(
+            1L,
+            999L,
+            new BigDecimal("10.00"),
+            "Transfer",
+            LocalDate.now(),
+            "",
+            Recurrence.NONE
+        );
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(testAccount));
+        when(bankAccountRepository.findById(999L)).thenReturn(Optional.empty());
+        mockTransferDefaultCategories();
+
+        // When / Then
+        RuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            RuntimeException.class,
+            () -> transactionService.createTransfers(request, "test@example.com")
+        );
+
+        assertEquals("Destination account not found", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("TR-6 - Should capture beforeBalance for both transfer transactions")
+    void shouldCaptureBeforeBalanceForBothTransferTransactions() {
+        // Given
+        testAccount.setCurrentBalance(new BigDecimal("1000.00"));
+
+        BankAccount destinationAccount = new BankAccount(testUser, "Savings", new BigDecimal("300.00"));
+        destinationAccount.setId(2L);
+
+        TransferRequestDto request = new TransferRequestDto(
+            1L,
+            2L,
+            new BigDecimal("50.00"),
+            "Transfer",
+            LocalDate.of(2026, 5, 28),
+            "",
+            Recurrence.NONE
+        );
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(testAccount));
+        when(bankAccountRepository.findById(2L)).thenReturn(Optional.of(destinationAccount));
+        mockTransferDefaultCategories();
+        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        transactionService.createTransfers(request, "test@example.com");
+
+        // Then
+        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository, org.mockito.Mockito.times(2)).save(transactionCaptor.capture());
+
+        List<Transaction> savedTransactions = transactionCaptor.getAllValues();
+        Transaction originTransaction = savedTransactions.get(0);
+        Transaction destinationTransaction = savedTransactions.get(1);
+
+        assertEquals(0, new BigDecimal("1000.00").compareTo(originTransaction.getBeforeBalance()));
+        assertEquals(0, new BigDecimal("300.00").compareTo(destinationTransaction.getBeforeBalance()));
     }
 
     // ===============================================
