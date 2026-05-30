@@ -64,8 +64,8 @@
         <!-- FORM -->
         <form
           id="transactionForm"
+          [formGroup]="transactionForm"
           (ngSubmit)="onSubmit()"
-          #transactionForm="ngForm"
           class="grid grid-cols-1 md:grid-cols-2 gap-5"
           >
           <!-- Cuenta (readonly) -->
@@ -82,9 +82,7 @@
             </label>
             <input
               type="text"
-              [(ngModel)]="newTransaction.title"
-              name="title"
-              required
+              formControlName="title"
               maxlength="30"
               placeholder="Ej: Supermercado, Nómina..."
             class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
@@ -98,19 +96,19 @@
             <label class="block text-sm text-slate-400 mb-2">
               Tipo <span class="text-red-400">*</span>
             </label>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-3 gap-3">
               <!-- GASTO -->
               <button
                 type="button"
-                (click)="newTransaction.type='EXPENSE'; onTransactionTypeChange()"
+                (click)="setTransactionType('EXPENSE')"
               class="flex items-center justify-center gap-2
                     px-3 py-2.5 rounded-lg border text-sm font-medium
                     transition-all"
               [ngClass]="{
                 'bg-red-500/15 border-red-500 text-red-400 ring-1 ring-red-500/40':
-                  newTransaction.type === 'EXPENSE',
+                  selectedType === 'EXPENSE',
                 'bg-slate-900 border-slate-700 text-slate-400 hover:bg-slate-800':
-                  newTransaction.type !== 'EXPENSE'
+                  selectedType !== 'EXPENSE'
               }"
                 >
                 💸 Gasto
@@ -118,49 +116,100 @@
               <!-- INGRESO -->
               <button
                 type="button"
-                (click)="newTransaction.type='INCOME'; onTransactionTypeChange()"
+                (click)="setTransactionType('INCOME')"
               class="flex items-center justify-center gap-2
                     px-3 py-2.5 rounded-lg border text-sm font-medium
                     transition-all"
               [ngClass]="{
                 'bg-green-500/15 border-green-500 text-green-400 ring-1 ring-green-500/40':
-                  newTransaction.type === 'INCOME',
+                  selectedType === 'INCOME',
                 'bg-slate-900 border-slate-700 text-slate-400 hover:bg-slate-800':
-                  newTransaction.type !== 'INCOME'
+                  selectedType !== 'INCOME'
               }"
                 >
                 💰 Ingreso
               </button>
+              <!-- TRASPASO -->
+              <button
+                type="button"
+                (click)="setTransactionType('TRANSFER')"
+                [disabled]="mode === 'edit'"
+              class="flex items-center justify-center gap-2
+                    px-3 py-2.5 rounded-lg border text-sm font-medium
+                    transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              [ngClass]="{
+                'bg-sky-500/15 border-sky-500 text-sky-300 ring-1 ring-sky-500/40':
+                  selectedType === 'TRANSFER',
+                'bg-slate-900 border-slate-700 text-slate-400 hover:bg-slate-800':
+                  selectedType !== 'TRANSFER'
+              }"
+                >
+                ⇄ Traspaso
+              </button>
             </div>
           </div>
-          <!-- Categoría -->
-          <div>
-            <label class="block text-sm text-slate-400 mb-1">
-              Categoría <span class="text-red-400">*</span>
-            </label>
-            @if (isLoadingCategories) {
-              <div class="py-4 text-center text-slate-400">
-                Cargando categorías...
-              </div>
-            }
-            @if (!isLoadingCategories) {
+          @if (!isTransferSelected) {
+            <!-- Categoría -->
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">
+                Categoría <span class="text-red-400">*</span>
+              </label>
+              @if (isLoadingCategories) {
+                <div class="py-4 text-center text-slate-400">
+                  Cargando categorías...
+                </div>
+              }
+              @if (!isLoadingCategories) {
+                <select
+                  formControlName="categoryId"
+                  class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
+                         text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  >
+                  @for (category of availableCategories; track category.id) {
+                    <option [value]="category.id">
+                      {{ category.icon }} {{ category.name }}
+                    </option>
+                  }
+                </select>
+              }
+            </div>
+          }
+          @if (isTransferSelected) {
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">
+                Cuenta de origen <span class="text-red-400">*</span>
+              </label>
               <select
-                [(ngModel)]="newTransaction.categoryId"
-                name="categoryId"
-                required
-            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
-                   text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                formControlName="originAccountId"
+                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
+                       text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                 >
-                @for (category of availableCategories; track category) {
-                  <option
-                    [value]="category.id"
-                    >
-                    {{ category.icon }} {{ category.name }}
-                  </option>
+                @for (account of availableAccounts; track account.id) {
+                  <option [ngValue]="account.id">{{ account.accountName }}</option>
                 }
               </select>
-            }
-          </div>
+            </div>
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">
+                Cuenta de destino <span class="text-red-400">*</span>
+              </label>
+              <select
+                formControlName="destinationAccountId"
+                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
+                       text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                >
+                <option [ngValue]="null">Selecciona una cuenta</option>
+                @for (account of destinationAccounts; track account.id) {
+                  <option [ngValue]="account.id">{{ account.accountName }}</option>
+                }
+              </select>
+              @if (destinationAccounts.length === 0) {
+                <p class="text-xs text-amber-400 mt-1">
+                  Necesitas al menos dos cuentas para hacer un traspaso.
+                </p>
+              }
+            </div>
+          }
           <!-- Cantidad -->
           <div>
             <label class="block text-sm text-slate-400 mb-1">
@@ -172,26 +221,24 @@
               </span>
               <input
                 type="number"
-                [(ngModel)]="newTransaction.amount"
-                name="amount"
+                formControlName="amount"
                 step="0.01"
                 min="0.01"
                 placeholder="0.00"
                 (focus)="onAmountFocus()"
-                required
-                [readonly]="mode === 'edit' && transactionToEdit?.debts && transactionToEdit!.debts!.length > 0"
+                [readonly]="mode === 'edit' && hasExistingDebts"
               class="w-full pr-8 rounded-lg border px-3 py-2
                      text-slate-200 text-right font-semibold
                 focus:outline-none focus:ring-2 focus:ring-cyan-400
                      disabled:cursor-not-allowed"
-              [ngClass]="mode === 'edit' && transactionToEdit?.debts && transactionToEdit!.debts!.length > 0
+              [ngClass]="mode === 'edit' && hasExistingDebts
                 ? 'bg-slate-800 border-slate-700 opacity-60'
                 : 'bg-slate-900 border-slate-700'"
                 />
             </div>
           </div>
           <!-- GASTO COMPARTIDO (solo EXPENSE) -->
-          @if (newTransaction.type === 'EXPENSE') {
+          @if (isExpenseSelected) {
             <div class="md:col-span-2">
               <!-- Toggle (Solo en modo creación) -->
               @if (mode === 'create') {
@@ -216,7 +263,7 @@
                 </button>
               }
               <!-- Aviso en modo edición -->
-              @if (mode === 'edit' && transactionToEdit?.debts && transactionToEdit!.debts!.length > 0) {
+              @if (mode === 'edit' && hasExistingDebts) {
                 <div
                   class="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-start gap-3">
                   <div class="p-2 rounded-lg bg-cyan-500/20 text-cyan-300">
@@ -245,7 +292,7 @@
                       <input
                         type="number"
                         [(ngModel)]="personalAmount"
-                        name="personalAmount"
+                        [ngModelOptions]="{ standalone: true }"
                         step="0.01"
                         min="0"
                         placeholder="0.00"
@@ -266,7 +313,7 @@
                           <input
                             type="text"
                             [(ngModel)]="debt.name"
-                            [name]="'debtName_' + i"
+                            [ngModelOptions]="{ standalone: true }"
                             placeholder="Nombre"
                             maxlength="30"
                     class="flex-1 rounded-lg bg-slate-800 border border-slate-600 px-3 py-2
@@ -277,7 +324,7 @@
                             <input
                               type="number"
                               [(ngModel)]="debt.amount"
-                              [name]="'debtAmount_' + i"
+                              [ngModelOptions]="{ standalone: true }"
                               step="0.01"
                               min="0"
                               placeholder="0.00"
@@ -328,7 +375,7 @@
                       : '⚠️ Te pasas ' + (getRemainder() * -1).toFixed(2) + ' €') }}
                     </span>
                     <span class="font-semibold">
-                      {{ (personalAmount ?? 0) + getDebtsTotal() | number:'1.2-2' }} / {{ newTransaction.amount | number:'1.2-2' }} €
+                      {{ (personalAmount ?? 0) + getDebtsTotal() | number:'1.2-2' }} / {{ transactionForm.controls.amount.value | number:'1.2-2' }} €
                     </span>
                   </div>
                 </div>
@@ -342,8 +389,7 @@
             </label>
             <input
               type="date"
-              [(ngModel)]="newTransaction.date"
-              name="date"
+              formControlName="date"
             class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
                    text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
               />
@@ -357,8 +403,7 @@
               Recurrencia
             </label>
             <select
-              [(ngModel)]="newTransaction.recurrence"
-              name="recurrence"
+              formControlName="recurrence"
             class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2
                    text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
               >
@@ -375,8 +420,7 @@
               Descripción
             </label>
             <textarea
-              [(ngModel)]="newTransaction.description"
-              name="description"
+              formControlName="description"
               rows="3"
               maxlength="100"
               placeholder="Descripción opcional"
@@ -388,6 +432,7 @@
             </p>
           </div>
           <!-- Imagen -->
+          @if (!isTransferSelected) {
           <div class="md:col-span-2">
             <label class="block text-sm text-slate-400 mb-2">
               📷 Imagen (Opcional)
@@ -443,11 +488,12 @@
                   </button>
                 </div>
                 <p class="text-xs text-slate-400 mt-1">
-                  {{ selectedImageFile?.name }}
+                  {{ selectedImageFile?.name || transactionToEdit?.imageName }}
                 </p>
               </div>
             }
           </div>
+          }
         </form>
       </div>
     </div>

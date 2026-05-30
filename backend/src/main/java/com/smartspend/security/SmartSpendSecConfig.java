@@ -90,21 +90,6 @@ public class SmartSpendSecConfig {
     }
 
     @Bean
-    public org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers(
-            "/",
-            "/index.html",
-            "/favicon.ico",
-            "/assets/**",
-            "/*.js",
-            "/*.css",
-            "/*.map",
-            "/static/**"
-        );
-    }
-
-
-    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }

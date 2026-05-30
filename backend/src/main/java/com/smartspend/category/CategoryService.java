@@ -2,6 +2,7 @@ package com.smartspend.category;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,11 @@ import com.smartspend.user.UserRepository;
 
 @Service
 public class CategoryService {
+
+    private static final Set<String> INTERNAL_TRANSFER_CATEGORY_NAMES = Set.of(
+        "Traspaso (Salida)",
+        "Traspaso (Entrada)"
+    );
 
     @Autowired
     UserRepository userRepository;
@@ -26,7 +32,10 @@ public class CategoryService {
             .orElseThrow(() -> new RuntimeException("User not found"));
         
         
-        List<Category> systemCategories = categoryRepository.findByIsDefaultTrueAndType(type);
+        List<Category> systemCategories = new ArrayList<>(
+            categoryRepository.findByIsDefaultTrueAndType(type)
+        );
+        systemCategories.removeIf(this::isInternalTransferCategory);
         
         
         List<Category> userCategories = categoryRepository.findByUserUserIdAndType(user.getUserId(), type);
@@ -36,5 +45,10 @@ public class CategoryService {
         allCategories.addAll(userCategories);
         
         return allCategories;
+    }
+
+    private boolean isInternalTransferCategory(Category category) {
+        return Boolean.TRUE.equals(category.getIsDefault())
+            && INTERNAL_TRANSFER_CATEGORY_NAMES.contains(category.getName());
     }
 }

@@ -1,6 +1,7 @@
 package com.smartspend.transaction;
 
 import java.io.IOException;
+import java.lang.annotation.Repeatable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,11 +27,16 @@ import com.smartspend.transaction.dtos.CreateTransactionWithImageDto;
 import com.smartspend.transaction.dtos.DebtDto;
 import com.smartspend.transaction.dtos.PendingDebtSummaryDto;
 import com.smartspend.transaction.dtos.TransactionResponseDto;
+import com.smartspend.transaction.dtos.TransferRequestDto;
+import com.smartspend.transaction.dtos.TransferResponseDto;
 import com.smartspend.user.User;
 import com.smartspend.user.UserRepository;
 
 @Service 
 public class TransactionService {
+
+    private static final String TRANSFER_EXPENSE_CATEGORY_NAME = "Traspaso (Salida)";
+    private static final String TRANSFER_INCOME_CATEGORY_NAME = "Traspaso (Entrada)";
     
     @Autowired
     private DebtRepository debtRepository;
@@ -499,4 +505,120 @@ public class TransactionService {
         bankAccountRepository.save(account);
         transactionRepository.delete(adjustment);
     }
+
+
+    @Transactional
+    public TransferResponseDto createTransfers(TransferRequestDto request, String email) {
+        User user = userRepository.findByUserEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (request.amount() == null || request.amount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Transfer amount must be greater than zero");
+        }
+
+        if (request.originAccountId() != null && request.originAccountId().equals(request.destinationAccountId())) {
+            throw new RuntimeException("Origin and destination accounts must be different");
+        }
+
+        BankAccount originAccount = bankAccountRepository.findById(request.originAccountId())
+            .orElseThrow(() -> new RuntimeException("Origin account not found"));
+
+        if (originAccount.getCurrentBalance().compareTo(request.amount()) < 0) {
+            throw new IllegalArgumentException("Operación denegada: Saldo insuficiente en la cuenta de origen.");
+        }
+
+        BankAccount destinationAccount = bankAccountRepository.findById(request.destinationAccountId())
+            .orElseThrow(() -> new RuntimeException("Destination account not found"));
+
+        if (!originAccount.getUser().getUserId().equals(user.getUserId())
+            || !destinationAccount.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("Unauthorized to transfer with these accounts");
+        }
+
+        Category transferExpenseCategory = Optional
+            .ofNullable(categoryRepository.findByName(TRANSFER_EXPENSE_CATEGORY_NAME))
+            .orElseThrow(() -> new RuntimeException("Category not found: " + TRANSFER_EXPENSE_CATEGORY_NAME));
+
+        Category transferIncomeCategory = Optional
+            .ofNullable(categoryRepository.findByName(TRANSFER_INCOME_CATEGORY_NAME))
+            .orElseThrow(() -> new RuntimeException("Category not found: " + TRANSFER_INCOME_CATEGORY_NAME));
+
+        String transferLabel = request.title() != null ? request.title().trim() : "";
+        if (transferLabel.isBlank()) {
+            throw new IllegalArgumentException("El concepto del traspaso es obligatorio.");
+        }
+
+        String transferDescription = request.description() != null ? request.description().trim() : "";
+        if (transferDescription.length() > 100) {
+            throw new IllegalArgumentException("La descripción no puede superar 100 caracteres.");
+        }
+
+        
+        // ✅ Lógica para recurrencia:
+        boolean isRecurring = false;
+        LocalDate nextRecurrenceDate = null;
+        LocalDate transactionDate = request.date() != null ? request.date() : LocalDate.now();
+
+        if (request.recurrence() != null && request.recurrence() != Recurrence.NONE) {
+            isRecurring = true;
+            nextRecurrenceDate = calculateNextRecurrenceDate(transactionDate, request.recurrence());
+        }
+        
+        Transaction originTransaction = Transaction.builder()
+            .title("Traspaso salida")
+            .description(transferDescription.isBlank() ? transferLabel : transferDescription)
+            .amount(request.amount())
+            .date(request.date() != null ? request.date() : LocalDate.now())
+            .type(TransactionType.EXPENSE)
+            .recurrence(request.recurrence() != null ? request.recurrence() : Recurrence.NONE)
+            .category(transferExpenseCategory)
+            .account(originAccount)
+            .beforeBalance(originAccount.getCurrentBalance())
+            .isRecurringSeriesParent(isRecurring)
+            .nextRecurrenceDate(nextRecurrenceDate)
+            .effectiveAmount(request.amount())
+            .excludeFromStats(true)
+            .build();
+        
+        Transaction destinationTransaction = Transaction.builder()
+            .title("Traspaso entrada")
+            .description(transferDescription.isBlank() ? transferLabel : transferDescription)
+            .amount(request.amount())
+            .date(request.date() != null ? request.date() : LocalDate.now())
+            .type(TransactionType.INCOME)
+            .recurrence(request.recurrence() != null ? request.recurrence() : Recurrence.NONE)
+            .category(transferIncomeCategory)
+            .account(destinationAccount)
+            .beforeBalance(destinationAccount.getCurrentBalance())
+            .isRecurringSeriesParent(isRecurring)
+            .nextRecurrenceDate(nextRecurrenceDate)
+            .effectiveAmount(request.amount())
+            .excludeFromStats(true)
+            .build();
+
+
+        upadateAccountBalance(originTransaction, originAccount);
+        upadateAccountBalance(destinationTransaction, destinationAccount);
+
+        bankAccountRepository.save(originAccount);
+        bankAccountRepository.save(destinationAccount);
+
+        Transaction savedOrigin = transactionRepository.save(originTransaction);
+        Transaction savedDestination = transactionRepository.save(destinationTransaction);
+
+        return new TransferResponseDto(
+            savedOrigin.getId(),
+            savedDestination.getId(),
+            request.amount(),
+            request.date() != null ? request.date() : LocalDate.now(),
+            "Transferencia de cuenta " + originAccount.getAccountName() + " a " + destinationAccount.getAccountName() + " realizada con éxito"
+        );
+
+
+
+
+
+    }
+
+
+
 }

@@ -38,9 +38,6 @@ public class DataLoader implements CommandLineRunner {
         this.transactionRepository = transactionRepository;
         this.bankAccountRepository = bankAccountRepository;
     }
-
-
-
     @Override
     public void run(String... args) throws Exception {
 
@@ -667,4 +664,5 @@ public class DataLoader implements CommandLineRunner {
             System.out.println("✅ Categoría añadida: Deportes");
         }
     }
-    }
+
+}
