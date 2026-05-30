@@ -3,10 +3,12 @@ package com.smartspend.unit.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -1386,5 +1388,105 @@ public class TransactionServiceTest {
         
         Transaction savedTransaction = transactionCaptor.getValue();
         assertEquals(expectedNextDate, savedTransaction.getNextRecurrenceDate());
+    }
+
+    @Test
+    @DisplayName("Should cancel recurring transaction successfully")
+    void shouldCancelRecurringTransaction() {
+        // Given
+        Long transactionId = 1L;
+        String userEmail = "test@example.com";
+        
+        User user = new User();
+        user.setUserId(1L);
+        user.setUserEmail(userEmail);
+        
+        BankAccount account = new BankAccount(user, "Test Account", new BigDecimal("1000.00"));
+        
+        Transaction transaction = new Transaction();
+        transaction.setId(transactionId);
+        transaction.setTitle("Monthly Subscription");
+        transaction.setIsRecurringSeriesParent(true);
+        transaction.setRecurrence(Recurrence.MONTHLY);
+        transaction.setNextRecurrenceDate(LocalDate.now().plusMonths(1));
+        transaction.setAccount(account);
+        
+        when(userRepository.findByUserEmail(userEmail)).thenReturn(Optional.of(user));
+        when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
+        when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
+        
+        // When
+        String result = transactionService.cancelRecurrence(transactionId, userEmail);
+        
+        // Then
+        assertEquals("Suscripción cancelada exitosamente. No se generarán más cobros.", result);
+        assertTrue(!transaction.getIsRecurringSeriesParent());
+        assertEquals(Recurrence.NONE, transaction.getRecurrence());
+        assertEquals(null, transaction.getNextRecurrenceDate());
+        verify(transactionRepository).save(transaction);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when trying to cancel non-recurring transaction")
+    void shouldThrowExceptionWhenCancellingNonRecurringTransaction() {
+        // Given
+        Long transactionId = 1L;
+        String userEmail = "test@example.com";
+        
+        User user = new User();
+        user.setUserId(1L);
+        user.setUserEmail(userEmail);
+        
+        BankAccount account = new BankAccount(user, "Test Account", new BigDecimal("1000.00"));
+        
+        Transaction transaction = new Transaction();
+        transaction.setId(transactionId);
+        transaction.setTitle("Single Payment");
+        transaction.setIsRecurringSeriesParent(false);
+        transaction.setRecurrence(Recurrence.NONE);
+        transaction.setAccount(account);
+        
+        when(userRepository.findByUserEmail(userEmail)).thenReturn(Optional.of(user));
+        when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
+        
+        // When & Then
+        assertThrows(RuntimeException.class, 
+            () -> transactionService.cancelRecurrence(transactionId, userEmail),
+            "Should throw RuntimeException for non-recurring transaction");
+    }
+
+    @Test
+    @DisplayName("Should throw exception when cancelling recurring transaction from another user")
+    void shouldThrowExceptionWhenCancellingRecurringTransactionFromAnotherUser() {
+        // Given
+        Long transactionId = 1L;
+        String userEmail = "owner@example.com";
+
+        User owner = new User();
+        owner.setUserId(1L);
+        owner.setUserEmail(userEmail);
+
+        User anotherUser = new User();
+        anotherUser.setUserId(2L);
+        anotherUser.setUserEmail("other@example.com");
+
+        BankAccount account = new BankAccount(anotherUser, "Shared Account", new BigDecimal("1000.00"));
+
+        Transaction transaction = new Transaction();
+        transaction.setId(transactionId);
+        transaction.setIsRecurringSeriesParent(true);
+        transaction.setRecurrence(Recurrence.MONTHLY);
+        transaction.setNextRecurrenceDate(LocalDate.now().plusDays(10));
+        transaction.setAccount(account);
+
+        when(userRepository.findByUserEmail(userEmail)).thenReturn(Optional.of(owner));
+        when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
+
+        // When / Then
+        RuntimeException exception = assertThrows(RuntimeException.class,
+            () -> transactionService.cancelRecurrence(transactionId, userEmail));
+
+        assertEquals("Unauthorized to cancel this recurring transaction", exception.getMessage());
+        verify(transactionRepository, never()).save(any(Transaction.class));
     }
 }

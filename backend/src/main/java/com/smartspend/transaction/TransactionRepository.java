@@ -85,4 +85,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
            "AND t.recurrence != 'NONE' " +
            "AND t.nextRecurrenceDate <= :today")
        List<Transaction> findPendingRecurringTransactions(@Param("today") LocalDate today);
+
+       @Query("SELECT DISTINCT t FROM Transaction t " +
+              "LEFT JOIN FETCH t.childTransactions c " +
+              "WHERE t.account.id = :accountId AND t.isRecurringSeriesParent = true " +
+              "ORDER BY t.nextRecurrenceDate ASC")
+       List<Transaction> findRecurringParentsWithChildrenByAccountId(@Param("accountId") Long accountId);
 }

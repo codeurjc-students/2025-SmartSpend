@@ -10,6 +10,7 @@ export interface CreateTransactionDto {
     amount: number;
     type: 'EXPENSE' | 'INCOME';
     recurrence: 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+        recurrenceEndDate?: string;
     categoryId?: string;
     date: string;
     accountId: number;

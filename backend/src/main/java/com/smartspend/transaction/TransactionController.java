@@ -35,6 +35,7 @@ import jakarta.validation.Valid;
 import com.smartspend.transaction.dtos.CreateTransactionDto;
 import com.smartspend.transaction.dtos.CreateTransactionWithImageDto;
 import com.smartspend.transaction.dtos.PendingDebtSummaryDto;
+import com.smartspend.transaction.dtos.RecurringTreeResponseDto;
 import com.smartspend.transaction.dtos.TransactionResponseDto;
 import com.smartspend.transaction.dtos.TransferRequestDto;
 import com.smartspend.transaction.dtos.TransferResponseDto;
@@ -88,6 +89,15 @@ public class TransactionController {
     public List<PendingDebtSummaryDto> getPendingDebtsSummary(Authentication authentication) {
         String userEmail = authentication.getName();
         return transactionService.getPendingDebtsSummary(userEmail, 5);
+    }
+
+    @GetMapping("/recurring-tree/{accountId}")
+    public ResponseEntity<List<RecurringTreeResponseDto>> getRecurringTreeByAccount(
+            @PathVariable Long accountId,
+            Authentication authentication) {
+        String userEmail = authentication.getName();
+        List<RecurringTreeResponseDto> recurringTree = transactionService.getRecurringTreeByAccount(accountId, userEmail);
+        return ResponseEntity.ok(recurringTree);
     }
 
     @GetMapping("/{transactionId}")
@@ -186,6 +196,15 @@ public class TransactionController {
         String userEmail = authentication.getName();
         TransactionResponseDto updatedTransaction = transactionService.markDebtAsPaid(transactionId, debtId, userEmail);
         return ResponseEntity.ok(updatedTransaction);
+    }
+
+    @PatchMapping("/{transactionId}/cancel-recurrence")
+    public ResponseEntity<Map<String, String>> cancelRecurrence(
+            @PathVariable Long transactionId,
+            Authentication authentication) {
+        String userEmail = authentication.getName();
+        String message = transactionService.cancelRecurrence(transactionId, userEmail);
+        return ResponseEntity.ok(Map.of("message", message));
     }
 
     @PostMapping("/transfer")

@@ -56,6 +56,18 @@ public class Transaction {
     @Column(name = "next_recurrence_date")
     private LocalDate nextRecurrenceDate;
 
+    @Column(name = "recurrence_end_date")
+    private LocalDate recurrenceEndDate;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    @JsonIgnore
+    private Transaction parentTransaction;
+
+    @OneToMany(mappedBy = "parentTransaction")
+    @JsonIgnore
+    private List<Transaction> childTransactions;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "account_id")
     @JsonManagedReference

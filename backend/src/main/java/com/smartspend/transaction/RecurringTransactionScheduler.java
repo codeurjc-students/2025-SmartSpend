@@ -41,9 +41,24 @@ public class RecurringTransactionScheduler {
         for (Transaction parentTransaction : pendingTransactions){
             try {
                 System.out.println("Procesando: '" + parentTransaction.getTitle() + "' (próxima fecha: " + parentTransaction.getNextRecurrenceDate() + ")");
-                generateChildTransaction(parentTransaction);
-                updateNextRecurrenceDate(parentTransaction);
-                System.out.println("Generada exitosamente: '" + parentTransaction.getTitle() + "'");
+                
+                // Bucle while para catch-up: generar todos los hijos atrasados de una vez
+                while (parentTransaction.getNextRecurrenceDate() != null && 
+                       parentTransaction.getNextRecurrenceDate().compareTo(today) <= 0) {
+                    
+                    // Verificar si se alcanzó la fecha de fin de recurrencia
+                    if (parentTransaction.getRecurrenceEndDate() != null &&
+                        parentTransaction.getNextRecurrenceDate().isAfter(parentTransaction.getRecurrenceEndDate())) {
+                        System.out.println("Recurrencia finalizada para: '" + parentTransaction.getTitle() + "'. Aplicando borrado lógico.");
+                        cancelRecurrence(parentTransaction);
+                        break;
+                    }
+                    
+                    generateChildTransaction(parentTransaction);
+                    updateNextRecurrenceDate(parentTransaction);
+                }
+                
+                System.out.println("Generada(s) exitosamente: '" + parentTransaction.getTitle() + "'");
             } catch (Exception e) {
                 System.out.println("Error generando transaccion recurrente '" + parentTransaction.getTitle() + "': " + e.getMessage());
                 e.printStackTrace();
@@ -67,6 +82,7 @@ public class RecurringTransactionScheduler {
             .beforeBalance(parent.getAccount().getCurrentBalance())
             .isRecurringSeriesParent(false) 
             .nextRecurrenceDate(null)
+            .parentTransaction(parent)
             .imageData(parent.getImageData())
             .imageName(parent.getImageName())
             .imageType(parent.getImageType())
@@ -94,4 +110,12 @@ public class RecurringTransactionScheduler {
             case NONE -> null;
         };
     }
+
+    private void cancelRecurrence(Transaction parent) {
+        parent.setIsRecurringSeriesParent(false);
+        parent.setRecurrence(Recurrence.NONE);
+        parent.setNextRecurrenceDate(null);
+        transactionRepository.save(parent);
+    }
+
 }

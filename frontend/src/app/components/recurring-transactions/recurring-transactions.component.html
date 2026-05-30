@@ -1,0 +1,91 @@
+<section class="recurring-tree-page">
+  <header class="recurring-tree-header">
+    <h1>Gastos Recurrentes</h1>
+    <p>Despliega cada suscripción para ver sus cobros hijos generados y su histórico completo.</p>
+  </header>
+
+  @if (loading) {
+    <div class="recurring-tree-state">Cargando recurrentes...</div>
+  }
+
+  @if (!loading && error) {
+    <div class="recurring-tree-state recurring-tree-state--error">{{ error }}</div>
+  }
+
+  @if (!loading && !error && cancelError) {
+    <div class="cancel-error-banner">{{ cancelError }}</div>
+  }
+
+  @if (!loading && !error && recurringParents.length === 0) {
+    <div class="recurring-tree-state">No hay suscripciones recurrentes en esta cuenta.</div>
+  }
+
+  @if (!loading && !error && recurringParents.length > 0) {
+    <div class="accordion-list">
+      @for (parent of recurringParents; track parent.id) {
+        <details class="accordion-item">
+          <summary class="accordion-header">
+            <div class="accordion-title-block">
+              <strong>{{ parent.title }}</strong>
+              <span class="pill">{{ getRecurrenceLabel(parent.recurrence) }}</span>
+            </div>
+            <div class="accordion-meta">
+              <span>{{ parent.amount | number:'1.2-2' }} €</span>
+              <span>Próximo cobro: {{ parent.nextRecurrenceDate ? (parent.nextRecurrenceDate | date:'dd/MM/yyyy') : 'No definido' }}</span>
+            </div>
+          </summary>
+
+          <div class="accordion-body">
+            <!-- Botón cancelar -->
+            <div class="cancel-button-container">
+              <button
+                type="button"
+                (click)="cancelRecurrence(parent.id)"
+                [disabled]="cancellingId === parent.id"
+                class="cancel-subscription-btn"
+              >
+                @if (cancellingId === parent.id) {
+                  <span class="spinner"></span>
+                  Cancelando...
+                } @else {
+                  🗑️ Cancelar suscripción
+                }
+              </button>
+            </div>
+
+            <!-- Histórico de cobros -->
+            @if (parent.childTransactions.length === 0) {
+              <p class="empty-children">No se han generado cobros hijos todavía.</p>
+            } @else {
+              <div class="history-section">
+                <h3 class="history-title">📊 Histórico de cobros ({{ parent.childTransactions.length }})</h3>
+                <table class="children-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Fecha de cobro</th>
+                      <th>Importe</th>
+                      <th class="status-column">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (child of parent.childTransactions; track child.id) {
+                      <tr>
+                        <td>#{{ child.id }}</td>
+                        <td>{{ child.date | date:'dd/MM/yyyy' }}</td>
+                        <td class="amount">{{ child.amount | number:'1.2-2' }} €</td>
+                        <td class="status">
+                          <span class="badge-completed">Completado</span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        </details>
+      }
+    </div>
+  }
+</section>

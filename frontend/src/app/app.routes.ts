@@ -9,6 +9,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { AllTransactionsComponent } from './components/all-transactions/all-transactions.component';
 import { ChartsComponent } from './components/charts/charts.component';
 import { ForecastDashboardComponent } from './components/forecast-dashboard/forecast-dashboard.component';
+import { RecurringTransactionsComponent } from './components/recurring-transactions/recurring-transactions.component';
 
 export const routes: Routes = [
 
@@ -20,6 +21,7 @@ export const routes: Routes = [
     { path: 'dashboard', canActivate: [authGuard], component: DashboardComponent },
     { path: 'charts', canActivate: [authGuard], component: ChartsComponent },
     { path: 'forecast', canActivate: [authGuard], component: ForecastDashboardComponent },
+    { path: 'recurring-transactions', canActivate: [authGuard], component: RecurringTransactionsComponent },
     { path: 'transaction/:id', canActivate: [authGuard], component: TransactionDetailComponent},
     { path: 'profile', canActivate: [authGuard], component: ProfileComponent }
 
