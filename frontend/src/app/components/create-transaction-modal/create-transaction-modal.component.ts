@@ -572,12 +572,96 @@ export class CreateTransactionModalComponent implements OnInit, OnChanges, OnDes
   }
 
   splitEqually(): void {
-    const total = this.transactionForm.controls.amount.value ?? 0;
-    const count = this.sharedDebts.length + 1; // +1 por el usuario
-    if (count < 2) return;
-    const share = Math.round((total / count) * 100) / 100;
-    this.personalAmount = share;
-    this.sharedDebts = this.sharedDebts.map(d => ({ ...d, amount: share }));
+    const totalCents = this.toCents(this.transactionForm.controls.amount.value ?? 0);
+    const participantsCount = this.sharedDebts.length + 1;
+
+    if (participantsCount < 2) {
+      return;
+    }
+
+    const baseShareCents = Math.floor(totalCents / participantsCount);
+    let remainderCents = totalCents % participantsCount;
+
+    this.personalAmount = this.fromCents(baseShareCents + (remainderCents > 0 ? 1 : 0));
+    if (remainderCents > 0) {
+      remainderCents -= 1;
+    }
+
+    this.sharedDebts = this.sharedDebts.map((debt) => {
+      const shareCents = baseShareCents + (remainderCents > 0 ? 1 : 0);
+      if (remainderCents > 0) {
+        remainderCents -= 1;
+      }
+
+      return {
+        ...debt,
+        amount: this.fromCents(shareCents)
+      };
+    });
+
+    this.errorMessage = null;
+  }
+
+  autocompleteRemainingEqually(): void {
+    const totalCents = this.toCents(this.transactionForm.controls.amount.value ?? 0);
+    const fixedPersonalCents = this.hasManualAmount(this.personalAmount) ? this.toCents(this.personalAmount) : 0;
+    const fixedDebtCents = this.sharedDebts.reduce((sum, debt) => {
+      if (!this.hasManualAmount(debt.amount)) {
+        return sum;
+      }
+
+      return sum + this.toCents(debt.amount);
+    }, 0);
+    const fixedTotalCents = fixedPersonalCents + fixedDebtCents;
+
+    if (fixedTotalCents > totalCents) {
+      this.errorMessage = 'Los importes fijos superan el total del gasto.';
+      return;
+    }
+
+    const pendingTargets: Array<{ type: 'personal' } | { type: 'debt'; index: number }> = [];
+
+    if (!this.hasManualAmount(this.personalAmount)) {
+      pendingTargets.push({ type: 'personal' });
+    }
+
+    this.sharedDebts.forEach((debt, index) => {
+      if (!this.hasManualAmount(debt.amount)) {
+        pendingTargets.push({ type: 'debt', index });
+      }
+    });
+
+    const remainingCents = totalCents - fixedTotalCents;
+
+    if (pendingTargets.length === 0) {
+      this.errorMessage = remainingCents === 0
+        ? null
+        : 'No quedan participantes pendientes para repartir el importe restante.';
+      return;
+    }
+
+    const baseShareCents = Math.floor(remainingCents / pendingTargets.length);
+    let remainderCents = remainingCents % pendingTargets.length;
+
+    pendingTargets.forEach((target) => {
+      const shareCents = baseShareCents + (remainderCents > 0 ? 1 : 0);
+      if (remainderCents > 0) {
+        remainderCents -= 1;
+      }
+
+      const shareAmount = this.fromCents(shareCents);
+      if (target.type === 'personal') {
+        this.personalAmount = shareAmount;
+        return;
+      }
+
+      this.sharedDebts[target.index] = {
+        ...this.sharedDebts[target.index],
+        amount: shareAmount
+      };
+    });
+
+    this.errorMessage = null;
   }
 
   getDebtsTotal(): number {
@@ -594,6 +678,18 @@ export class CreateTransactionModalComponent implements OnInit, OnChanges, OnDes
     if (this.sharedDebts.length === 0) return false;
     const allNamed = this.sharedDebts.every(d => d.name.trim().length > 0);
     return allNamed && this.getRemainder() === 0;
+  }
+
+  private hasManualAmount(amount: number | undefined | null): boolean {
+    return amount !== undefined && amount !== null && !Number.isNaN(amount) && amount > 0;
+  }
+
+  private toCents(amount: number | string | undefined | null): number {
+    return Math.round(Number(amount ?? 0) * 100);
+  }
+
+  private fromCents(amountInCents: number): number {
+    return amountInCents / 100;
   }
 
 // Helper method para obtener la categoría seleccionada
