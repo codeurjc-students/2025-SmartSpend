@@ -18,6 +18,7 @@ type NavItem = {
 export class NavBarComponent {
   readonly navItems: NavItem[] = [
     { label: 'INICIO', route: '/dashboard' },
+    { label: 'HISTORIAL', route: '/all-transactions' },
     { label: 'GRÁFICOS', route: '/charts' },
     { label: 'PREVISIÓN', route: '/forecast' },
     { label: 'RECURRENTES', route: '/recurring-transactions' },

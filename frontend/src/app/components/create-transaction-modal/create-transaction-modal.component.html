@@ -351,15 +351,30 @@
                     </button>
                   </div>
                   <!-- Acciones -->
-                  <button
-                    type="button"
-                    (click)="splitEqually()"
-                    [disabled]="sharedDebts.length === 0"
-              class="split-equally-btn w-full py-2 rounded-lg border border-slate-600 text-sm text-slate-300
-                     hover:bg-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                    ⚖️ Dividir equitativamente
-                  </button>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      (click)="splitEqually()"
+                      [disabled]="sharedDebts.length === 0"
+                class="split-equally-btn w-full py-2 rounded-lg border border-slate-600 text-sm text-slate-300
+                       hover:bg-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                      ⚖️ Repartir equitativamente
+                    </button>
+                    <button
+                      type="button"
+                      (click)="autocompleteRemainingEqually()"
+                      [disabled]="sharedDebts.length === 0"
+                class="split-equally-btn w-full py-2 rounded-lg border border-slate-600 text-sm text-slate-300
+                       hover:bg-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                      🧩 Autocompletar resto
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-400 -mt-1">
+                    <p>Reparte todo el importe entre todas las personas, ignorando lo escrito antes.</p>
+                    <p>Respeta los importes ya escritos y reparte solo lo que falte entre quienes sigan a 0.</p>
+                  </div>
                   <!-- Preview / validación -->
                   <div
                     class="split-summary rounded-lg px-4 py-3 text-sm flex items-center justify-between"
