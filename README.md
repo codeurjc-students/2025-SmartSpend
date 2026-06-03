@@ -100,20 +100,25 @@ https://youtu.be/vEshQWBvltg
 
 ### 🌐 Acceso a la Aplicación en Producción
 
-**Smart Spend está desplegado y disponible en AWS:**
+Smart Spend está desplegado en **Render** y disponible en:
 
-🔗 **URL de producción:** https://56.228.32.202
+🔗 **URL de producción:** https://smartspend-dev.onrender.com
 
-**Nota:** La aplicación utiliza un certificado SSL autofirmado. En tu navegador, acepta el aviso de seguridad para acceder.
+La base de datos de producción está en **Aiven** y se mantiene **desacoplada** de la aplicación, lo que permite separar responsabilidades entre plataforma de ejecución y persistencia.
 
-La aplicación se actualiza automáticamente cada vez que se genera una nueva release en el repositorio. Para detalles técnicos sobre el despliegue, consulta la [Guía de Desarrollo](Readmes/7.GuiaDeDesarrollo.md#despliegue-en-producción-aws).
+Para más detalles técnicos sobre despliegue y arquitectura de entornos, consulta la [Guía de Desarrollo](Readmes/7.GuiaDeDesarrollo.md#despliegue-en-produccion-render).
 
 ---
 
-### Próximas Funcionalidades
-## Funcionalidades previstas – Fase intermedia
+### Novedades Funcionales Recientes
 
-En la siguiente fase de desarrollo, Smart Spend incorporará nuevas funcionalidades orientadas a mejorar la gestión y el análisis de las finanzas personales, incluyendo la **edición de movimientos**, la **visualización de datos mediante gráficos**, la **consulta del historial completo de ingresos y gastos**, la **búsqueda y filtrado de movimientos**, y la **generación de resúmenes mensuales en formato PDF**, permitiendo al usuario un mayor control y una visión más clara de su información financiera.
+En las iteraciones recientes se han incorporado mejoras importantes en experiencia de usuario y navegación:
+
+- Historial completo de movimientos con **paginación real** y rango de resultados visible.
+- Filtros de transacciones dentro de un **panel colapsable** en la vista de historial.
+- **Rediseño de la vista de detalle de transacción** con layout por tarjetas, resumen financiero y mejor presentación de adjuntos/progreso de deuda.
+- **Unificación visual global** con paleta cian/teal para mantener consistencia entre pantallas.
+
 
 
 ---
