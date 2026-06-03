@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
         // Esto es crucial para el enrutamiento de Angular (SPA)
         registry.addViewController("/").setViewName("forward:/index.html");
         registry.addViewController("/{path:[^\\.]*}").setViewName("forward:/index.html");
-        // Corregido: Usa nombres de variables diferentes para los segmentos de la ruta
+        // Usa nombres de variables diferentes para los segmentos de la ruta
         registry.addViewController("/{path1:.*}/{path2:[^\\.]*}").setViewName("forward:/index.html");
     }
 }

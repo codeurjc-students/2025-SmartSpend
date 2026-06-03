@@ -34,7 +34,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // 🔥 IGNORAR ESTÁTICOS Y FRONTEND
         if (path.equals("/")
                 || path.equals("/index.html")
                 || path.startsWith("/assets/")
@@ -57,7 +56,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String email = jwtService.extractEmail(token);
 
-            // Podemos inyectar directamente el email como principal, no necesitamos cargar desde BD
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
 

@@ -30,24 +30,9 @@ jobs:
           distribution: 'temurin'
           java-version: 21
 
-      - name: Build backend
+      - name: Build backend and run all Maven tests
         working-directory: backend
-        run: mvn clean compile -B
-
-      - name: Run backend unit tests
-        working-directory: backend
-        run: mvn test -Dtest="*Unit*,*ServiceTest*" -Dsurefire.failIfNoSpecifiedTests=false -B
-
-      - name: Integration and E2E Tests Status
-        run: |
-          echo "🚧 Integration and E2E Tests Status 🚧"
-          echo ""
-          echo "The following tests are temporarily disabled while authentication functionality is completed:"
-          echo "❌ Integration Tests (JVM-based, require JWT authentication)"
-          echo "❌ E2E Selenium Tests (require full login flow)"
-          echo ""
-          echo "API Integration Tests (Postman/Newman) are now enabled and will run in a separate job using Docker Compose."
-          echo "✅ Only backend unit tests are active in this job."
+        run: mvn clean install -B
 
   postman-api-tests:
     runs-on: ubuntu-latest
@@ -118,9 +103,7 @@ jobs:
           echo "✅ Quality Gate PASSED"
           echo ""
           echo "📋 Executed Tests Summary:"
-          echo "  ✅ Backend Unit Tests: PASSED"
+          echo "  ✅ Backend Maven Build + Tests (clean install): PASSED"
           echo "  ✅ Postman API Integration Tests: PASSED (via Docker Compose)"
-          echo "  🚧 Backend Integration Tests (JVM-based): SKIPPED (temporary)"
-          echo "  🚧 E2E Tests: SKIPPED (temporary)"
           echo ""
           echo "🚀 Ready to merge! Continue with feature development."
