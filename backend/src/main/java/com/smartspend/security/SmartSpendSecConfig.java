@@ -73,8 +73,6 @@ public class SmartSpendSecConfig {
         .authenticationProvider(authenticationProvider())
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         
-
-        // DEBUG: Log preflight CORS requests
         http.addFilterBefore((request, response, chain) -> {
             if (request instanceof jakarta.servlet.http.HttpServletRequest) {
                 jakarta.servlet.http.HttpServletRequest httpReq = (jakarta.servlet.http.HttpServletRequest) request;
