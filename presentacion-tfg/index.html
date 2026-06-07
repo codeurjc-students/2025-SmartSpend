@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartSpend — TFG 25-26</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div id="deck">
+
+  <!-- ══════════════════════════════════════
+       SLIDE 1 · PORTADA
+  ═══════════════════════════════════════ -->
+  <section class="slide" id="s1">
+    <div class="logo-wrap" style="width:clamp(260px,40vw,520px);height:clamp(260px,40vw,520px);">
+      <img src="final_version/logoBlanco.svg" alt="SmartSpend"
+           onerror="this.style.opacity='.2'" />
+    </div>
+
+    <p style="font-size:clamp(.9rem,1.5vw,1.15rem); color:var(--slate-400); margin-top:.2rem;">
+      Plataforma de gestión financiera personal inteligente
+    </p>
+
+    <div class="cover-meta">
+      Trabajo de Fin de Grado &nbsp;·&nbsp; 2025 – 2026<br/>
+      <span>Autor:</span> Juan Manuel Bustos Moya &nbsp;·&nbsp;
+      <span>Tutor:</span> Óscar Soto Sánchez
+    </div>
+
+    <div class="sp-notes" style="display:none">
+      Buenas tardes al tribunal. Soy Juan Manuel Bustos Moya y voy a presentar SmartSpend,
+      una plataforma web de gestión financiera personal desarrollada como TFG bajo la tutela
+      de Óscar Soto Sánchez.
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SLIDE 2 · ÍNDICE
+  ═══════════════════════════════════════ -->
+  <section class="slide" id="s-idx">
+    <div class="s-label">00 · Índice</div>
+    <h2 class="s-title">Contenido de la Presentación</h2>
+    <hr class="divider" />
+
+    <div class="index-grid">
+      <div class="index-item">
+        <span class="index-num">01</span>
+        <div class="index-body">
+          <span class="index-title">Funcionalidades de SmartSpend</span>
+          <span class="index-desc">Escaparate del producto · 8 bloques clave</span>
+        </div>
+      </div>
+      <div class="index-item">
+        <span class="index-num">02</span>
+        <div class="index-body">
+          <span class="index-title">Objetivos del Proyecto</span>
+          <span class="index-desc">Funcionales · técnicos · arquitectura global</span>
+        </div>
+      </div>
+      <div class="index-item">
+        <span class="index-num">03</span>
+        <div class="index-body">
+          <span class="index-title">Arquitectura del Sistema</span>
+          <span class="index-desc">Angular · Spring Boot · Aiven · Render</span>
+        </div>
+      </div>
+      <div class="index-item">
+        <span class="index-num">04</span>
+        <div class="index-body">
+          <span class="index-title">Metodología y Despliegue Continuo</span>
+          <span class="index-desc">Estrategia de ramas · CI · Pruebas automáticas</span>
+        </div>
+      </div>
+      <div class="index-item">
+        <span class="index-num">05</span>
+        <div class="index-body">
+          <span class="index-title">Seguridad — Stateless JWT</span>
+          <span class="index-desc">Spring Security · JWT · Google OAuth 2.0</span>
+        </div>
+      </div>
+      <div class="index-item">
+        <span class="index-num">06</span>
+        <div class="index-body">
+          <span class="index-title">Lógica Transaccional y Deudas</span>
+          <span class="index-desc">effectiveAmount · excludeFromStats · Recurrentes</span>
+        </div>
+      </div>
+      <div class="index-item">
+        <span class="index-num">07</span>
+        <div class="index-body">
+          <span class="index-title">Motor Predictivo</span>
+          <span class="index-desc">Regresión lineal · SQL · Previsión 90 días</span>
+        </div>
+      </div>
+      <div class="index-item">
+        <span class="index-num">08</span>
+        <div class="index-body">
+          <span class="index-title">Demo</span>
+          <span class="index-desc">Video en YouTube + acceso directo a la app cloud</span>
+        </div>
+      </div>
+      <div class="index-item">
+        <span class="index-num">09</span>
+        <div class="index-body">
+          <span class="index-title">Conclusiones</span>
+          <span class="index-desc">Objetivos alcanzados · calidad · cierre del proyecto</span>
+        </div>
+      </div>
+      <div class="index-item">
+        <span class="index-num">10</span>
+        <div class="index-body">
+          <span class="index-title">Trabajos Futuros</span>
+          <span class="index-desc">App móvil · IA · Freemium</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sp-notes" style="display:none">
+      La presentación cubre diez bloques: funcionalidades, objetivos, arquitectura,
+      metodología, seguridad, lógica de negocio, motor predictivo, conclusiones y líneas futuras.
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SLIDE 3 · FUNCIONALIDADES
+  ═══════════════════════════════════════ -->
+  <section class="slide" id="s2-func">
+    <div class="s-label">01 · Funcionalidades</div>
+    <h2 class="s-title">Funcionalidades de SmartSpend</h2>
+    <p class="s-sub">Escaparate visual de las capacidades principales de la plataforma.</p>
+    <hr class="divider" />
+
+    <div class="body">
+      <div class="feature-grid">
+        <article class="feature-list-item"><span class="feature-list-num">01</span><h3>Acceso y Registro de Cuenta</h3></article>
+        <article class="feature-list-item"><span class="feature-list-num">02</span><h3>Gastos Compartidos</h3></article>
+        <article class="feature-list-item"><span class="feature-list-num">03</span><h3>Motor de Previsión</h3></article>
+        <article class="feature-list-item"><span class="feature-list-num">04</span><h3>Cuadro de Mando Analítico</h3></article>
+        <article class="feature-list-item"><span class="feature-list-num">05</span><h3>Automatización Recurrente</h3></article>
+        <article class="feature-list-item"><span class="feature-list-num">06</span><h3>Soporte Multicuenta</h3></article>
+        <article class="feature-list-item"><span class="feature-list-num">07</span><h3>Informes PDF</h3></article>
+        <article class="feature-list-item"><span class="feature-list-num">08</span><h3>Motor de Búsqueda Avanzado</h3></article>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SLIDE 4 · OBJETIVOS
+  ═══════════════════════════════════════ -->
+  <section class="slide" id="s3-obj">
+    <div class="s-label">02 · Objetivos</div>
+    <h2 class="s-title">Objetivos del Proyecto</h2>
+    <p class="s-sub">Objetivos funcionales y técnicos alineados con el diseño de la solución.</p>
+    <hr class="divider" />
+
+    <div class="body">
+      <div class="objectives-layout">
+        <article class="objective-panel objective-panel--functional">
+          <h3>Funcionales</h3>
+          <div class="objective-cards objective-cards--functional">
+            <article class="objective-card">Gestión integral del ciclo de vida de los movimientos y cuentas.</article>
+            <article class="objective-card">Capacidad de generar gastos compartidos.</article>
+            <article class="objective-card">Trazabilidad real de deudas preservando la integridad del balance.</article>
+            <article class="objective-card">Automatización de movimientos recurrentes.</article>
+            <article class="objective-card">Proveer herramientas de análisis visual y proyección a futuro.</article>
+          </div>
+        </article>
+
+        <article class="objective-panel objective-panel--technical">
+          <h3>Técnicos</h3>
+          <div class="objective-cards objective-cards--technical">
+            <article class="objective-card">Arquitectura Cliente-Servidor SPA (Angular 21) + API RESTful (Spring Boot Java 21).</article>
+            <article class="objective-card">Seguridad robusta y Stateless (JWT + Google OAuth2).</article>
+            <article class="objective-card">Persistencia relacional en la nube (MySQL en Aiven).</article>
+            <article class="objective-card">Orquestación y portabilidad completa mediante contenedores (Docker).</article>
+            <article class="objective-card">Ciclo CI/CD automatizado con testing integral (GitHub Actions, JUnit, Newman).</article>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SLIDE 3 · ARQUITECTURA
+  ═══════════════════════════════════════ -->
+  <section class="slide" id="s2">
+    <div class="s-label">03 · Arquitectura</div>
+    <h2 class="s-title">Arquitectura del Sistema</h2>
+    <p class="s-sub">Los 4 pilares de SmartSpend y su trabajo conjunto</p>
+    <hr class="divider" />
+
+    <!-- Orbit layout: imagen central + 4 tarjetas en las esquinas -->
+    <div class="orbit-layout">
+
+      <!-- Esquina superior-izquierda -->
+      <div class="orbit-card orbit-card--tl">
+        <img class="pillar-logo" src="final_version/angular-icon.svg" alt="Angular"
+             onerror="this.outerHTML='<span style=font-size:2rem>⬡</span>'" />
+        <div class="pillar-name">Angular 21</div>
+        <div class="pillar-role">Frontend · SPA</div>
+        <div style="display:flex;gap:.3rem;flex-wrap:wrap;justify-content:center;margin-top:.3rem;">
+          <span class="tag tag-c">Tailwind</span>
+          <span class="tag tag-t">Chart.js</span>
+        </div>
+      </div>
+
+      <!-- Esquina superior-derecha -->
+      <div class="orbit-card orbit-card--tr">
+        <img class="pillar-logo" src="final_version/spring-icon.svg" alt="Spring Boot"
+             onerror="this.outerHTML='<span style=font-size:2rem>🍃</span>'" />
+        <div class="pillar-name">Spring Boot</div>
+        <div class="pillar-role">Backend · REST API</div>
+        <div style="display:flex;gap:.3rem;flex-wrap:wrap;justify-content:center;margin-top:.3rem;">
+          <span class="tag tag-c">Security</span>
+          <span class="tag tag-g">JPA</span>
+        </div>
+      </div>
+
+      <!-- Imagen central -->
+      <div class="orbit-center">
+        <div class="img-box" style="width:100%;height:100%;">
+          <img src="final_version/servicios.png" alt="Diagrama de servicios"
+               onerror="this.parentElement.innerHTML='<span style=font-size:.7rem;color:rgba(148,163,184,.35);font-family:monospace;padding:1rem>services.png</span>'" />
+        </div>
+      </div>
+
+      <!-- Esquina inferior-izquierda -->
+      <div class="orbit-card orbit-card--bl">
+        <img class="pillar-logo" src="final_version/render-community-large-icon.svg" alt="Render"
+             onerror="this.outerHTML='<span style=font-size:2rem>▲</span>'" />
+        <div class="pillar-name">Render</div>
+        <div class="pillar-role">Despliegue · CI/CD</div>
+        <span class="tag tag-t" style="margin-top:.3rem;">Zero-downtime</span>
+      </div>
+
+      <!-- Esquina inferior-derecha -->
+      <div class="orbit-card orbit-card--br">
+        <img class="pillar-logo" src="final_version/aiven_svg.png" alt="Aiven"
+             onerror="this.outerHTML='<span style=font-size:2rem>☁</span>'" />
+        <div class="pillar-name">Aiven</div>
+        <div class="pillar-role">Base de Datos · Cloud</div>
+        <span class="tag tag-g" style="margin-top:.3rem;">MySQL</span>
+      </div>
+
+    </div>
+
+    <div class="sp-notes" style="display:none">
+      Arquitectura cliente-servidor desacoplada. Angular 21 en el frontend como SPA.
+      Spring Boot en el backend con Spring Security, JPA y Flyway.
+      Render gestiona el despliegue continuo y Aiven provee MySQL cloud-managed.
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SLIDE 4 · METODOLOGIA Y DESPLIEGUE
+  ═══════════════════════════════════════ -->
+  <section class="slide" id="s4">
+    <div class="s-label">04 · DevOps</div>
+    <h2 class="s-title">Metodología y Despliegue Continuo</h2>
+    <p class="s-sub">Del commit a producción en minutos, sin intervención manual</p>
+    <hr class="divider" />
+
+    <div class="cicd-layout">
+      <!-- Esquina superior-izquierda: Estrategia de Ramas -->
+      <div class="cicd-card cicd-card--tl">
+        <div class="index-num">01</div>
+        <img class="cicd-icon-img" src="final_version/git-icon.png" alt="Git" />
+        <span class="cicd-name">Estrategia de Ramas</span>
+        <ul class="cicd-info">
+          <li>Rama <strong>main</strong> protegida</li>
+          <li>Desarrollo en <strong>feature/</strong> y <strong>fix/</strong></li>
+          <li>Merge solo vía <strong>Pull Request</strong></li>
+        </ul>
+      </div>
+
+      <!-- Esquina superior-derecha: Pruebas y Validación -->
+      <div class="cicd-card cicd-card--tr">
+        <div class="index-num">02</div>
+        <img class="cicd-icon-img" src="final_version/github-alt.webp" alt="GitHub Actions" />
+        <span class="cicd-name">Pruebas y Validación</span>
+        <ul class="cicd-info">
+          <li>Tests <strong>Unitarios</strong> e <strong>Integración</strong></li>
+          <li>API end-to-end con <strong>Newman</strong></li>
+          <li>PR bloqueado si falla algún test</li>
+        </ul>
+      </div>
+
+      <!-- Esquina inferior-izquierda: Generación de Imagen -->
+      <div class="cicd-card cicd-card--bl">
+        <div class="index-num">03</div>
+        <img class="cicd-icon-img" src="final_version/docker.svg" alt="Docker" />
+        <span class="cicd-name">Generación de Imagen</span>
+        <ol class="cicd-info">
+          <li>Build <strong>Angular</strong> (frontend)</li>
+          <li>Build <strong>Maven</strong> (backend)</li>
+          <li><strong>JRE 21</strong> → <strong>DockerHub</strong></li>
+        </ol>
+      </div>
+
+      <!-- Esquina inferior-derecha: Despliegue en Render -->
+      <div class="cicd-card cicd-card--br">
+        <div class="index-num">04</div>
+        <img class="cicd-icon-img" src="final_version/render-community-large-icon.svg" alt="Render" />
+        <span class="cicd-name">Despliegue en Render</span>
+        <ul class="cicd-info">
+          <li><strong>Webhook</strong> automático DockerHub</li>
+          <li>Render descarga <strong>:latest</strong></li>
+          <li><strong>Zero-downtime</strong> garantizado</li>
+        </ul>
+      </div>
+    </div>
+
+    
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SLIDE 5 · SEGURIDAD JWT 
+  ═══════════════════════════════════════ -->
+  <section class="slide" id="s5">
+    <div class="s-label">05 · Ingeniería I</div>
+    <h2 class="s-title">Seguridad — Arquitectura Stateless</h2>
+    <p class="s-sub">Sin sesiones en servidor · sin usuarios almacenados en claro</p>
+    <hr class="divider" />
+
+    <div class="body">
+
+      <!-- Left: JWT flow diagram -->
+      <div class="jwt-diagram">
+
+        <div class="jwt-step jwt-step--client">
+          <span class="jwt-icon">👤</span>
+          <div class="jwt-label">Cliente</div>
+        </div>
+
+        <div class="jwt-arrow-col">
+          <div class="jwt-arrow-row">
+            <div class="jwt-line"></div>
+            <span class="jwt-msg jwt-msg--right">POST /auth/login</span>
+          </div>
+          <div class="jwt-arrow-row jwt-arrow-row--back">
+            <span class="jwt-msg jwt-msg--left">access_token (15 min)<br/>refresh_token (7 días)</span>
+            <div class="jwt-line jwt-line--teal"></div>
+          </div>
+          <div class="jwt-arrow-row">
+            <div class="jwt-line"></div>
+            <span class="jwt-msg jwt-msg--right">Bearer &lt;token&gt;</span>
+          </div>
+          <div class="jwt-arrow-row jwt-arrow-row--back">
+            <span class="jwt-msg jwt-msg--left">200 OK · recurso protegido</span>
+            <div class="jwt-line jwt-line--green"></div>
+          </div>
+        </div>
+
+        <div class="jwt-step jwt-step--server">
+          <span class="jwt-icon">🖥️</span>
+          <div class="jwt-label">Servidor</div>
+          <div class="jwt-server-detail">Spring Security<br/>Filter Chain</div>
+        </div>
+
+      </div>
+
+      <!-- Right: facts -->
+      <div class="sec-facts">
+
+        <div class="sec-fact">
+          <div class="sec-fact-head">
+            <img class="sec-fact-logo" src="final_version/jwt-icon.svg" alt="JWT"
+                 onerror="this.style.display='none'" />
+            <h3>JWT y Arquitectura Stateless</h3>
+          </div>
+          <ul class="sec-fact-list">
+            <li>Tokens firmados criptográficamente con <strong>HS256</strong>.</li>
+            <li>Caducidad estricta de <strong>15 minutos</strong>.</li>
+            <li>Servidor stateless e inyección automática vía Interceptor HTTP.</li>
+          </ul>
+        </div>
+
+        <div class="sec-fact">
+          <div class="sec-fact-head">
+            <img class="sec-fact-logo" src="final_version/google-g.svg" alt="Google"
+                 onerror="this.style.display='none'" />
+            <h3>Google OAuth 2.0</h3>
+          </div>
+          <ul class="sec-fact-list">
+            <li>Acceso sin fricción en un solo clic.</li>
+            <li>Identidad delegada al proveedor (sin contraseñas locales).</li>
+            <li>Máxima seguridad con una experiencia de usuario fluida.</li>
+          </ul>
+        </div>
+
+        <div class="sec-fact">
+          <div class="sec-fact-head">
+            <img class="sec-fact-logo" src="final_version/spring-icon.svg" alt="Spring Security"
+                 onerror="this.style.display='none'" />
+            <h3>Seguridad Perimetral</h3>
+          </div>
+          <ul class="sec-fact-list">
+            <li>Cadena de filtros estricta con <code style="color:var(--teal)">SecurityFilterChain</code>.</li>
+            <li>Contraseñas locales cifradas con <code style="color:var(--teal)">BCrypt</code>.</li>
+            <li>Peticiones sin <em>Bearer token</em> válido se rechazan al instante.</li>
+          </ul>
+        </div>
+
+
+
+      </div>
+    </div>
+
+    <div class="sp-notes" style="display:none">
+      Arquitectura completamente stateless: el servidor nunca guarda sesiones.
+      JWT de 15 minutos más refresh token de 7 días con rotación.
+      Google OAuth gestiona la identidad sin que nosotros almacenemos contraseñas de Google.
+      Spring Security valida la firma antes de pasar al controller. BCrypt para contraseñas propias.
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SLIDE 7 · DEUDAS
+  ═══════════════════════════════════════ -->
+ <section class="slide" id="s6">
+   <div class="s-label">06 · Ingeniería II</div>
+    <h2 class="s-title">Lógica Transaccional — El problema de los pagos en grupo</h2>
+    <p class="s-sub">Preservando la integridad estadística frente a los reembolsos (Bizums)</p>
+    <hr class="divider" />
+
+    <div class="body">
+      <div class="debt-flow">
+        <article class="debt-step debt-step--expense">
+          <p class="debt-kicker">Paso 1 · El Gasto Principal</p>
+          <h3 class="debt-title">🍽️ Cena con amigos</h3>
+          <p class="debt-amount debt-amount--negative">-100,00 €</p>
+          <span class="code-pill code-pill--cyan">effectiveAmount: -25.00</span>
+          <p class="debt-note">El sistema aísla el impacto real que le corresponde al usuario.</p>
+        </article>
+
+        <div class="debt-arrow" aria-hidden="true">→</div>
+
+        <article class="debt-step debt-step--reimburse">
+          <p class="debt-kicker">Paso 2 · Deuda y Reembolso</p>
+          <h3 class="debt-title">💸 3 amigos pagan su parte (Bizums)</h3>
+          <p class="debt-amount debt-amount--positive">+75,00 €</p>
+          <span class="code-pill code-pill--warm">excludeFromStats: true</span>
+          <p class="debt-note">Generación de transacción de ajuste atómica.</p>
+        </article>
+
+        <div class="debt-arrow" aria-hidden="true">→</div>
+
+        <article class="debt-step debt-step--result">
+          <p class="debt-kicker">Paso 3 · El Doble Resultado</p>
+          <div class="debt-result-grid">
+            <section class="debt-result debt-result--bank">
+              <h4>🏦 Contabilidad Cuadrada</h4>
+              <p>-100 + 75 = -25 € reales en cuenta.</p>
+            </section>
+            <section class="debt-result debt-result--chart">
+              <h4>📊 Analítica Pura</h4>
+              <p>Los gráficos solo ven los 25 € del effectiveAmount, ignorando los Bizums.</p>
+            </section>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="sp-notes" style="display:none">
+      Mostramos el problema de pagos compartidos y su solución de ingeniería.
+      effectiveAmount conserva el impacto real del usuario en su cuenta.
+      excludeFromStats evita contaminar analítica con reembolsos de Bizum.
+    </div>
+  </section>
+
+
+
+
+  <!-- ══════════════════════════════════════
+       SLIDE 8 · PREVISIÓN
+  ═══════════════════════════════════════ -->
+  <section class="slide" id="s7">
+    <div class="s-label">07 · Ingeniería III</div>
+    <h2 class="s-title">Motor Predictivo — Previsión Financiera</h2>
+    <p class="s-sub">Regresión lineal sobre los últimos 90 días mediante consultas SQL optimizadas</p>
+    <hr class="divider" />
+
+    <div class="body">
+      <div class="predictive-grid">
+        <div class="predictive-logic">
+          
+          <div class="predictive-formula-card">
+            <div class="predictive-formula">Pfin = Gactual + (G3m / 30 × Drestantes)</div>
+
+            <ul class="predictive-vars">
+              <li><span>Pfin</span>Previsión estimada al cierre.</li>
+              <li><span>Gactual</span>Gasto acumulado del mes.</li>
+              <li><span>G3m</span>Gasto promedio del último trimestre.</li>
+              <li><span>Drestantes</span>Días hasta fin de mes.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="predictive-visual">
+          <div class="predictive-image-wrap">
+            <img src="final_version/tendencias.png" alt="Visualización de tendencia por categorías"
+                 onerror="this.src='final_version/tendencias.png'" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sp-notes" style="display:none">
+      El algoritmo toma el gasto acumulado en el mes y suma la estimación de lo que falta,
+      calculada como la media diaria de los últimos 90 días por los días restantes.
+      Todo con una consulta SQL GROUP BY category, sin librerías externas.
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SLIDE 9 · DEMO
+  ═══════════════════════════════════════ -->
+  <section class="slide" id="s7-demo">
+    <div class="s-label">08 · Demo</div>
+    <h2 class="s-title">Demo en Vivo del Producto</h2>
+    <p class="s-sub">Visualización real de SmartSpend en YouTube y acceso directo a la instancia cloud.</p>
+    <hr class="divider" />
+
+    <div class="body">
+      <div class="demo-layout">
+        <a class="demo-video-card"
+           href="https://www.youtube.com/watch?v=gpyl0GRpopU&t=536s"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Abrir demo en YouTube">
+          <span class="demo-kicker">Demo en YouTube</span>
+          <div class="demo-video-preview">
+            <img
+              src="https://img.youtube.com/vi/gpyl0GRpopU/maxresdefault.jpg"
+              alt="Previsualización del video demo de SmartSpend"
+              onerror="this.src='https://img.youtube.com/vi/gpyl0GRpopU/hqdefault.jpg'" />
+            <span class="demo-play">▶ Ver demo completo</span>
+          </div>
+        </a>
+
+        <article class="demo-cloud-card">
+          <h3>Aplicación desplegada en la nube</h3>
+          <p>
+            La versión activa de SmartSpend está publicada en Render y accesible
+            desde cualquier dispositivo con conexión a Internet.
+          </p>
+          <a class="demo-cloud-btn"
+             href="https://smartspend-dev.onrender.com/"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Abrir SmartSpend en la nube">
+            Abrir SmartSpend Cloud
+          </a>
+          <p class="demo-cloud-url">smartspend-dev.onrender.com</p>
+        </article>
+      </div>
+    </div>
+
+    <div class="sp-notes" style="display:none">
+      Esta diapositiva concentra la demo práctica: vídeo completo en YouTube
+      y enlace directo a la aplicación desplegada en Render para su validación en vivo.
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SLIDE 9 · CONCLUSIONES
+  ═══════════════════════════════════════ -->
+  <section class="slide" id="s8">
+    <div class="s-label">09 · Conclusiones</div>
+    <h2 class="s-title">Conclusiones del Proyecto</h2>
+    <p class="s-sub">Resumen de resultados funcionales, técnicos y de calidad alcanzados.</p>
+    <hr class="divider" />
+
+    <div class="body">
+      <section class="conclusion-col">
+        <h3 class="section-head section-head--done">✅ Objetivos Alcanzados</h3>
+        <div class="conclusion-cards">
+          <article class="conclusion-card">
+            <h4>Éxito Funcional</h4>
+            <p>Cumplimiento del 100% de los requisitos. Implementación exitosa del motor predictivo y la trazabilidad de gastos compartidos.</p>
+          </article>
+          <article class="conclusion-card">
+            <h4>Éxito Técnico</h4>
+            <p>Migración a una arquitectura Full-stack distribuida y segura (Angular + Spring Boot + JWT), 100% dockerizada.</p>
+          </article>
+          <article class="conclusion-card">
+            <h4>Calidad de Código</h4>
+            <p>Flujo CI/CD consolidado alcanzando un 86,83% de cobertura de pruebas en el servidor (validadas mediante JaCoCo).</p>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <div class="sp-notes" style="display:none">
+      Esta diapositiva cierra el proyecto mostrando objetivos cumplidos,
+      solidez técnica de la arquitectura y calidad alcanzada mediante pruebas.
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SLIDE 10 · TRABAJOS FUTUROS
+  ═══════════════════════════════════════ -->
+  <section class="slide" id="s9">
+    <div class="s-label">10 · Futuros</div>
+    <h2 class="s-title">Visión de Futuro</h2>
+    <p class="s-sub">Líneas estratégicas de evolución para ampliar alcance e impacto.</p>
+    <hr class="divider" />
+
+    <div class="body">
+      <section class="roadmap-col">
+        <h3 class="section-head section-head--next">🚀 Siguientes Pasos</h3>
+        <div class="future-cards">
+          <article class="future-card future-card--tech">
+            <h4>App Móvil Nativa</h4>
+            <p>Expansión a plataformas iOS y Android.</p>
+          </article>
+
+          <article class="future-card future-card--features">
+            <h4>Notificaciones Inteligentes</h4>
+            <p>Alertas push para avisar de desviaciones de gasto y eventos relevantes en tiempo real.</p>
+          </article>
+
+          <article class="future-card future-card--features">
+            <h4>Presupuestos por Categoría</h4>
+            <p>Definición de límites mensuales por categoría con seguimiento visual de cumplimiento.</p>
+          </article>
+
+          <article class="future-card future-card--features">
+            <h4>Modelo de IA para Ahorro</h4>
+            <p>Motor de recomendaciones personalizadas para optimizar hábitos financieros y de ahorro.</p>
+          </article>
+
+          <article class="future-card future-card--business">
+            <h4>Modelo Freemium</h4>
+            <p>Integración de pasarela de pago para rentabilizar la plataforma desbloqueando analíticas avanzadas.</p>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <div class="sp-notes" style="display:none">
+      Hoja de ruta de evolución: aplicación móvil nativa, capacidades de IA y monetización
+      con un modelo freemium para sostener el crecimiento del producto.
+    </div>
+  </section>
+
+</div><!-- /#deck -->
+
+
+<!-- NAVIGATION -->
+<div id="nav">
+  <button class="nav-btn" id="btn-prev" title="Anterior (←)">‹</button>
+  <div id="dots">
+    <div class="dot" title="Portada"></div>
+    <div class="dot" title="Índice"></div>
+    <div class="dot" title="Funcionalidades"></div>
+    <div class="dot" title="Objetivos"></div>
+    <div class="dot" title="Arquitectura"></div>
+    <div class="dot" title="Metodología"></div>
+    <div class="dot" title="Seguridad"></div>
+    <div class="dot" title="Deudas"></div>
+    <div class="dot" title="Previsión"></div>
+    <div class="dot" title="Demo"></div>
+    <div class="dot" title="Conclusiones"></div>
+    <div class="dot" title="Futuros"></div>
+  </div>
+  <span id="counter">1 / 12</span>
+  <button class="nav-btn" id="btn-next" title="Siguiente (→)">›</button>
+</div>
+
+<div id="notes">
+  <span class="nt-head">🎤 Speaker Notes — N para cerrar</span>
+  <span class="nt-text" id="notes-text">—</span>
+</div>
+
+<div class="hint-bar">← → navegar &nbsp;·&nbsp; N notas</div>
+
+<script src="script.js"></script>
+</body>
+</html>
