@@ -136,19 +136,45 @@
   <section class="slide" id="s2-func">
     <div class="s-label">01 · Funcionalidades</div>
     <h2 class="s-title">Funcionalidades de SmartSpend</h2>
-    <p class="s-sub">Escaparate visual de las capacidades principales de la plataforma.</p>
+    <p class="s-sub">Escaparate visual de las capacidades principales de la plataforma y análisis de mercado.</p>
     <hr class="divider" />
 
     <div class="body">
-      <div class="feature-grid">
-        <article class="feature-list-item"><span class="feature-list-num">01</span><h3>Acceso y Registro de Cuenta</h3></article>
-        <article class="feature-list-item"><span class="feature-list-num">02</span><h3>Gastos Compartidos</h3></article>
-        <article class="feature-list-item"><span class="feature-list-num">03</span><h3>Motor de Previsión</h3></article>
-        <article class="feature-list-item"><span class="feature-list-num">04</span><h3>Cuadro de Mando Analítico</h3></article>
-        <article class="feature-list-item"><span class="feature-list-num">05</span><h3>Automatización Recurrente</h3></article>
-        <article class="feature-list-item"><span class="feature-list-num">06</span><h3>Soporte Multicuenta</h3></article>
-        <article class="feature-list-item"><span class="feature-list-num">07</span><h3>Informes PDF</h3></article>
-        <article class="feature-list-item"><span class="feature-list-num">08</span><h3>Motor de Búsqueda Avanzado</h3></article>
+      <div class="feature-layout">
+        <aside class="market-gap-panel" aria-label="Carencias del mercado">
+          <h3>Carencias del mercado</h3>
+          <ul class="market-gap-list">
+            <li>
+              <span class="market-gap-icon">🏦</span>
+              <h4>Banca digital</h4>
+              <p>Nombres poco descriptivoscon categorización </p>
+            </li>
+            <li>
+              <span class="market-gap-icon">📊</span>
+              <h4>Hojas de cálculo (Excel)</h4>
+              <p>Pesadas y propensas a errores en movilidad.</p>
+            </li>
+            <li>
+              <span class="market-gap-icon">📱</span>
+              <h4>Apps de gestión manual</h4>
+              <p>Analíticas de pago y sin lógica para gastos grupales.</p>
+            </li>
+          </ul>
+        </aside>
+
+        <div class="solution-panel" aria-label="Solución SmartSpend">
+          <h3 class="solution-title">Funcionalidades que resuelven la problemática</h3>
+          <div class="feature-grid">
+            <article class="feature-list-item"><span class="feature-list-num">01</span><h3>🔐 Autenticación y Perfil</h3></article>
+            <article class="feature-list-item"><span class="feature-list-num">02</span><h3>💳 Gestión Multicuenta</h3></article>
+            <article class="feature-list-item"><span class="feature-list-num">03</span><h3>💸 Registro de Transacciones</h3></article>
+            <article class="feature-list-item"><span class="feature-list-num">04</span><h3>🤝 Gastos Compartidos</h3></article>
+            <article class="feature-list-item"><span class="feature-list-num">05</span><h3>🔄 Automatización Recurrente</h3></article>
+            <article class="feature-list-item"><span class="feature-list-num">06</span><h3>📊 Cuadro de Mando y Análisis</h3></article>
+            <article class="feature-list-item"><span class="feature-list-num">07</span><h3>📑 Informes PDF</h3></article>
+            <article class="feature-list-item"><span class="feature-list-num">08</span><h3>🔍 Búsqueda Inteligente</h3></article>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -329,8 +355,8 @@
        SLIDE 5 · SEGURIDAD JWT 
   ═══════════════════════════════════════ -->
   <section class="slide" id="s5">
-    <div class="s-label">05 · Ingeniería I</div>
-    <h2 class="s-title">Seguridad — Arquitectura Stateless</h2>
+    <div class="s-label">05 · FUNCIONALIDAD I</div>
+    <h2 class="s-title">Seguridad</h2>
     <p class="s-sub">Sin sesiones en servidor · sin usuarios almacenados en claro</p>
     <hr class="divider" />
 
@@ -538,7 +564,7 @@
     <div class="body">
       <div class="demo-layout">
         <a class="demo-video-card"
-           href="https://www.youtube.com/watch?v=gpyl0GRpopU&t=536s"
+           href="https://youtu.be/pK6mDWu2b9Y"
            target="_blank"
            rel="noopener noreferrer"
            aria-label="Abrir demo en YouTube">
@@ -660,6 +686,34 @@
     </div>
   </section>
 
+
+  <!-- ══════════════════════════════════════
+       SLIDE 11 · CIERRE
+  ═══════════════════════════════════════ -->
+  <section class="slide" id="s10-thanks">
+    <div class="s-label">11 · Cierre</div>
+
+    <div class="thanks-layout">
+      <div class="thanks-logo-wrap">
+        <img src="final_version/logoBlanco.svg" alt="Logo SmartSpend"
+             onerror="this.style.opacity='.2'" />
+      </div>
+
+      <div class="thanks-qr-card">
+        <h3>Escanéame para probar la app</h3>
+        <div class="thanks-qr-wrap">
+          <img src="final_version/frame.svg" alt="Código QR a SmartSpend"
+               onerror="this.style.opacity='.2'" />
+        </div>
+      </div>
+    </div>
+
+    <div class="sp-notes" style="display:none">
+      Cierre final del TFG. Invitación al tribunal para acceder directamente
+      a SmartSpend mediante el código QR mostrado en pantalla.
+    </div>
+  </section>
+
 </div><!-- /#deck -->
 
 
@@ -679,8 +733,9 @@
     <div class="dot" title="Demo"></div>
     <div class="dot" title="Conclusiones"></div>
     <div class="dot" title="Futuros"></div>
+    <div class="dot" title="Gracias"></div>
   </div>
-  <span id="counter">1 / 12</span>
+  <span id="counter">1 / 13</span>
   <button class="nav-btn" id="btn-next" title="Siguiente (→)">›</button>
 </div>
 
