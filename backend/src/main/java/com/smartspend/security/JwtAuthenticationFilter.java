@@ -53,6 +53,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
+        // Verificar si el token está expirado
+        if (jwtService.isTokenExpired(token)) {
+            System.out.println("❌ Token expirado detectado");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"error\":\"Session expired. Please login again.\"}");
+            response.setContentType("application/json");
+            return;
+        }
+
+        // Verificar si el token es válido
+        if (!jwtService.isTokenValid(token)) {
+            System.out.println("❌ Token inválido detectado");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"error\":\"Invalid token. Please login again.\"}");
+            response.setContentType("application/json");
+            return;
+        }
+
         try {
             String email = jwtService.extractEmail(token);
 
@@ -63,7 +81,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
         } catch (Exception e) {
-            System.out.println("Invalid JWT: " + e.getMessage());
+            System.out.println("❌ Error procesando JWT: " + e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"error\":\"Authentication failed. Please login again.\"}");
+            response.setContentType("application/json");
+            return;
         }
 
         filterChain.doFilter(request, response);

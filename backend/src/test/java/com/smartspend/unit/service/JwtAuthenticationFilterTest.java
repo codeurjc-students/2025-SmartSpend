@@ -60,6 +60,8 @@ class JwtAuthenticationFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
+        when(jwtService.isTokenExpired("valid-token")).thenReturn(false);
+        when(jwtService.isTokenValid("valid-token")).thenReturn(true);
         when(jwtService.extractEmail("valid-token")).thenReturn("owner@test.com");
 
         filter.doFilter(request, response, chain);
@@ -76,11 +78,28 @@ class JwtAuthenticationFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
-        when(jwtService.extractEmail("bad-token")).thenThrow(new RuntimeException("invalid"));
+        when(jwtService.isTokenExpired("bad-token")).thenReturn(false);
+        when(jwtService.isTokenValid("bad-token")).thenReturn(false);
 
         filter.doFilter(request, response, chain);
 
+        assertEquals(401, response.getStatus());
         assertNull(SecurityContextHolder.getContext().getAuthentication());
-        assertNotNull(chain.getRequest());
+    }
+
+    @Test
+    void shouldReturn401WhenTokenIsExpired() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/api/v1/accounts");
+        request.addHeader("Authorization", "Bearer expired-token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        when(jwtService.isTokenExpired("expired-token")).thenReturn(true);
+
+        filter.doFilter(request, response, chain);
+
+        assertEquals(401, response.getStatus());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 }
