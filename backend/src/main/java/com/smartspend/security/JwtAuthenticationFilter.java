@@ -34,12 +34,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
+        // Skip JWT validation for public endpoints
         if (path.equals("/")
                 || path.equals("/index.html")
                 || path.startsWith("/assets/")
                 || path.endsWith(".js")
                 || path.endsWith(".css")
-                || path.endsWith(".map")) {
+                || path.endsWith(".map")
+                || path.startsWith("/api/v1/auth/")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -56,18 +60,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Verificar si el token está expirado
         if (jwtService.isTokenExpired(token)) {
             System.out.println("❌ Token expirado detectado");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\":\"Session expired. Please login again.\"}");
-            response.setContentType("application/json");
+            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Session expired. Please login again.");
             return;
         }
 
         // Verificar si el token es válido
         if (!jwtService.isTokenValid(token)) {
             System.out.println("❌ Token inválido detectado");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\":\"Invalid token. Please login again.\"}");
-            response.setContentType("application/json");
+            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token. Please login again.");
             return;
         }
 
@@ -82,12 +82,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authToken);
         } catch (Exception e) {
             System.out.println("❌ Error procesando JWT: " + e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\":\"Authentication failed. Please login again.\"}");
-            response.setContentType("application/json");
+            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed. Please login again.");
             return;
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json;charset=UTF-8");
+        String jsonResponse = String.format("{\"error\":\"%s\"}", message);
+        response.getWriter().write(jsonResponse);
+        response.getWriter().flush();
     }
 }

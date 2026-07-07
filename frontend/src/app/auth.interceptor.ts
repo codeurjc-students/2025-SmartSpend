@@ -34,20 +34,27 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
         // Interceptar error 401 (Unauthorized)
-        if (error.status === 401) {
+        // But skip for auth endpoints to avoid circular redirects
+        if (error.status === 401 && !this.isAuthEndpoint(request.url)) {
           console.error('❌ Sesión expirada o token inválido:', error.error?.error);
 
           // Limpiar el token del localStorage
           localStorage.removeItem('authToken');
 
-          // Redirigir al login
-          this.router.navigate(['/login'], {
-            queryParams: { returnUrl: this.router.url }
-          });
+          // Redirigir al login solo si no estamos ya allí
+          if (!this.router.url.includes('/login')) {
+            this.router.navigate(['/login'], {
+              queryParams: { returnUrl: this.router.url }
+            });
+          }
         }
 
         return throwError(() => error);
       })
     );
+  }
+
+  private isAuthEndpoint(url: string): boolean {
+    return url.includes('/api/v1/auth/');
   }
 }

@@ -47,13 +47,16 @@ export class ReportService {
    */
   async generateMonthlyPdf(reportData: ReportData, year: number, month: number): Promise<void> {
     try {
+      console.log('=== Iniciando generación de PDF ===');
       console.log('Report Data recibida:', reportData);
-      console.log('Stadistics completa:', JSON.stringify(reportData.stadistics, null, 2));
+      console.log('Stadistics:', JSON.stringify(reportData.stadistics, null, 2));
       
       if (!reportData) {
-        console.error('reportData es undefined');
-        alert('Error: No se pudieron obtener los datos del reporte');
-        return;
+        throw new Error('reportData es undefined o null');
+      }
+
+      if (!reportData.bankAccount) {
+        console.warn('⚠️ bankAccount no está definido, usando valores por defecto');
       }
 
       const doc = new jsPDF();
@@ -67,9 +70,10 @@ export class ReportService {
       const pageWidth = doc.internal.pageSize.width;
       const pageHeight = doc.internal.pageSize.height;
       
-      // Agregar logo (si está disponible)
+      console.log('📄 Página 1: Agregando logo...');
       yPosition = await this.addLogo(doc, yPosition);
       
+      console.log('📄 Página 1: Agregando título principal...');
       // Título principal con fondo
       doc.setFillColor(30, 41, 59); // Color slate-800
       doc.rect(15, yPosition - 5, pageWidth - 30, 25, 'F');
@@ -81,7 +85,7 @@ export class ReportService {
       
       doc.setFontSize(14);
       doc.setFont('helvetica', 'normal');
-      const accountName = reportData.bankAccount?.accountName || 'Cuenta';
+      const accountName = reportData.bankAccount?.accountName || 'Cuenta Bancaria';
       doc.text(`${monthNames[month - 1]} ${year} - ${accountName}`, pageWidth / 2, yPosition + 16, { align: 'center' });
       
       yPosition += 35;
@@ -93,6 +97,7 @@ export class ReportService {
       doc.line(20, yPosition, pageWidth - 20, yPosition);
       yPosition += 15;
 
+      console.log('📄 Página 1: Agregando resumen financiero...');
       // Resumen Financiero en caja destacada
       yPosition = this.addFinancialSummaryBox(doc, reportData, yPosition);
 
@@ -104,9 +109,10 @@ export class ReportService {
       yPosition += 15;
 
       // Capturar gráficos
-      console.log('Capturando gráficos...');
+      console.log('📊 Capturando gráficos...');
       yPosition = await this.addChartsToPDF(doc, yPosition);
       
+      console.log('📄 Página 2: Agregando tablas de transacciones...');
       // Nueva página para las tablas
       doc.addPage();
       yPosition = 30;
@@ -123,31 +129,50 @@ export class ReportService {
 
       // Tabla de ingresos
       if (reportData.incomesList && reportData.incomesList.length > 0) {
+        console.log(`📥 Agregando ${reportData.incomesList.length} ingresos...`);
         yPosition = this.addStyledTransactionTable(doc, 'Ingresos del Mes', reportData.incomesList, yPosition, 'income');
         yPosition += 20;
+      } else {
+        console.log('⚠️ No hay ingresos para mostrar');
       }
 
       // Tabla de gastos
       if (reportData.expensesList && reportData.expensesList.length > 0) {
+        console.log(`📤 Agregando ${reportData.expensesList.length} gastos...`);
         // Si no hay espacio, nueva página
         if (yPosition > 200) {
           doc.addPage();
           yPosition = 30;
         }
         yPosition = this.addStyledTransactionTable(doc, 'Gastos del Mes', reportData.expensesList, yPosition, 'expense');
+      } else {
+        console.log('⚠️ No hay gastos para mostrar');
       }
 
-      // Pie de página estilizado
-      this.addStyledFooter(doc, pageWidth, pageHeight);
+      console.log('📄 Agregando pie de página...');
+      // Pie de página estilizado en todas las páginas
+      const pageCount = (doc as any).internal.pages.length - 1;
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        this.addStyledFooter(doc, pageWidth, pageHeight);
+      }
 
       // Descargar
       const filename = `SmartSpend_Reporte_${monthNames[month - 1]}_${year}.pdf`;
+      console.log(`✅ Descargando PDF: ${filename}`);
       doc.save(filename);
-      console.log('PDF generado exitosamente!');
+      
+      console.log('✅ PDF generado y descargado exitosamente!');
+      console.log('=== Generación de PDF completada ===');
+      
+      // Mostrar notificación al usuario
+      alert(`✅ PDF generado exitosamente: ${filename}`);
 
     } catch (error) {
-      console.error('Error generando PDF:', error);
-      alert('Error al generar el PDF: ' + error);
+      console.error('❌ Error generando PDF:', error);
+      console.error('Error completo:', JSON.stringify(error, null, 2));
+      alert(`❌ Error al generar el PDF: ${error instanceof Error ? error.message : String(error)}`);
+      throw error; // Relanzar para que el componente lo capture
     }
   }
 
@@ -155,30 +180,38 @@ export class ReportService {
     try {
       console.log('Capturando gráficos...');
       let yPosition = startY;
-      const chartWidth = 80; // Ancho del gráfico en mm
-      const chartHeight = 80; // Alto del gráfico en mm
+      const chartWidth = 90; // Ancho del gráfico en mm
+      const chartHeight = 70; // Alto del gráfico en mm
+      const pageWidth = doc.internal.pageSize.width;
 
-      // Buscar todos los canvas en la página
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Esperar a que se rendericen
+      // Esperar más tiempo para que se rendericen los gráficos
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const allCanvases = Array.from(document.querySelectorAll('canvas'));
+      // Buscar todos los canvas en la página
+      const allCanvases = Array.from(document.querySelectorAll('canvas')) as HTMLCanvasElement[];
       console.log(`Encontrados ${allCanvases.length} canvas elements`);
 
       if (allCanvases.length === 0) {
+        console.warn('No se encontraron gráficos para incluir en el PDF');
+        doc.setFontSize(11);
         doc.setFont('helvetica', 'italic');
-        doc.text('No se encontraron gráficos para incluir', 20, yPosition);
-        return yPosition + 10;
+        doc.setTextColor(107, 114, 128);
+        doc.text('📊 Gráficos: No disponibles en este momento', 20, yPosition);
+        return yPosition + 15;
       }
 
       let chartCount = 0;
       const chartTitles = ['Gráfico de Ingresos', 'Gráfico de Gastos', 'Gráfico de Línea', 'Gráfico de Barras'];
+      const maxCharts = Math.min(4, allCanvases.length);
 
-      for (const canvas of allCanvases) {
+      for (let i = 0; i < maxCharts; i++) {
+        const canvas = allCanvases[i];
+        
         if (canvas && canvas.width > 0 && canvas.height > 0) {
-          console.log(`Capturando canvas ${chartCount + 1}`);
+          console.log(`Capturando canvas ${chartCount + 1}/${maxCharts}`);
           
           // Verificar si necesitamos nueva página
-          if (yPosition > 200) {
+          if (yPosition > 180) {
             doc.addPage();
             yPosition = 20;
           }
@@ -186,45 +219,57 @@ export class ReportService {
           // Título del gráfico
           doc.setFontSize(12);
           doc.setFont('helvetica', 'bold');
+          doc.setTextColor(30, 41, 59);
           const title = chartTitles[chartCount] || `Gráfico ${chartCount + 1}`;
           doc.text(title, 20, yPosition);
-          yPosition += 10;
+          yPosition += 8;
 
           try {
-            // Capturar canvas como imagen
-            const imgData = canvas.toDataURL('image/png', 0.8);
+            // Capturar canvas como imagen PNG
+            const imgData = canvas.toDataURL('image/png', 0.9);
             
-            if (imgData && imgData !== 'data:,') {
-              doc.addImage(imgData, 'PNG', 20, yPosition, chartWidth, chartHeight);
-              console.log(`${title} agregado exitosamente`);
+            if (imgData && imgData.length > 100 && imgData !== 'data:,') { // Verificar que sea válido
+              doc.addImage(imgData, 'PNG', (pageWidth - chartWidth) / 2, yPosition, chartWidth, chartHeight);
+              console.log(`✅ ${title} agregado exitosamente`);
+              yPosition += chartHeight + 12;
             } else {
-              doc.text(`Error: ${title} vacío`, 20, yPosition);
+              console.warn(`⚠️ Canvas ${title} está vacío o inválido`);
+              doc.setFontSize(10);
+              doc.setFont('helvetica', 'italic');
+              doc.setTextColor(107, 114, 128);
+              doc.text('(No se pudo capturar el gráfico)', 20, yPosition);
+              yPosition += 10;
             }
-            
-            yPosition += chartHeight + 15;
             chartCount++;
-
-            if (chartCount >= 4) break; // Máximo 4 gráficos
-
           } catch (imgError) {
-            console.warn(`Error capturando ${title}:`, imgError);
-            doc.text(`Error cargando ${title}`, 20, yPosition);
+            console.warn(`⚠️ Error capturando ${title}:`, imgError);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'italic');
+            doc.setTextColor(239, 68, 68);
+            doc.text(`(Error al cargar ${title})`, 20, yPosition);
             yPosition += 10;
           }
         }
       }
 
       if (chartCount === 0) {
+        console.warn('No se pudieron capturar gráficos válidos');
+        doc.setFontSize(11);
         doc.setFont('helvetica', 'italic');
-        doc.text('No se pudieron capturar gráficos válidos', 20, yPosition);
-        yPosition += 10;
+        doc.setTextColor(107, 114, 128);
+        doc.text('📊 Gráficos: No se pudieron capturar correctamente', 20, yPosition);
+        yPosition += 15;
+      } else {
+        console.log(`✅ ${chartCount} gráficos agregados al PDF exitosamente`);
       }
 
       return yPosition;
     } catch (error) {
-      console.error('Error agregando gráficos al PDF:', error);
+      console.error('❌ Error agregando gráficos al PDF:', error);
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'italic');
-      doc.text('Error cargando gráficos', 20, startY);
+      doc.setTextColor(239, 68, 68);
+      doc.text('📊 Gráficos: Error cargando gráficos', 20, startY);
       return startY + 20;
     }
   }
@@ -233,32 +278,44 @@ export class ReportService {
 
   private async addLogo(doc: jsPDF, startY: number): Promise<number> {
     try {
-      // Aquí pegas tu logo PNG convertido a base64
-      // 1. Convierte tu logoBlanco.svg o logoNegro.svg a PNG
-      // 2. Usa una web como https://www.base64-image.de/ para convertir PNG a base64
-      // 3. Pega el resultado completo aquí abajo:
-      
+      // Intenta agregar logo si está disponible en base64
       const logoBase64 = 'data:image/png;base64,TU_LOGO_EN_BASE64_AQUI';
       
-      // Ajusta estos valores según el tamaño que quieras
-      const logoWidth = 40;  // Ancho en mm
-      const logoHeight = 12; // Alto en mm
+      // Si el placeholder no está reemplazado, usa texto alternativo
+      if (!logoBase64 || logoBase64.includes('TU_LOGO_EN_BASE64_AQUI')) {
+        // Usar texto temporal como fallback
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30, 41, 59);
+        doc.text('SmartSpend', 20, startY + 8);
+        
+        doc.setLineWidth(2);
+        doc.setDrawColor(59, 130, 246);
+        doc.line(20, startY + 12, 80, startY + 12);
+        
+        return startY + 20;
+      }
       
-      doc.addImage(logoBase64, 'PNG', 20, startY, logoWidth, logoHeight);
-      
-      return startY + logoHeight + 10;
-      
-      // Mientras tanto, texto temporal (comenta esto cuando tengas tu base64):
-      doc.setFontSize(18);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(30, 41, 59);
-      doc.text('SmartSpend', 20, startY + 8);
-      
-      doc.setLineWidth(2);
-      doc.setDrawColor(59, 130, 246);
-      doc.line(20, startY + 12, 80, startY + 12);
-      
-      return startY + 20;
+      // Si tenemos un logo válido, agregarlo
+      try {
+        const logoWidth = 40;  // Ancho en mm
+        const logoHeight = 12; // Alto en mm
+        doc.addImage(logoBase64, 'PNG', 20, startY, logoWidth, logoHeight);
+        return startY + logoHeight + 10;
+      } catch (imgError) {
+        console.warn('Error agregando imagen de logo, usando texto alternativo:', imgError);
+        // Fallback a texto si la imagen falla
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30, 41, 59);
+        doc.text('SmartSpend', 20, startY + 8);
+        
+        doc.setLineWidth(2);
+        doc.setDrawColor(59, 130, 246);
+        doc.line(20, startY + 12, 80, startY + 12);
+        
+        return startY + 20;
+      }
     } catch (error) {
       console.warn('Error agregando logo:', error);
       return startY;
