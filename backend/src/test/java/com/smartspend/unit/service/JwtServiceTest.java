@@ -209,4 +209,60 @@ public class JwtServiceTest {
         // Then
         assertEquals(emailWithSpecialChars, extractedEmail);
     }
+
+    @Test
+    void shouldReturnTrueForValidTokenInIsTokenValid() {
+        // Given
+        String token = jwtService.generateToken(1L, "test@example.com");
+
+        // When
+        boolean isValid = jwtService.isTokenValid(token);
+
+        // Then
+        assertTrue(isValid);
+    }
+
+    @Test
+    void shouldReturnFalseForMalformedTokenInIsTokenValid() {
+        // Given
+        String malformedToken = "invalid.jwt.token";
+
+        // When
+        boolean isValid = jwtService.isTokenValid(malformedToken);
+
+        // Then
+        assertFalse(isValid);
+    }
+
+    @Test
+    void shouldReturnFalseForMalformedTokenInIsTokenExpired() {
+        // Given
+        String malformedToken = "invalid.jwt.token";
+
+        // When
+        boolean isExpired = jwtService.isTokenExpired(malformedToken);
+
+        // Then
+        assertFalse(isExpired);
+    }
+
+    @Test
+    void shouldReturnTrueForExpiredTokenInIsTokenExpired() {
+        // Given
+        long now = System.currentTimeMillis();
+        String expiredToken = Jwts.builder()
+            .setSubject("expired@example.com")
+            .setIssuedAt(new Date(now - 3_600_000))
+            .setExpiration(new Date(now - 60_000))
+            .addClaims(java.util.Map.of("userId", 1L))
+            .signWith(Keys.hmacShaKeyFor(io.jsonwebtoken.io.Decoders.BASE64.decode(testSecret)),
+                io.jsonwebtoken.SignatureAlgorithm.HS256)
+            .compact();
+
+        // When
+        boolean isExpired = jwtService.isTokenExpired(expiredToken);
+
+        // Then
+        assertTrue(isExpired);
+    }
 }
