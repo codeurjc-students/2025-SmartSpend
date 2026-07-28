@@ -1,6 +1,3 @@
-app:
-  version: @project.version@
-
 spring:
   application:
     name: backend

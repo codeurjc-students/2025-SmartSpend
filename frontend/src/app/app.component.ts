@@ -3,7 +3,6 @@ import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router
 import { TransactionListComponent } from './components/transaction-list/transaction-list.component';
 import { LoginRegisterComponent } from './components/auth-components/login-register/login-register.component';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
-import { FooterComponent } from './components/footer/footer.component';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { ThemeService } from './services/theme/theme.service';
@@ -14,7 +13,6 @@ import { ThemeService } from './services/theme/theme.service';
   imports: [
     RouterOutlet,
     NavBarComponent,
-    FooterComponent,
     CommonModule
   ],
   templateUrl: './app.component.html',

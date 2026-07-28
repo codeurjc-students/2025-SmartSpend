@@ -8,9 +8,4 @@
   <main class="main-content" [ngClass]="{'auth-content': !showNavbar}">
     <router-outlet></router-outlet>
   </main>
-
-  <!-- Footer con información de versión -->
-  @if (showNavbar) {
-    <app-footer></app-footer>
-  }
 </div>
