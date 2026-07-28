@@ -17,6 +17,8 @@ export interface Transaction {
   date: string;
   type: 'EXPENSE' | 'INCOME';
   recurrence: 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  isRecurringSeriesParent?: boolean;
+  nextRecurrenceDate?: string | null;
   accountId: number;
   accountName: string;
   category: Category;

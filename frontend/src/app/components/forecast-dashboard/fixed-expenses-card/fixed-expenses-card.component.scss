@@ -140,6 +140,20 @@
   }
 }
 
+.paid-item {
+  opacity: 0.72;
+}
+
+.paid-title {
+  text-decoration: line-through;
+  opacity: 0.65;
+}
+
+.paid-amount {
+  text-decoration: line-through;
+  opacity: 0.65;
+}
+
 :host-context(html.light-theme) {
   .total-badge {
     background: rgba(241, 245, 249, 0.96);
