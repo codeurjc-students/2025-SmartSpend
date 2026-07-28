@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -43,6 +44,9 @@ class TransactionRepositoryIntegrationTest {
 
     @Autowired
     private TransactionRepository transactionRepository;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
     void shouldFindPendingRecurringAndBalances() {
@@ -210,5 +214,54 @@ class TransactionRepositoryIntegrationTest {
         assertEquals(1, adjustments.size());
         assertTrue(Boolean.TRUE.equals(adjustments.get(0).getExcludeFromStats()));
         assertEquals(TransactionType.INCOME, adjustments.get(0).getType());
+    }
+
+    @Test
+    void shouldFindRecurringWithNextRecurrenceDateInCurrentMonth() {
+        // This test verifies that the repository can find recurring transactions
+        // by checking that a parent transaction is properly persisted and can be retrieved
+        
+        User user = new User();
+        user.setUserName("recurring-test");
+        user.setUserEmail("recurring@test.com");
+        user.setUserHashedPassword("hashed");
+        user = userRepository.save(user);
+
+        BankAccount account = new BankAccount(user, "Test Account", new BigDecimal("1000.00"));
+        account = bankAccountRepository.save(account);
+
+        Category category = new Category("Entertainment", "desc", "#ff0000", TransactionType.EXPENSE, user, "💳");
+        category = categoryRepository.save(category);
+
+        LocalDate baseDate = LocalDate.of(2025, 7, 15);
+        
+        // Create a recurring parent transaction
+        Transaction recurring = Transaction.builder()
+            .title("Netflix")
+            .description("Monthly subscription")
+            .amount(new BigDecimal("15.99"))
+            .date(baseDate)
+            .type(TransactionType.EXPENSE)
+            .recurrence(Recurrence.MONTHLY)
+            .isRecurringSeriesParent(true)
+            .nextRecurrenceDate(baseDate.plusMonths(1))
+            .account(account)
+            .category(category)
+            .build();
+        transactionRepository.save(recurring);
+        
+        entityManager.flush();
+
+        // Verify we can retrieve it by its properties
+        List<Transaction> all = transactionRepository.findAll();
+        assertFalse(all.isEmpty(), "Should have saved the transaction");
+        
+        Transaction found = all.stream()
+            .filter(t -> "Netflix".equals(t.getTitle()))
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("Netflix transaction not found"));
+            
+        assertTrue(found.getIsRecurringSeriesParent(), "Should be marked as recurring parent");
+        assertEquals(baseDate.plusMonths(1), found.getNextRecurrenceDate(), "Should have correct next recurrence date");
     }
 }

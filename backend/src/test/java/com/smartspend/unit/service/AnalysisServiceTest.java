@@ -3,6 +3,7 @@ package com.smartspend.unit.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -141,5 +142,56 @@ class AnalysisServiceTest {
 
         assertEquals(1, result.fixedExpenses().size());
         assertEquals("Rent", result.fixedExpenses().get(0).getTitle());
+    }
+
+    @Test
+    void shouldReturnBothPendingAndPaidRecurringExpensesForCurrentMonth() {
+        LocalDate now = LocalDate.now();
+
+        // Recurrencia pendiente: nextRecurrenceDate en este mes
+        Transaction pendingRecurring = Transaction.builder()
+            .title("Netflix - Pendiente")
+            .description("Suscripción pendiente")
+            .amount(new BigDecimal("15.99"))
+            .date(now.minusMonths(2))  // Creado hace 2 meses
+            .type(TransactionType.EXPENSE)
+            .recurrence(Recurrence.MONTHLY)
+            .isRecurringSeriesParent(true)
+            .nextRecurrenceDate(now.plusDays(5))  // Pendiente en 5 días
+            .account(account)
+            .build();
+
+        // Recurrencia ya pagada: nextRecurrenceDate en próximo mes, pero tiene hijo este mes
+        Transaction paidRecurring = Transaction.builder()
+            .title("Spotify - Pagado")
+            .description("Suscripción pagada")
+            .amount(new BigDecimal("12.99"))
+            .date(now.minusMonths(3))  // Creado hace 3 meses
+            .type(TransactionType.EXPENSE)
+            .recurrence(Recurrence.MONTHLY)
+            .isRecurringSeriesParent(true)
+            .nextRecurrenceDate(now.plusMonths(1).withDayOfMonth(15))  // Próxima en agosto
+            .account(account)
+            .build();
+
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(account));
+        when(transactionRepository.findRecurringOrFixedCurrentMonthByAccount(1L))
+            .thenReturn(List.of(pendingRecurring, paidRecurring));
+
+        FixedExpensesDto result = analysisService.getFixedExpenses("owner@test.com", 1L);
+
+        assertEquals(2, result.fixedExpenses().size());
+        assertTrue(result.fixedExpenses().stream().anyMatch(t -> "Netflix - Pendiente".equals(t.getTitle())));
+        assertTrue(result.fixedExpenses().stream().anyMatch(t -> "Spotify - Pagado".equals(t.getTitle())));
+    }
+
+    @Test
+    void shouldThrowUnauthorizedAccessExceptionForFixedExpensesWhenWrongUser() {
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(account));
+
+        RuntimeException ex = assertThrows(RuntimeException.class,
+            () -> analysisService.getFixedExpenses("other@test.com", 1L));
+
+        assertEquals("Unauthorized access", ex.getMessage());
     }
 }

@@ -154,22 +154,23 @@
               @for (expense of fixedExpenses; track trackByTransactionId($index, expense)) {
                 <li
                   class="fixed-expense-item"
+                  [class.paid-item]="isPaidThisMonth(expense)"
                   role="button"
                   tabindex="0"
                   (click)="openTransactionDetail(expense.id)"
                   (keydown.enter)="openTransactionDetail(expense.id)"
                   (keydown.space)="openTransactionDetail(expense.id)">
                   <div class="expense-main">
-                    <p class="title">{{ expense.title }}</p>
-                    <p class="meta">{{ expense.category.name }} · {{ expense.date | date:'d MMM' }}</p>
+                    <p class="title" [class.paid-title]="isPaidThisMonth(expense)">{{ expense.title }}</p>
+                    <p class="meta">{{ expense.category.name }} · {{ getOccurrenceDateThisMonth(expense) | date:'d MMM' }}</p>
                   </div>
                   <div class="expense-side">
-                    <span class="amount">{{ expense.amount | currency:'EUR':'symbol':'1.2-2' }}</span>
-                    <span class="status" [class.paid]="isPaidThisMonth(expense.date)">
-                      @if (isPaidThisMonth(expense.date)) {
-                        <span>Pagado este mes</span>
+                    <span class="amount" [class.paid-amount]="isPaidThisMonth(expense)">{{ expense.amount | currency:'EUR':'symbol':'1.2-2' }}</span>
+                    <span class="status" [class.paid]="isPaidThisMonth(expense)">
+                      @if (isPaidThisMonth(expense)) {
+                        <span>✓ Pagado el {{ getOccurrenceDateThisMonth(expense) | date:'d MMM' }}</span>
                       } @else {
-                        <span>Estimado {{ expense.date | date:'d MMM' }}</span>
+                        <span>⏳ Estimado {{ getOccurrenceDateThisMonth(expense) | date:'d MMM' }}</span>
                       }
                     </span>
                   </div>

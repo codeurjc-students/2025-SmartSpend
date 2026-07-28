@@ -488,6 +488,20 @@
   color: #22c55e;
 }
 
+.paid-item {
+  opacity: 0.72;
+}
+
+.paid-title {
+  text-decoration: line-through;
+  opacity: 0.65;
+}
+
+.paid-amount {
+  text-decoration: line-through;
+  opacity: 0.65;
+}
+
 /* ========================================
    CUENTA CENTRAL - CONTENIDO PRINCIPAL
    ======================================== */
