@@ -741,6 +741,7 @@ public class TransactionServiceTest {
             .id(1L)
             .title("Original Income")
             .amount(new BigDecimal("50"))
+            .effectiveAmount(new BigDecimal("30"))
             .type(TransactionType.INCOME)
             .account(testAccount)
             .category(testCategory)
@@ -778,6 +779,7 @@ public class TransactionServiceTest {
         assertEquals("Updated Income", savedTransaction.getTitle());
         assertEquals("Updated description", savedTransaction.getDescription());
         assertEquals(new BigDecimal("80"), savedTransaction.getAmount());
+        assertEquals(new BigDecimal("80"), savedTransaction.getEffectiveAmount());
         assertEquals(TransactionType.INCOME, savedTransaction.getType());
         assertEquals(Recurrence.MONTHLY, savedTransaction.getRecurrence());
         assertEquals(testCategory, savedTransaction.getCategory());
@@ -799,6 +801,7 @@ public class TransactionServiceTest {
             .title("Original Expense")
             .description("Original description")
             .amount(new BigDecimal("30"))
+            .effectiveAmount(new BigDecimal("12"))
             .type(TransactionType.EXPENSE)
             .date(LocalDate.now().minusDays(1))
             .recurrence(Recurrence.NONE)
@@ -838,6 +841,7 @@ public class TransactionServiceTest {
         assertEquals("Updated Expense", savedTransaction.getTitle());
         assertEquals("Updated expense description", savedTransaction.getDescription());
         assertEquals(new BigDecimal("10"), savedTransaction.getAmount());
+        assertEquals(new BigDecimal("10"), savedTransaction.getEffectiveAmount());
         assertEquals(TransactionType.EXPENSE, savedTransaction.getType());
         assertEquals(LocalDate.now(), savedTransaction.getDate());
         assertEquals(Recurrence.WEEKLY, savedTransaction.getRecurrence());
@@ -943,6 +947,64 @@ public class TransactionServiceTest {
         Transaction savedTransaction = transactionCaptor.getValue();
         assertEquals(TransactionType.INCOME, savedTransaction.getType());
         assertEquals("Now Income", savedTransaction.getTitle());
+    }
+
+    @Test
+    @DisplayName("TS-2.5 - Should preserve effective amount for shared expense on edit")
+    void updateTransactionShouldPreserveEffectiveAmountForSharedExpense() {
+        testAccount.setCurrentBalance(new BigDecimal("500"));
+
+        Debt debt = Debt.builder()
+            .id(99L)
+            .name("Alex")
+            .amount(new BigDecimal("40"))
+            .isPaid(false)
+            .build();
+
+        Transaction originalTransaction = Transaction.builder()
+            .id(5L)
+            .title("Shared dinner")
+            .description("old")
+            .amount(new BigDecimal("100"))
+            .effectiveAmount(new BigDecimal("60"))
+            .type(TransactionType.EXPENSE)
+            .date(LocalDate.now().minusDays(1))
+            .recurrence(Recurrence.NONE)
+            .account(testAccount)
+            .category(testCategory)
+            .sharedDebts(List.of(debt))
+            .build();
+
+        CreateTransactionDto dto = new CreateTransactionDto(
+            "Shared dinner edited", "new", new BigDecimal("100"),
+            TransactionType.EXPENSE, LocalDate.now(), Recurrence.MONTHLY, 1L, 1L,
+            null, null, null
+        );
+
+        when(userRepository.findByUserEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findById(1L)).thenReturn(Optional.of(testAccount));
+        when(transactionRepository.findById(5L)).thenReturn(Optional.of(originalTransaction));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
+        when(transactionRepository.save(any(Transaction.class))).thenReturn(originalTransaction);
+
+        TransactionResponseDto responseDto = new TransactionResponseDto(
+            5L, "Shared dinner edited", "new", new BigDecimal("100"), null, new BigDecimal("60"),
+            LocalDate.now(), TransactionType.EXPENSE, Recurrence.MONTHLY,
+            1L, "Test Account", testCategory, false, null, false, null, null, null
+        );
+        when(transactionMapper.toResponseDto(any(Transaction.class))).thenReturn(responseDto);
+
+        Optional<TransactionResponseDto> result = transactionService.updateTransaction(5L, dto, "test@example.com");
+
+        assertNotNull(result);
+
+        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository).save(transactionCaptor.capture());
+
+        Transaction savedTransaction = transactionCaptor.getValue();
+        assertEquals(new BigDecimal("100"), savedTransaction.getAmount());
+        assertEquals(new BigDecimal("60"), savedTransaction.getEffectiveAmount());
+        assertEquals(Recurrence.MONTHLY, savedTransaction.getRecurrence());
     }
 
     // ===============================================

@@ -62,7 +62,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
         @Param("type") TransactionType type);
 
     // ✅ QUERY SÚPER OPTIMIZADA - SOLO TOTALES POR CATEGORÍA
-    @Query("SELECT t.category.name, SUM(COALESCE(t.effectiveAmount, t.amount)) " +
+       @Query("SELECT t.category.name, SUM(CASE WHEN t.type = 'EXPENSE' THEN COALESCE(t.effectiveAmount, t.amount) ELSE t.amount END) " +
            "FROM Transaction t WHERE t.account.id = :accountId " +
            "AND t.date BETWEEN :dateFrom AND :dateTo " +
            "AND t.type = :type " +
@@ -75,7 +75,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
         @Param("type") TransactionType type);
 
     // ✅ QUERY SÚPER SIMPLE PARA TOTALES DE INGRESOS/GASTOS
-    @Query("SELECT SUM(COALESCE(t.effectiveAmount, t.amount)) FROM Transaction t WHERE t.account.id = :accountId " +
+       @Query("SELECT SUM(CASE WHEN t.type = 'EXPENSE' THEN COALESCE(t.effectiveAmount, t.amount) ELSE t.amount END) FROM Transaction t WHERE t.account.id = :accountId " +
            "AND t.date BETWEEN :dateFrom AND :dateTo " +
            "AND t.type = :type " +
            "AND (t.excludeFromStats IS NULL OR t.excludeFromStats = false)")

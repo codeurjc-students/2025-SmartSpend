@@ -367,6 +367,8 @@ public class TransactionService {
         transaction.setDescription(transactionDto.description());
         BigDecimal oldAmount = transaction.getAmount();
         transaction.setAmount(transactionDto.amount());
+        transaction.setEffectiveAmount(resolveEffectiveAmountForUpdate(transaction, transactionDto));
+        
         transaction.setDate(transactionDto.date() != null ? transactionDto.date() : LocalDate.now());
         TransactionType oldType = transaction.getType();
         transaction.setType(transactionDto.type());
@@ -380,6 +382,20 @@ public class TransactionService {
         Transaction updated = transactionRepository.save(transaction);
         bankAccountRepository.save(account);
         return Optional.of(transactionMapper.toResponseDto(updated));
+    }
+
+    private BigDecimal resolveEffectiveAmountForUpdate(Transaction existingTransaction, CreateTransactionDto transactionDto) {
+        if (transactionDto.type() == TransactionType.INCOME) {
+            return transactionDto.amount();
+        }
+
+        if (existingTransaction.getSharedDebts() != null && !existingTransaction.getSharedDebts().isEmpty()) {
+            return existingTransaction.getEffectiveAmount() != null
+                ? existingTransaction.getEffectiveAmount()
+                : existingTransaction.getAmount();
+        }
+
+        return transactionDto.amount();
     }
 
 
