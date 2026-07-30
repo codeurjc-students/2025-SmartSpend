@@ -264,4 +264,54 @@ class TransactionRepositoryIntegrationTest {
         assertTrue(found.getIsRecurringSeriesParent(), "Should be marked as recurring parent");
         assertEquals(baseDate.plusMonths(1), found.getNextRecurrenceDate(), "Should have correct next recurrence date");
     }
+
+    @Test
+    void shouldUseOriginalAmountForIncomeStatsEvenWhenEffectiveAmountDiffers() {
+        User user = new User();
+        user.setUserName("tx-owner-4");
+        user.setUserEmail("tx-owner-4@test.com");
+        user.setUserHashedPassword("hashed");
+        user = userRepository.save(user);
+
+        BankAccount account = new BankAccount(user, "Cuenta 4", new BigDecimal("1000.00"));
+        account = bankAccountRepository.save(account);
+
+        Category incomeCategory = new Category("Nomina", "desc", "#00ff00", TransactionType.INCOME, user, "💰");
+        incomeCategory = categoryRepository.save(incomeCategory);
+
+        LocalDate date = LocalDate.of(2026, 6, 1);
+
+        transactionRepository.save(Transaction.builder()
+            .title("Nomina junio")
+            .description("income")
+            .amount(new BigDecimal("1520.60"))
+            .effectiveAmount(new BigDecimal("1484.79"))
+            .date(date)
+            .type(TransactionType.INCOME)
+            .excludeFromStats(false)
+            .recurrence(Recurrence.NONE)
+            .isRecurringSeriesParent(false)
+            .account(account)
+            .category(incomeCategory)
+            .build());
+
+        BigDecimal incomesTotal = transactionRepository.findTotalByAccountAndDateRangeAndType(
+            account.getId(),
+            LocalDate.of(2026, 6, 1),
+            LocalDate.of(2026, 6, 30),
+            TransactionType.INCOME
+        );
+
+        List<Object[]> categoryTotals = transactionRepository.findCategoryTotalsByAccountAndDateRangeAndType(
+            account.getId(),
+            LocalDate.of(2026, 6, 1),
+            LocalDate.of(2026, 6, 30),
+            TransactionType.INCOME
+        );
+
+        assertEquals(new BigDecimal("1520.60"), incomesTotal);
+        assertEquals(1, categoryTotals.size());
+        assertEquals("Nomina", categoryTotals.get(0)[0]);
+        assertEquals(new BigDecimal("1520.60"), categoryTotals.get(0)[1]);
+    }
 }
