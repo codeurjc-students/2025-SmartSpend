@@ -33,7 +33,7 @@
 
 /* LOGO */
 .navbar-logo img {
-  height: 40px;
+  height: 44px;
   width: auto;
   display: block;  /* 👈 evita espacios fantasmas */
 }
@@ -122,7 +122,7 @@
   }
 
   .navbar-logo img {
-    height: 32px;
+    height: 35px;
   }
 
   .menu-toggle {
