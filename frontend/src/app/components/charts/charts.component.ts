@@ -1,8 +1,9 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
@@ -11,6 +12,11 @@ import { ReportService } from '../../services/report.service';
 import { BankAccountServiceService, BankAccount } from '../../services/bankAccount/bank-account-service.service';
 import { PieChartDto, BarLineChartDto, TimelineChartDto, TransactionType } from '../../interfaces/chart.interface';
 import { ThemeService } from '../../services/theme/theme.service';
+import { TransactionService } from '../../services/transaction/transaction.service';
+import { CategoryService } from '../../services/category/category.service';
+import { Category } from '../../interfaces/category.interface';
+import { Transaction } from '../../interfaces/transaction.interface';
+import { TransactionFilters } from '../../interfaces/pagination.interface';
 
 // Registrar todos los componentes de Chart.js
 Chart.register(...registerables);
@@ -18,7 +24,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-charts',
   standalone: true,
-  imports: [FormsModule, BaseChartDirective, DecimalPipe],
+  imports: [FormsModule, BaseChartDirective, DecimalPipe, DatePipe, RouterLink],
   templateUrl: './charts.component.html',
   styleUrls: ['./charts.component.css']
 })
@@ -35,6 +41,13 @@ export class ChartsComponent implements OnInit, OnDestroy {
   selectedYear = this.currentYear;
   selectedMonth = this.currentMonth;
   viewType: 'monthly' | 'yearly' = 'monthly'; // Nuevo selector de período
+
+  // Estado del panel de detalle de categoría (lazy loading)
+  selectedCategory: { name: string; color: string } | null = null;
+  categoryTransactions: Transaction[] = [];
+  categoryTotal = 0;
+  isLoadingDetails = false;
+  private categoryMap = new Map<string, Category>();
 
   // Estados de carga
   loadingPieIncomes = false;
@@ -122,7 +135,9 @@ export class ChartsComponent implements OnInit, OnDestroy {
     private chartsService: ChartsService,
     private bankAccountService: BankAccountServiceService,
     private reportService: ReportService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private transactionService: TransactionService,
+    private categoryService: CategoryService
   ) {}
 
   ngOnInit() {
@@ -131,6 +146,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
       this.updateTimelineChartPresentation();
     });
     this.loadBankAccounts();
+    this.loadCategories();
   }
 
   ngOnDestroy() {
@@ -158,10 +174,12 @@ export class ChartsComponent implements OnInit, OnDestroy {
   }
 
   onAccountChange() {
+    this.closeDetails();
     this.loadCharts();
   }
 
   onDateChange() {
+    this.closeDetails();
     this.loadCharts();
   }
 
@@ -559,5 +577,77 @@ export class ChartsComponent implements OnInit, OnDestroy {
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
     return months[month - 1];
+  }
+
+  // ─── Category lazy-loading ───────────────────────────────────────────────
+
+  private loadCategories() {
+    forkJoin({
+      income: this.categoryService.getCategoriesForType('INCOME'),
+      expense: this.categoryService.getCategoriesForType('EXPENSE')
+    }).subscribe({
+      next: ({ income, expense }) => {
+        [...income, ...expense].forEach(cat => this.categoryMap.set(cat.name, cat));
+      }
+    });
+  }
+
+  private getDateRange(): { dateFrom: string; dateTo: string } {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    if (this.viewType === 'monthly') {
+      const daysInMonth = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
+      return {
+        dateFrom: `${this.selectedYear}-${pad(this.selectedMonth)}-01`,
+        dateTo: `${this.selectedYear}-${pad(this.selectedMonth)}-${pad(daysInMonth)}`
+      };
+    }
+    return { dateFrom: `${this.selectedYear}-01-01`, dateTo: `${this.selectedYear}-12-31` };
+  }
+
+  onPieChartClick(event: { event?: unknown; active?: object[] }, type: TransactionType) {
+    if (!event.active || event.active.length === 0) return;
+    const index = (event.active[0] as { index: number }).index;
+    const chartData = type === TransactionType.EXPENSE ? this.pieExpensesData : this.pieIncomesData;
+    if (!chartData?.labels || !chartData?.datasets) return;
+    const label = chartData.labels[index] as string;
+    const value = (chartData.datasets[0].data[index] as number) ?? 0;
+    const bgColors = chartData.datasets[0].backgroundColor;
+    const color = Array.isArray(bgColors) ? (bgColors[index] as string) : '#64748b';
+    this.onCategoryClick(label, value, type, color);
+  }
+
+  onCategoryClick(categoryName: string, totalAmount: number, type: TransactionType, color = '#64748b') {
+    const category = this.categoryMap.get(categoryName);
+    this.selectedCategory = { name: categoryName, color };
+    this.categoryTotal = totalAmount;
+    this.categoryTransactions = [];
+    this.isLoadingDetails = true;
+
+    const { dateFrom, dateTo } = this.getDateRange();
+    const filters: TransactionFilters = {
+      dateFrom,
+      dateTo,
+      type: type as 'INCOME' | 'EXPENSE',
+      ...(category ? { categoryId: String(category.id) } : {})
+    };
+
+    this.transactionService.getTransactionsPaginated(this.selectedAccountId!, 0, 50, filters).subscribe({
+      next: (response) => {
+        this.categoryTransactions = category
+          ? response.content
+          : response.content.filter(t => t.category.name === categoryName);
+        this.isLoadingDetails = false;
+      },
+      error: () => {
+        this.isLoadingDetails = false;
+      }
+    });
+  }
+
+  closeDetails() {
+    this.selectedCategory = null;
+    this.categoryTransactions = [];
+    this.categoryTotal = 0;
+    this.isLoadingDetails = false;
   }
 }
