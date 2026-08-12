@@ -16,6 +16,16 @@
         [routerLink]="item.route"
       >{{ item.label }}</a>
 
+      <!-- Tutorial -->
+      <button class="tutorial-btn" (click)="openTutorial()" aria-label="Abrir tutorial">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Tutorial
+      </button>
+
       <!-- Theme toggle -->
       <button class="theme-toggle" (click)="toggleTheme()" [attr.aria-label]="themeService.isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
         @if (themeService.isDark) {
@@ -95,6 +105,14 @@
           [routerLink]="item.route"
           (click)="closeMobileMenu()"
         >{{ item.label }}</a>
+        <button class="mobile-tutorial-btn" (click)="openTutorial()" aria-label="Abrir tutorial">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          Tutorial
+        </button>
       </div>
     }
 

@@ -1,5 +1,9 @@
 <div class="dashboard-grid-container">
 
+  @if (showOnboarding) {
+    <app-onboarding (closed)="onOnboardingClosed()"></app-onboarding>
+  }
+
   <!-- Loading State -->
   @if (isLoading) {
     <div class="loading-overlay">
