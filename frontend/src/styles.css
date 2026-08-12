@@ -540,30 +540,33 @@ a:hover {
     .sm-w-full { width: 100% !important; }
 }
 
-/* ── Google Sign-In iframe: centrado defensivo (producción) ── */
-/* El iframe que inyecta el SDK de Google escapa a la encapsulación de Angular,
-   por eso estos estilos viven en el fichero global. */
-#google-signin-btn,
-#google-register-btn {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
-
-#google-signin-btn > div,
-#google-register-btn > div {
-    margin: 0 auto !important;
-  line-height: 0;
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
+/* ── Google Sign-In: overlay invisible sobre botón custom ── */
+/* El iframe de Google se renderiza invisible (opacity:0) cubriendo el botón
+   custom que nosotros controlamos. Los clicks van al iframe; no se ve el rectángulo blanco. */
+.google-btn-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  opacity: 0 !important;
+  z-index: 2 !important;
+  cursor: pointer;
   overflow: hidden;
 }
 
+.google-btn-overlay > div,
+#google-signin-btn > div,
+#google-register-btn > div {
+  width: 100% !important;
+  height: 100% !important;
+  line-height: 0;
+  margin: 0 !important;
+}
+
+.google-btn-overlay iframe,
 #google-signin-btn iframe,
 #google-register-btn iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 44px;
   display: block;
-  margin: 0 auto !important;
-  background: transparent !important;
   border: 0 !important;
 }
