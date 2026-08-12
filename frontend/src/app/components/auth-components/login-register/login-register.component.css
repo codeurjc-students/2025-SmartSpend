@@ -22,6 +22,7 @@
   display: block;
   color-scheme: light;
   background: #f1f5f9;
+  min-height: 100vh;
 }
 
 /* Tarjeta del formulario */
@@ -192,7 +193,7 @@
 
 /* Textos de la tarjeta — oscuros sobre fondo blanco */
 .register-card .form-title {
-  color: #0f172a !important;
+  color: #334155 !important;
 }
 
 .register-card .social-divider span {
