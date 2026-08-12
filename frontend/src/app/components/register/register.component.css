@@ -149,6 +149,12 @@
   margin-right: auto;
   margin-bottom: 0.5rem;
   overflow: hidden;
+  border-radius: 8px;
+}
+
+/* El div que inyecta la librería GSI de Google tiene fondo blanco por defecto */
+.register-card #google-register-btn > div {
+  background: transparent !important;
 }
 
 .register-card #google-register-btn {
