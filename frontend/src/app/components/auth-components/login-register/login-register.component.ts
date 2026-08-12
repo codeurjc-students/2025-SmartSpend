@@ -55,8 +55,9 @@ export class LoginRegisterComponent implements OnInit {
 
       const btnContainer = document.getElementById('google-signin-btn');
       if (btnContainer) {
-        const containerWidth = btnContainer.getBoundingClientRect().width;
-        const googleButtonWidth = Math.max(220, Math.min(260, Math.floor(containerWidth || 240)));
+        const wrapper = document.querySelector('.register-card .google-btn-wrapper');
+        const wrapperWidth = wrapper ? Math.floor(wrapper.getBoundingClientRect().width) : 280;
+        const googleButtonWidth = Math.max(220, Math.min(400, wrapperWidth));
 
         window.google.accounts.id.renderButton(btnContainer, {
           type: 'standard',
