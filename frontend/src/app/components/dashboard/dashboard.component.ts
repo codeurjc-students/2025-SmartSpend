@@ -1,15 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 import { BankAccount, BankAccountServiceService, CreateBankAccount} from '../../services/bankAccount/bank-account-service.service';
-// import { TransactionService } from '../../services/transaction/transaction.service'; // Este servicio no se usa directamente aquí, puede eliminarse si no se usa para otras cosas en DashboardComponent
 import { TransactionListComponent } from '../transaction-list/transaction-list.component';
 import { CreateTransactionModalComponent } from '../create-transaction-modal/create-transaction-modal.component';
-import { OnboardingComponent } from '../onboarding/onboarding.component';
 import { Transaction } from '../../interfaces/transaction.interface';
 import { PendingDebtSummary } from '../../interfaces/pending-debt-summary.interface';
 import { ActiveAccountService } from '../../services/active-account/active-account.service';
@@ -28,8 +26,7 @@ Chart.register(...registerables);
     RouterLink,
     TransactionListComponent,
     CreateTransactionModalComponent,
-    BaseChartDirective,
-    OnboardingComponent
+    BaseChartDirective
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
@@ -52,7 +49,6 @@ export class DashboardComponent implements OnInit {
   successMessage = '';
 
   showCreateTransactionModal: boolean = false;
-  showOnboarding = false;
   pendingDebtsSummary: PendingDebtSummary[] = [];
   isLoadingPendingDebts = false;
   fixedExpenses: Transaction[] = [];
@@ -103,22 +99,12 @@ export class DashboardComponent implements OnInit {
     private analysisService: AnalysisService,
     private chartsService: ChartsService,
     private transactionService: TransactionService,
-    private router: Router,
-    private route: ActivatedRoute
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadUserAccounts();
     this.loadPendingDebtsSummary();
-    if (!OnboardingComponent.isCompleted()) {
-      this.showOnboarding = true;
-    }
-    this.route.queryParams.subscribe(params => {
-      if (params['tutorial'] === 'true') {
-        this.showOnboarding = true;
-        this.router.navigate([], { queryParams: {}, replaceUrl: true });
-      }
-    });
 
     // Suscribirse a cambios en la cuenta activa
     this.activeAccountService.activeAccount$.subscribe(account => {
@@ -411,14 +397,6 @@ export class DashboardComponent implements OnInit {
 
   openTransactionDetail(transactionId: number): void {
     this.router.navigate(['/transaction', transactionId]);
-  }
-
-  openOnboarding(): void {
-    this.showOnboarding = true;
-  }
-
-  onOnboardingClosed(): void {
-    this.showOnboarding = false;
   }
 
 }

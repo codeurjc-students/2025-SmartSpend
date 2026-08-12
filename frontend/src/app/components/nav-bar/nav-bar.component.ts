@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from '../../services/theme/theme.service';
 
@@ -27,7 +27,7 @@ export class NavBarComponent {
 
   isMobileMenuOpen = false;
 
-  constructor(public themeService: ThemeService, private router: Router) {}
+  constructor(public themeService: ThemeService) {}
 
   toggleTheme(): void {
     this.themeService.toggle();
@@ -39,10 +39,5 @@ export class NavBarComponent {
 
   closeMobileMenu(): void {
     this.isMobileMenuOpen = false;
-  }
-
-  openTutorial(): void {
-    this.closeMobileMenu();
-    this.router.navigate(['/dashboard'], { queryParams: { tutorial: 'true' } });
   }
 }
