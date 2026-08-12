@@ -6,7 +6,6 @@ import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 import { BankAccount, BankAccountServiceService, CreateBankAccount} from '../../services/bankAccount/bank-account-service.service';
-// import { TransactionService } from '../../services/transaction/transaction.service'; // Este servicio no se usa directamente aquí, puede eliminarse si no se usa para otras cosas en DashboardComponent
 import { TransactionListComponent } from '../transaction-list/transaction-list.component';
 import { CreateTransactionModalComponent } from '../create-transaction-modal/create-transaction-modal.component';
 import { Transaction } from '../../interfaces/transaction.interface';
@@ -101,7 +100,6 @@ export class DashboardComponent implements OnInit {
     private chartsService: ChartsService,
     private transactionService: TransactionService,
     private router: Router
-    // private transactionService: TransactionService // Se eliminó porque no se usa directamente en este componente.
   ) {}
 
   ngOnInit(): void {

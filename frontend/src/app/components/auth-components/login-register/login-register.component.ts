@@ -61,7 +61,7 @@ export class LoginRegisterComponent implements OnInit {
         window.google.accounts.id.renderButton(btnContainer, {
           type: 'standard',
           size: 'large',
-          theme: 'filled_blue',
+          theme: 'filled_black',
           text: 'signin_with',
           shape: 'rectangular',
           logo_alignment: 'left',

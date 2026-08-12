@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet, RouterLink, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { TransactionListComponent } from './components/transaction-list/transaction-list.component';
 import { LoginRegisterComponent } from './components/auth-components/login-register/login-register.component';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { ThemeService } from './services/theme/theme.service';
+import { OnboardingComponent } from './components/onboarding/onboarding.component';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,8 @@ import { ThemeService } from './services/theme/theme.service';
   imports: [
     RouterOutlet,
     NavBarComponent,
-    CommonModule
+    CommonModule,
+    OnboardingComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -24,7 +26,8 @@ import { ThemeService } from './services/theme/theme.service';
 
 export class AppComponent implements OnInit {
   title = 'smartspend-frontend';
-  showNavbar = false; // Iniciar en false para evitar flash del navbar
+  showNavbar = false;
+  showOnboarding = false;
 
   constructor(private router: Router, private themeService: ThemeService) {
     // Aplicar tema guardado lo antes posible para evitar flash
@@ -35,15 +38,27 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    // 👈 Detectar la ruta inicial inmediatamente
     this.checkCurrentRoute();
 
-    // Escucha los cambios de ruta posteriores
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         this.updateNavbarVisibility(event.url);
+        if (event.url.includes('tutorial=true')) {
+          this.showOnboarding = true;
+          this.router.navigate([], { queryParams: {}, replaceUrl: true });
+        } else if (event.url.startsWith('/dashboard') && !OnboardingComponent.isCompleted()) {
+          this.showOnboarding = true;
+        }
       });
+  }
+
+  openTutorial(): void {
+    this.showOnboarding = true;
+  }
+
+  onOnboardingClosed(): void {
+    this.showOnboarding = false;
   }
 
   private checkCurrentRoute() {
