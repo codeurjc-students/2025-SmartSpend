@@ -13,34 +13,35 @@
   box-sizing: border-box; /* Incluye padding y borde en el tamaño total del elemento */
   width: 100%;
   overflow: hidden; /* Evita scroll innecesario */
-  /* Siempre oscuro — immune al tema claro */
-  background: #0b1220;
-  color: #e2e8f0;
+  /* Siempre claro — immune al tema oscuro */
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
 :host {
   display: block;
-  color-scheme: dark;
+  color-scheme: light;
+  background: #f1f5f9;
 }
 
 /* Tarjeta del formulario */
 .register-card {
   display: flex;
-  flex-direction: column; /* Disposición vertical */
-  align-items: center; /* Centra horizontalmente los elementos dentro de la tarjeta */
+  flex-direction: column;
+  align-items: center;
   align-content: center;
-  background: rgba(15, 23, 42, 0.92);
-  border: 1px solid rgba(51, 65, 85, 0.85);
-  backdrop-filter: blur(10px);
+  background: #ffffff;
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  backdrop-filter: none;
   padding: clamp(1rem, 2.5vw, 1.35rem);
   border-radius: 20px;
-  box-shadow: 0 16px 36px rgba(2, 8, 23, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   width: clamp(280px, 92%, 390px);
-  max-height: 90vh; /* Altura máxima */
+  max-height: 90vh;
   text-align: center;
-  transform: scale(clamp(0.8, calc(100vh / 700), 1)); /* Escala según altura de pantalla */
+  transform: scale(clamp(0.8, calc(100vh / 700), 1));
   transform-origin: center;
-  overflow-y: auto; /* Scroll interno si es necesario */
+  overflow-y: auto;
 }
 
 .auth-logo {
@@ -48,11 +49,13 @@
   aspect-ratio: 443.2/117.28;
   display: block;
   margin-bottom: 0.35rem;
+  filter: brightness(0) saturate(100%) invert(25%) sepia(13%) saturate(1028%) hue-rotate(175deg) brightness(92%) contrast(90%);
+  opacity: 0.95;
 }
 
 .auth-subtitle {
   margin: -6px 0 1rem;
-  color: rgba(148, 163, 184, 0.95);
+  color: #64748b;
   font-size: 0.92rem;
   line-height: 1.4;
 }
@@ -67,16 +70,16 @@
 
 .register-card .form-group label {
   margin-bottom: 0.35rem;
-  color: #cbd5e1;
+  color: #374151;
   font-weight: 600;
   font-size: 0.9rem;
 }
 
 .register-card .form-group input {
   border-radius: 12px;
-  border: 1px solid rgba(71, 85, 105, 0.9);
-  background: rgba(15, 23, 42, 0.82);
-  color: #e2e8f0;
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  background: #f8fafc;
+  color: #0f172a;
   padding: 11px 13px;
 }
 
@@ -86,8 +89,8 @@
 }
 
 .register-card .form-group input:focus {
-  border-color: rgba(34, 211, 238, 0.95);
-  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
+  border-color: #0891b2;
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.15);
 }
 
 .password-field {
@@ -107,8 +110,8 @@
   height: 32px;
   border: 1px solid transparent;
   border-radius: 8px;
-  background: rgba(15, 23, 42, 0.35);
-  color: #94a3b8;
+  background: transparent;
+  color: #64748b;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -118,8 +121,8 @@
 }
 
 .password-toggle:hover {
-  color: #e2e8f0;
-  border-color: rgba(71, 85, 105, 0.8);
+  color: #0f172a;
+  border-color: rgba(203, 213, 225, 0.8);
 }
 
 .password-toggle svg {
@@ -138,42 +141,15 @@
   margin: 0.9rem 0 0.55rem;
 }
 
-/* Wrapper del botón de Google — posición relativa para el overlay absoluto */
+/* Wrapper del botón de Google — centrado simple */
 .register-card .google-btn-wrapper {
-  position: relative;
+  display: flex;
+  justify-content: center;
   width: 100%;
   max-width: 320px;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 0.5rem;
-  border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
-}
-
-/* Botón custom visible: muestra la UI pero no recibe eventos de ratón */
-.register-card .google-custom-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  min-height: 44px;
-  padding: 10px 16px;
-  border-radius: 8px;
-  background: rgba(30, 41, 59, 0.85);
-  border: 1px solid rgba(71, 85, 105, 0.55);
-  color: #e2e8f0;
-  font-size: 0.95rem;
-  font-weight: 500;
-  pointer-events: none;
-  user-select: none;
-  transition: background 0.2s, border-color 0.2s;
-}
-
-.register-card .google-btn-wrapper:hover .google-custom-btn {
-  background: rgba(37, 51, 74, 0.95);
-  border-color: rgba(100, 116, 139, 0.7);
 }
 
 .register-card #google-register-btn {
@@ -240,25 +216,25 @@
   }
 }
 
-/* Textos de la tarjeta — siempre claros sobre fondo oscuro */
+/* Textos de la tarjeta — oscuros sobre fondo blanco */
 .register-card .form-title {
-  color: #e2e8f0 !important;
+  color: #0f172a !important;
 }
 
 .register-card .auth-subtitle {
-  color: rgba(148, 163, 184, 0.95) !important;
+  color: #64748b !important;
 }
 
 .register-card .social-divider span {
-  color: #94a3b8 !important;
+  color: #64748b !important;
 }
 
 .register-card .register-link p {
-  color: #94a3b8 !important;
+  color: #64748b !important;
 }
 
 .register-card .register-link a {
-  color: #22d3ee !important;
+  color: #0891b2 !important;
 }
 
 .register-card .btn,
@@ -272,5 +248,5 @@
 }
 
 .register-card .error-message {
-  color: #fb7185 !important;
+  color: #dc2626 !important;
 }
