@@ -138,23 +138,42 @@
   margin: 0.9rem 0 0.55rem;
 }
 
-/* Wrapper defensivo del botón de Google — centra el iframe en producción */
+/* Wrapper del botón de Google — posición relativa para el overlay absoluto */
 .register-card .google-btn-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative;
   width: 100%;
   max-width: 320px;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 0.5rem;
-  overflow: hidden;
   border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
 }
 
-/* El div que inyecta la librería GSI de Google tiene fondo blanco por defecto */
-.register-card #google-register-btn > div {
-  background: transparent !important;
+/* Botón custom visible: muestra la UI pero no recibe eventos de ratón */
+.register-card .google-custom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid rgba(71, 85, 105, 0.55);
+  color: #e2e8f0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  pointer-events: none;
+  user-select: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.register-card .google-btn-wrapper:hover .google-custom-btn {
+  background: rgba(37, 51, 74, 0.95);
+  border-color: rgba(100, 116, 139, 0.7);
 }
 
 .register-card #google-register-btn {
