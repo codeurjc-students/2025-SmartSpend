@@ -19,6 +19,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
 
     List<Transaction> findByAccount_User_UserIdOrderByDateDesc(Long userId);
 
+    void deleteByAccount_User_UserId(Long userId);
+
     @Query(value = "SELECT * FROM transactions WHERE account_id = :accountId ORDER BY date DESC, id DESC LIMIT :limit", nativeQuery = true)
     List<Transaction> findByAccountIdAndLimit(Long accountId, int limit);
 

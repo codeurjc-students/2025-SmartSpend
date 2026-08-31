@@ -19,4 +19,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     long countByIsDefaultTrue();
 
     List<Category> findByUserUserId(Long userId);
+
+    void deleteByUser_UserId(Long userId);
 } 

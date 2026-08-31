@@ -1,11 +1,11 @@
-<div class="app-layout" [ngClass]="{'auth-layout': !showNavbar}">
+<div class="app-layout" [ngClass]="{'auth-layout': isAuthRoute}">
   <!-- Navbar fijo en la parte superior (solo si no es auth) -->
   @if (showNavbar) {
     <app-nav-bar></app-nav-bar>
   }
 
   <!-- Contenido principal que se adapta al espacio restante -->
-  <main class="main-content" [ngClass]="{'auth-content': !showNavbar}">
+  <main class="main-content" [ngClass]="{'auth-content': isAuthRoute}">
     <router-outlet></router-outlet>
   </main>
 
@@ -20,8 +20,4 @@
     </button>
   }
 
-  <!-- Modal onboarding global -->
-  @if (showOnboarding) {
-    <app-onboarding (closed)="onOnboardingClosed()"></app-onboarding>
-  }
 </div>

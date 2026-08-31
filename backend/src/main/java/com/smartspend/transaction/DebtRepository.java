@@ -17,4 +17,6 @@ public interface DebtRepository extends JpaRepository<Debt, Long> {
     @Query("SELECT d FROM Debt d WHERE d.transaction.account.user.userId = :userId " +
            "AND d.isPaid = false ORDER BY d.transaction.date DESC, d.id DESC")
     List<Debt> findPendingDebtsByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    void deleteByTransaction_Account_User_UserId(Long userId);
 }

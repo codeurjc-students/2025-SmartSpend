@@ -19,7 +19,8 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.storeToken(response.token);
-          console.log('AuthService: Token almacenado después del login.'); // Mensaje de depuración
+          this.storePrivacyStatus(response.privacyPolicyAccepted);
+          console.log('AuthService: Token almacenado después del login.');
         })
       );
   }
@@ -31,13 +32,26 @@ export class AuthService {
     }).pipe(
       tap(response => {
         this.storeToken(response.token);
-        console.log('AuthService: Token almacenado después del registro.'); // Mensaje de depuración
+        this.storePrivacyStatus(response.privacyPolicyAccepted);
+        console.log('AuthService: Token almacenado después del registro.');
       })
     );
   }
 
   private storeToken(token: string): void {
     localStorage.setItem('authToken', token);
+  }
+
+  private storePrivacyStatus(accepted: boolean): void {
+    localStorage.setItem('privacyPolicyAccepted', String(accepted));
+  }
+
+  getPrivacyStatus(): boolean {
+    return localStorage.getItem('privacyPolicyAccepted') === 'true';
+  }
+
+  updateLocalPrivacyStatus(accepted: boolean): void {
+    this.storePrivacyStatus(accepted);
   }
 
   isAuthenticated(): boolean {
@@ -68,11 +82,9 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('authToken'); // Elimina el token del almacenamiento local
-    console.log('AuthService: Token eliminado de localStorage. Sesión cerrada.'); // Mensaje de depuración
-    // Opcional: redirigir al login después de cerrar sesión
-    // const router = inject(Router); // Si quieres redirigir aquí, necesitarías inyectar Router
-    // router.navigate(['/login']);
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('privacyPolicyAccepted');
+    console.log('AuthService: Token eliminado de localStorage. Sesión cerrada.');
   }
 
   getToken(): string | null {
@@ -84,6 +96,7 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.storeToken(response.token);
+          this.storePrivacyStatus(response.privacyPolicyAccepted);
         })
       );
   }

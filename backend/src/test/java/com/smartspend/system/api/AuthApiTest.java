@@ -40,7 +40,7 @@ class AuthApiTest {
 
     @Test
     void shouldLoginSuccessfully() throws Exception {
-        AuthResponseDto response = new AuthResponseDto(1L, "jwt-token", "juan", "juan@test.com");
+        AuthResponseDto response = new AuthResponseDto(1L, "jwt-token", "juan", "juan@test.com", false);
         when(authService.login(new LoginRequestDto("juan@test.com", "123456"))).thenReturn(response);
 
         String body = """
@@ -62,7 +62,7 @@ class AuthApiTest {
 
     @Test
     void shouldRegisterSuccessfully() throws Exception {
-        AuthResponseDto response = new AuthResponseDto(2L, "jwt-register", "ana", "ana@test.com");
+        AuthResponseDto response = new AuthResponseDto(2L, "jwt-register", "ana", "ana@test.com", false);
         when(authService.register(new RegisterRequestDto("ana@test.com", "abcdef"))).thenReturn(response);
 
         String body = """
@@ -84,7 +84,7 @@ class AuthApiTest {
 
     @Test
     void shouldLoginWithGoogleSuccessfully() throws Exception {
-        AuthResponseDto response = new AuthResponseDto(3L, "jwt-google", "maria", "maria@test.com");
+        AuthResponseDto response = new AuthResponseDto(3L, "jwt-google", "maria", "maria@test.com", false);
         when(authService.googleLogin(new GoogleTokenDto("google-id-token"))).thenReturn(response);
 
         String body = """
