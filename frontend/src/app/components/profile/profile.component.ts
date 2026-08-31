@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-
+import { HttpClient } from '@angular/common/http';
 import { BankAccount, BankAccountServiceService } from '../../services/bankAccount/bank-account-service.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { jwtDecode } from 'jwt-decode';
@@ -22,7 +22,7 @@ interface UserInfo {
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent implements OnInit {
-  
+
   userInfo: UserInfo | null = null;
   bankAccounts: BankAccount[] = [];
   defaultAccount: BankAccount | null = null;
@@ -31,11 +31,15 @@ export class ProfileComponent implements OnInit {
   errorMessage = '';
   showCreateAccountForm = false;
 
+  isDeleting = false;
+  showDeleteConfirm = false;
+
   constructor(
     private authService: AuthService,
     private bankAccountService: BankAccountServiceService,
     private router: Router,
-    private activeAccountService: ActiveAccountService
+    private activeAccountService: ActiveAccountService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -62,22 +66,22 @@ export class ProfileComponent implements OnInit {
     this.bankAccountService.getBankAccounts().subscribe({
       next: (accounts) => {
         this.bankAccounts = accounts;
-        
+
         // Obtener cuenta activa guardada o establecer la primera como activa
         const savedActiveAccountId = this.activeAccountService.getSavedActiveAccountId();
         let accountToSet: BankAccount | null = null;
-        
+
         if (savedActiveAccountId) {
           accountToSet = accounts.find(acc => acc.id === savedActiveAccountId) || null;
         }
-        
+
         if (!accountToSet && accounts.length > 0) {
           accountToSet = accounts[0];
         }
-        
+
         this.defaultAccount = accountToSet;
         this.activeAccountService.setActiveAccount(accountToSet);
-        
+
         this.isLoading = false;
       },
       error: (error) => {
@@ -123,6 +127,21 @@ export class ProfileComponent implements OnInit {
   onAccountCreated(): void {
     this.loadBankAccounts(); // Recargar las cuentas después de crear una nueva
     this.showCreateAccountForm = false;
+  }
+
+  deleteAccount(): void {
+    this.isDeleting = true;
+    this.http.delete('/api/v1/users/me').subscribe({
+      next: () => {
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        this.isDeleting = false;
+        this.showDeleteConfirm = false;
+        console.error('Error al eliminar la cuenta:', err);
+      }
+    });
   }
 
   onModalClosed(): void {

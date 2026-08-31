@@ -65,7 +65,8 @@ public class AuthService {
             u.getUserId(),
             token,
             u.getUserName(),
-            u.getUserEmail()
+            u.getUserEmail(),
+            u.getPrivacyPolicyAccepted()
         );
         return authResponse; 
     
@@ -105,7 +106,8 @@ public class AuthService {
             u.getUserId(),
             token,
             u.getUserName(),
-            u.getUserEmail()
+            u.getUserEmail(),
+            u.getPrivacyPolicyAccepted()
         );
         
         return res;
@@ -142,7 +144,8 @@ public class AuthService {
                 user.getUserId(),
                 token,
                 user.getUserName(),
-                user.getUserEmail()
+                user.getUserEmail(),
+                user.getPrivacyPolicyAccepted()
             );
         } else {
             throw new IllegalArgumentException("Invalid Google token");

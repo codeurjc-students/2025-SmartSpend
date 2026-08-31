@@ -187,9 +187,20 @@ export class TransactionDetailComponent implements OnInit {
     return Math.round((this.getPaidDebtsCount() / total) * 100);
   }
 
+  pendingDebtConfirm: { id: number; name: string } | null = null;
+
   onDebtPaidChange(debtId: number, checked: boolean): void {
     if (!checked || !this.transactionId) return;
+    // Revert checkbox immediately — confirmation modal will re-trigger if confirmed
+    const debt = this.transaction?.debts?.find(d => d.id === debtId);
+    if (debt) debt.isPaid = false;
+    this.pendingDebtConfirm = { id: debtId, name: debt?.name ?? '' };
+  }
 
+  confirmDebtPayment(): void {
+    if (!this.pendingDebtConfirm || !this.transactionId) return;
+    const debtId = this.pendingDebtConfirm.id;
+    this.pendingDebtConfirm = null;
     this.updatingDebtId = debtId;
     this.transactionService.markDebtAsPaid(this.transactionId, debtId).subscribe({
       next: (updatedTransaction) => {
@@ -198,10 +209,6 @@ export class TransactionDetailComponent implements OnInit {
         this.updatingDebtId = null;
       },
       error: (err) => {
-        if (this.transaction?.debts) {
-          const debt = this.transaction.debts.find(d => d.id === debtId);
-          if (debt) debt.isPaid = false;
-        }
         this.error = 'Error al marcar deuda como pagada: ' + (err.error?.message || err.message);
         this.updatingDebtId = null;
       }

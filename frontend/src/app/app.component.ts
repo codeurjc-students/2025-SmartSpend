@@ -6,7 +6,6 @@ import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { ThemeService } from './services/theme/theme.service';
-import { OnboardingComponent } from './components/onboarding/onboarding.component';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +14,6 @@ import { OnboardingComponent } from './components/onboarding/onboarding.componen
     RouterOutlet,
     NavBarComponent,
     CommonModule,
-    OnboardingComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -27,14 +25,13 @@ import { OnboardingComponent } from './components/onboarding/onboarding.componen
 export class AppComponent implements OnInit {
   title = 'smartspend-frontend';
   showNavbar = false;
-  showOnboarding = false;
+  isAuthRoute = false;
 
   constructor(private router: Router, private themeService: ThemeService) {
-    // Aplicar tema guardado lo antes posible para evitar flash
     this.themeService.init();
-    // Verificar ruta inicial inmediatamente en el constructor
     const authRoutes = ['/login', '/register'];
     this.showNavbar = !authRoutes.some(route => this.router.url.includes(route));
+    this.isAuthRoute = authRoutes.some(route => this.router.url.includes(route));
   }
 
   ngOnInit() {
@@ -44,21 +41,11 @@ export class AppComponent implements OnInit {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         this.updateNavbarVisibility(event.url);
-        if (event.url.includes('tutorial=true')) {
-          this.showOnboarding = true;
-          this.router.navigate([], { queryParams: {}, replaceUrl: true });
-        } else if (event.url.startsWith('/dashboard') && !OnboardingComponent.isCompleted()) {
-          this.showOnboarding = true;
-        }
       });
   }
 
   openTutorial(): void {
-    this.showOnboarding = true;
-  }
-
-  onOnboardingClosed(): void {
-    this.showOnboarding = false;
+    this.router.navigate(['/onboarding']);
   }
 
   private checkCurrentRoute() {
@@ -66,9 +53,13 @@ export class AppComponent implements OnInit {
     this.updateNavbarVisibility(currentUrl);
   }
 
+  private readonly NO_NAVBAR_ROUTES = ['/login', '/register', '/', '/onboarding', '/politica-privacidad', '/terminos-condiciones', '/cookies'];
+  private readonly AUTH_ONLY_ROUTES = ['/login', '/register', '/'];
+
   private updateNavbarVisibility(url: string) {
-    // Oculta el navbar en las rutas de login y register
-    this.showNavbar = !['/login', '/register', '/'].includes(url);
+    const path = url.split('?')[0];
+    this.showNavbar = !this.NO_NAVBAR_ROUTES.includes(path);
+    this.isAuthRoute = this.AUTH_ONLY_ROUTES.includes(path);
     console.log('Current URL:', url, 'Show navbar:', this.showNavbar);
   }
 

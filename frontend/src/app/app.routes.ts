@@ -10,19 +10,23 @@ import { AllTransactionsComponent } from './components/all-transactions/all-tran
 import { ChartsComponent } from './components/charts/charts.component';
 import { ForecastDashboardComponent } from './components/forecast-dashboard/forecast-dashboard.component';
 import { RecurringTransactionsComponent } from './components/recurring-transactions/recurring-transactions.component';
+import { OnboardingComponent } from './components/onboarding/onboarding.component';
+import { PrivacyPolicyComponent } from './components/legal/privacy-policy.component';
+import { TermsComponent } from './components/legal/terms.component';
 
 export const routes: Routes = [
-
-    {path: '', redirectTo: '/login', pathMatch: 'full' },
+    { path: '', redirectTo: '/login', pathMatch: 'full' },
     { path: 'login', component: LoginRegisterComponent },
     { path: 'register', component: RegisterComponent },
+    { path: 'politica-privacidad', component: PrivacyPolicyComponent },
+    { path: 'terminos-condiciones', component: TermsComponent },
+    { path: 'onboarding', canActivate: [authGuard], component: OnboardingComponent },
     { path: 'transactions', canActivate: [authGuard], component: TransactionListComponent },
     { path: 'all-transactions', canActivate: [authGuard], component: AllTransactionsComponent },
     { path: 'dashboard', canActivate: [authGuard], component: DashboardComponent },
     { path: 'charts', canActivate: [authGuard], component: ChartsComponent },
     { path: 'forecast', canActivate: [authGuard], component: ForecastDashboardComponent },
     { path: 'recurring-transactions', canActivate: [authGuard], component: RecurringTransactionsComponent },
-    { path: 'transaction/:id', canActivate: [authGuard], component: TransactionDetailComponent},
+    { path: 'transaction/:id', canActivate: [authGuard], component: TransactionDetailComponent },
     { path: 'profile', canActivate: [authGuard], component: ProfileComponent }
-
 ];

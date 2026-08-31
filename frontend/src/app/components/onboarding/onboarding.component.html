@@ -1,78 +1,76 @@
-<div class="onboarding-overlay show">
-  <div class="onboarding-modal" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+<div class="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+  <div class="max-w-md w-full bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl space-y-6">
 
-    <!-- Header -->
-    <div class="onboarding-header">
-      <div class="onboarding-brand">
-        <span class="brand-dot"></span>
-        SmartSpend
+    <div class="flex justify-center">
+      <div class="bg-cyan-500/10 p-4 rounded-full border border-cyan-500/20 text-cyan-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-10.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
       </div>
-      <button class="onboarding-skip" (click)="skip()" aria-label="Saltar tutorial">
-        Saltar
-      </button>
     </div>
 
-    <!-- Progress bar -->
-    <div class="onboarding-progress-bar">
-      <div class="onboarding-progress-fill" [style.width.%]="progressPercent"></div>
+    <div class="text-center space-y-2">
+      <h1 class="text-2xl font-bold text-slate-100">¡Te damos la bienvenida a SmartSpend!</h1>
+      <p class="text-slate-400 text-sm">
+        Para garantizar la máxima protección de tus datos financieros, necesitamos que valides nuestras condiciones de privacidad según el reglamento europeo.
+      </p>
     </div>
 
-    <!-- Step indicators -->
-    <div class="onboarding-steps-dots">
-      @for (step of steps; track $index) {
-        <button
-          class="step-dot"
-          [class.active]="$index === currentStep"
-          [class.done]="$index < currentStep"
-          (click)="goToStep($index)"
-          [attr.aria-label]="'Ir al paso ' + ($index + 1)"
-        ></button>
-      }
-    </div>
-
-    <!-- Content -->
-    <div class="onboarding-content">
-      <div class="step-icon">{{ steps[currentStep].icon }}</div>
-      <h2 class="step-title" id="onboarding-title">{{ steps[currentStep].title }}</h2>
-      <p class="step-description">{{ steps[currentStep].description }}</p>
-
-      <ul class="step-details">
-        @for (detail of steps[currentStep].details; track $index) {
-          <li>
-            <span class="detail-check">✓</span>
-            {{ detail }}
-          </li>
-        }
+    <div class="bg-slate-950 border border-slate-800/80 p-4 rounded-xl space-y-3 text-sm text-slate-300">
+      <p class="font-medium text-slate-200">🔒 En SmartSpend nos comprometemos a:</p>
+      <ul class="space-y-2 pl-2">
+        <li class="flex items-center gap-2">
+          <span class="text-cyan-400">✔</span> No vender tus datos a terceros.
+        </li>
+        <li class="flex items-center gap-2">
+          <span class="text-cyan-400">✔</span> Almacenar todo de forma segura en la UE.
+        </li>
+        <li class="flex items-center gap-2">
+          <span class="text-cyan-400">✔</span> Borrar todo tu historial si decides irte.
+        </li>
       </ul>
-
-      @if (steps[currentStep].tip) {
-        <div class="step-tip">
-          <span class="tip-label">💡 Consejo:</span>
-          {{ steps[currentStep].tip }}
-        </div>
-      }
     </div>
 
-    <!-- Footer -->
-    <div class="onboarding-footer">
-      <span class="step-counter">{{ currentStep + 1 }} / {{ steps.length }}</span>
+    <p class="text-xs text-slate-500 text-center">
+      Para más información, consulta los enlaces de los documentos legales que encontrarás a continuación.
+    </p>
 
-      <div class="footer-actions">
-        @if (currentStep > 0) {
-          <button class="btn-onboarding-secondary" (click)="prev()">
-            ← Anterior
-          </button>
-        }
-        @if (!isLastStep) {
-          <button class="btn-onboarding-primary" (click)="next()">
-            Siguiente →
-          </button>
-        } @else {
-          <button class="btn-onboarding-finish" (click)="finish()">
-            ¡Empezar! 🚀
-          </button>
-        }
+    <div class="space-y-4">
+      <div class="flex items-start gap-3">
+        <input
+          id="privacy-check"
+          type="checkbox"
+          [(ngModel)]="acceptedCheckbox"
+          class="mt-1 h-4 w-4 text-cyan-500 bg-slate-950 border-slate-700 rounded focus:ring-cyan-500 focus:ring-offset-slate-900 focus:ring-2"
+        >
+        <label for="privacy-check" class="text-xs text-slate-300 leading-relaxed cursor-pointer">
+          He leído y acepto los
+          <a href="/terminos-condiciones" target="_blank" class="text-cyan-400 hover:underline">Términos de Uso</a> y la
+          <a href="/politica-privacidad" target="_blank" class="text-cyan-400 hover:underline">Política de Privacidad</a> de SmartSpend.
+        </label>
       </div>
+
+      @if (errorMessage) {
+        <p class="text-xs text-red-400 text-center">{{ errorMessage }}</p>
+      }
+
+      <button
+        (click)="acceptPrivacy()"
+        [disabled]="!acceptedCheckbox || isLoading"
+        class="w-full bg-cyan-500 hover:bg-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg transition-all duration-200"
+      >
+        @if (!isLoading) {
+          <span>Aceptar y continuar</span>
+        } @else {
+          <span class="flex items-center justify-center gap-2">
+            <svg class="animate-spin h-5 w-5 text-slate-950" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            Guardando preferencias...
+          </span>
+        }
+      </button>
     </div>
 
   </div>

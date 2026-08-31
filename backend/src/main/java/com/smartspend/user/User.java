@@ -40,9 +40,15 @@ public class User {
     @JsonBackReference
     private List<Category> userCategories;
 
+    @Column(name = "privacy_policy_accepted", nullable = false)
+    @Builder.Default
+    private Boolean privacyPolicyAccepted = false;
+
 
     // constructors
-    public User(){}
+    public User(){
+        this.privacyPolicyAccepted = false;
+    }
 
     public User(String userName, String userEmail, String userHashedPassword){
         this.userName = userName;
