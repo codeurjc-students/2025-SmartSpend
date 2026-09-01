@@ -1,0 +1,19 @@
+frontend/package-lock.json
+  s_fc50927ffe6380::t_e632884bf9b037 8588,8642
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "14df47ffd535be84166f07e510fcb441be577157",
+  "prompts": {},
+  "sessions": {
+    "s_fc50927ffe6380": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "d98ae6f4-2a4f-4e75-afab-777e162e2cec",
+        "model": "copilot/claude-sonnet-4.6"
+      },
+      "human_author": "Juanmabm24 <jm.bustos.2022@alumnos.urjc.es>"
+    }
+  }
+}
