@@ -61,7 +61,6 @@
     border-radius: 16px;
     box-shadow: var(--surface-panel-shadow);
     border: 1px solid var(--surface-panel-border);
-    border-left: 3px solid rgba(103, 232, 249, 0.75);
     transition: all 0.3s ease;
     overflow: hidden;
     cursor: pointer;
@@ -71,7 +70,6 @@
 .transaction-card-container:hover {
     transform: translateY(-2px);
     border-color: rgba(103, 232, 249, 0.28);
-    border-left-color: rgba(45, 212, 191, 0.95);
     box-shadow: 0 16px 34px rgba(2, 8, 23, 0.3);
 }
 

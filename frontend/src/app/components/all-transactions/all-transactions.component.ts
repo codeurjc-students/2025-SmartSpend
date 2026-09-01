@@ -82,7 +82,7 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
       });
   }
 
-  loadTransactions(page: number = this.currentPage) {
+  loadTransactions(page: number = 0, append: boolean = false) {
     const accountId = this.activeAccountService.getActiveAccountValue()?.id;
     if (!accountId) {
       console.warn('No active account found');
@@ -91,7 +91,6 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
 
-    // Llamada al backend con filtros y paginación
     this.transactionService.getTransactionsPaginated(
       accountId,
       page,
@@ -99,7 +98,9 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
       this.filters
     ).subscribe({
       next: (response: PaginatedResponse<Transaction>) => {
-        this.transactions = response.content;
+        this.transactions = append
+          ? [...this.transactions, ...response.content]
+          : response.content;
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
         this.currentPage = response.number;
@@ -113,10 +114,13 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
   }
 
   loadMore() {
-    this.nextPage();
+    if (this.currentPage + 1 < this.totalPages) {
+      this.loadTransactions(this.currentPage + 1, true);
+    }
   }
 
   applyFilters() {
+    this.transactions = [];
     this.loadTransactions(0);
   }
 
@@ -134,9 +138,9 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
     this.loadTransactions(0);
   }
 
-  // Método para manejar cambios en los filtros desde el componente hijo
   onFiltersChange(newFilters: TransactionFilters) {
     this.filters = { ...newFilters };
+    this.transactions = [];
     this.loadTransactions(0);
   }
 
@@ -161,12 +165,13 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
       categoryId: '',
       isPending: false
     };
+    this.transactions = [];
     this.loadTransactions(0);
   }
 
-  // Método para aplicar filtros
   onApplyFilters(filters: TransactionFilters) {
     this.filters = { ...filters };
+    this.transactions = [];
     this.loadTransactions(0);
   }
 
