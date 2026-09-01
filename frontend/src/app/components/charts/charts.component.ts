@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { Subscription, forkJoin } from 'rxjs';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -89,7 +89,8 @@ export class ChartsComponent implements OnInit, OnDestroy {
     private reportService: ReportService,
     private themeService: ThemeService,
     private transactionService: TransactionService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit() {
@@ -133,7 +134,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
         animations: { enabled: true, speed: 500, animateGradually: { enabled: true, delay: 100 } },
         events: {
           dataPointSelection: (_e: any, _ctx: any, config: any) => {
-            this.handleDonutClick(config.dataPointIndex, type);
+            this.ngZone.run(() => this.handleDonutClick(config.dataPointIndex, type));
           }
         }
       },

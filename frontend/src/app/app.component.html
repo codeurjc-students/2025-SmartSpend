@@ -20,4 +20,9 @@
     </button>
   }
 
+  <!-- Modal onboarding global -->
+  @if (showOnboarding) {
+    <app-tutorial-modal (closed)="onOnboardingClosed()"></app-tutorial-modal>
+  }
+
 </div>

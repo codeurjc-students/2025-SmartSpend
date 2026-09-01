@@ -6,6 +6,7 @@ import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { ThemeService } from './services/theme/theme.service';
+import { TutorialModalComponent } from './components/tutorial-modal/tutorial-modal.component';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +15,7 @@ import { ThemeService } from './services/theme/theme.service';
     RouterOutlet,
     NavBarComponent,
     CommonModule,
+    TutorialModalComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -25,6 +27,7 @@ import { ThemeService } from './services/theme/theme.service';
 export class AppComponent implements OnInit {
   title = 'smartspend-frontend';
   showNavbar = false;
+  showOnboarding = false;
   isAuthRoute = false;
 
   constructor(private router: Router, private themeService: ThemeService) {
@@ -45,7 +48,11 @@ export class AppComponent implements OnInit {
   }
 
   openTutorial(): void {
-    this.router.navigate(['/onboarding']);
+    this.showOnboarding = true;
+  }
+
+  onOnboardingClosed(): void {
+    this.showOnboarding = false;
   }
 
   private checkCurrentRoute() {

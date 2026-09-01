@@ -1,0 +1,72 @@
+<div class="onboarding-overlay show">
+  <div class="onboarding-modal" role="dialog" aria-modal="true" aria-labelledby="tutorial-title">
+
+    <!-- Header -->
+    <div class="onboarding-header">
+      <div class="onboarding-brand">
+        <span class="brand-dot"></span>
+        SmartSpend
+      </div>
+      <button class="onboarding-skip" (click)="skip()" aria-label="Saltar tutorial">
+        Saltar
+      </button>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="onboarding-progress-bar">
+      <div class="onboarding-progress-fill" [style.width.%]="progressPercent"></div>
+    </div>
+
+    <!-- Step indicators -->
+    <div class="onboarding-steps-dots">
+      @for (step of steps; track $index) {
+        <button
+          class="step-dot"
+          [class.active]="$index === currentStep"
+          [class.done]="$index < currentStep"
+          (click)="goToStep($index)"
+          [attr.aria-label]="'Ir al paso ' + ($index + 1)">
+        </button>
+      }
+    </div>
+
+    <!-- Content -->
+    <div class="onboarding-content">
+      <div class="step-icon">{{ steps[currentStep].icon }}</div>
+      <h2 class="step-title" id="tutorial-title">{{ steps[currentStep].title }}</h2>
+      <p class="step-description">{{ steps[currentStep].description }}</p>
+
+      <ul class="step-details">
+        @for (detail of steps[currentStep].details; track $index) {
+          <li>
+            <span class="detail-check">✓</span>
+            {{ detail }}
+          </li>
+        }
+      </ul>
+
+      @if (steps[currentStep].tip) {
+        <div class="step-tip">
+          <span class="tip-label">💡 Consejo:</span>
+          {{ steps[currentStep].tip }}
+        </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="onboarding-footer">
+      <span class="step-counter">{{ currentStep + 1 }} / {{ steps.length }}</span>
+      <div class="footer-actions">
+        @if (currentStep > 0) {
+          <button class="btn-onboarding-secondary" (click)="prev()">← Anterior</button>
+        }
+        @if (!isLastStep) {
+          <button class="btn-onboarding-primary" (click)="next()">Siguiente →</button>
+        } @else {
+          <button class="btn-onboarding-finish" (click)="finish()">¡Empezar! 🚀</button>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>
