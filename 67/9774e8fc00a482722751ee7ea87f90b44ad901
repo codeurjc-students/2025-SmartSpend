@@ -1,0 +1,26 @@
+frontend/src/app/app.component.css
+  h_6c964bfe51a654 108-111,113,115,125-127
+frontend/src/app/app.component.html
+  h_6c964bfe51a654 23-27
+frontend/src/app/app.component.ts
+  h_6c964bfe51a654 9,18,30,51-55
+frontend/src/app/components/charts/charts.component.ts
+  h_6c964bfe51a654 1,92-93,137
+frontend/src/app/components/tutorial-modal/tutorial-modal.component.css
+  h_6c964bfe51a654 1-260
+frontend/src/app/components/tutorial-modal/tutorial-modal.component.html
+  h_6c964bfe51a654 1-72
+frontend/src/app/components/tutorial-modal/tutorial-modal.component.ts
+  h_6c964bfe51a654 1-124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "679774e8fc00a482722751ee7ea87f90b44ad901",
+  "prompts": {},
+  "humans": {
+    "h_6c964bfe51a654": {
+      "author": "Juanmabm24 <jm.bustos.2022@alumnos.urjc.es>"
+    }
+  }
+}
