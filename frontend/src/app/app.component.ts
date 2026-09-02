@@ -8,6 +8,8 @@ import { filter } from 'rxjs/operators';
 import { ThemeService } from './services/theme/theme.service';
 import { TutorialModalComponent } from './components/tutorial-modal/tutorial-modal.component';
 
+declare const gtag: (...args: unknown[]) => void;
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -44,6 +46,9 @@ export class AppComponent implements OnInit {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         this.updateNavbarVisibility(event.url);
+        gtag('config', 'G-CSV9GS9Q7L', {
+          page_path: event.urlAfterRedirects,
+        });
       });
   }
 
